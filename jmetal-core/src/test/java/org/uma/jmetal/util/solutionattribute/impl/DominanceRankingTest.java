@@ -19,6 +19,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Antonio J. Nebro <antonio@lcc.uma.es>
  */
+@Deprecated
 public class DominanceRankingTest {
   private List<Pair<Double, Double>> bounds = Arrays.asList(new ImmutablePair<>(0.0, 1.0)) ;
 
@@ -48,8 +49,6 @@ public class DominanceRankingTest {
 
   @Test
   public void shouldRankingOfAPopulationWithTwoNonDominatedSolutionsReturnOneSubfront() {
-    int numberOfObjectives = 2 ;
-
     List<DoubleSolution>population = new ArrayList<>() ;
 
     DoubleSolution solution = new DefaultDoubleSolution(bounds, 2) ;
@@ -78,8 +77,6 @@ public class DominanceRankingTest {
 
   @Test
   public void shouldRankingOfAPopulationWithTwoDominatedSolutionsReturnTwoSubfronts() {
-    int numberOfObjectives = 2 ;
-
     List<DoubleSolution>population = new ArrayList<>() ;
 
     DoubleSolution solution = new DefaultDoubleSolution(bounds, 2);
@@ -113,8 +110,6 @@ public class DominanceRankingTest {
 
   @Test
   public void shouldRankingOfAPopulationWithThreeDominatedSolutionsReturnThreeSubfronts() {
-    int numberOfObjectives = 2 ;
-
     List<DoubleSolution>population = new ArrayList<>() ;
 
     DoubleSolution solution = new DefaultDoubleSolution(bounds, 2);
@@ -155,8 +150,6 @@ public class DominanceRankingTest {
 
   @Test
   public void shouldRankingOfAPopulationWithFiveSolutionsWorkProperly() {
-    int numberOfObjectives = 2 ;
-
     List<DoubleSolution>population = new ArrayList<>() ;
 
     DoubleSolution solution = new DefaultDoubleSolution(bounds, 2);

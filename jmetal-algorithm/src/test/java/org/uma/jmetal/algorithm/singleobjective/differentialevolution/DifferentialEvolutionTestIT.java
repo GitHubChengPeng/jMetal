@@ -1,12 +1,10 @@
 package org.uma.jmetal.algorithm.singleobjective.differentialevolution;
 
 import junit.framework.TestCase;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.uma.jmetal.operator.crossover.impl.DifferentialEvolutionCrossover;
@@ -56,7 +54,7 @@ public class DifferentialEvolutionTestIT {
   @Test
   public void shouldSetEvaluations() {
     algorithm.setEvaluations(15);
-    Assert.assertEquals(15, ReflectionTestUtils.getField(algorithm, "evaluations"));
+    assertEquals(15, ReflectionTestUtils.getField(algorithm, "evaluations"));
   }
 
   @Test
@@ -127,10 +125,10 @@ public class DifferentialEvolutionTestIT {
           mock(DoubleSolution.class), mock(DoubleSolution.class), mock(DoubleSolution.class)
         };
 
-    Mockito.when(problem.createSolution())
+    when(problem.createSolution())
         .thenReturn(expectedSolution[0], expectedSolution[1], expectedSolution[2]);
     List<DoubleSolution> population = algorithm.createInitialPopulation();
-    Mockito.verify(problem, times(3)).createSolution();
+    verify(problem, times(3)).createSolution();
 
     assertEquals("Population size is different from expected.", populationSize, population.size());
     // for (DoubleSolution solution : population) {
@@ -154,10 +152,10 @@ public class DifferentialEvolutionTestIT {
         Arrays.<DoubleSolution>asList(
             mock(DoubleSolution.class), mock(DoubleSolution.class), mock(DoubleSolution.class));
 
-    Mockito.when(evaluator.evaluate(population, problem)).thenReturn(expectedResult);
+    when(evaluator.evaluate(population, problem)).thenReturn(expectedResult);
 
     List<DoubleSolution> result = algorithm.evaluatePopulation(population);
-    Mockito.verify(evaluator).evaluate(population, problem);
+    verify(evaluator).evaluate(population, problem);
     assertEquals(expectedResult, result);
   }
 
@@ -183,18 +181,18 @@ public class DifferentialEvolutionTestIT {
     List<DoubleSolution> children =
         Arrays.<DoubleSolution>asList(mock(DoubleSolution.class), mock(DoubleSolution.class));
 
-    Mockito.when(selection.execute(population)).thenReturn(parents);
-    Mockito.when(crossover.execute(parents)).thenReturn(children);
+    when(selection.execute(population)).thenReturn(parents);
+    when(crossover.execute(parents)).thenReturn(children);
 
     List<DoubleSolution> result = algorithm.reproduction(population);
 
-    Mockito.verify(selection).setIndex(0);
-    Mockito.verify(selection).setIndex(1);
-    Mockito.verify(selection).setIndex(2);
-    Mockito.verify(selection, never()).setIndex(3);
-    Mockito.verify(crossover).setCurrentSolution(population.get(0));
-    Mockito.verify(crossover).setCurrentSolution(population.get(1));
-    Mockito.verify(crossover).setCurrentSolution(population.get(2));
+    verify(selection).setIndex(0);
+    verify(selection).setIndex(1);
+    verify(selection).setIndex(2);
+    verify(selection, never()).setIndex(3);
+    verify(crossover).setCurrentSolution(population.get(0));
+    verify(crossover).setCurrentSolution(population.get(1));
+    verify(crossover).setCurrentSolution(population.get(2));
 
     assertEquals(
         "Reproduction population size is different from expected.",
@@ -215,20 +213,20 @@ public class DifferentialEvolutionTestIT {
     ReflectionTestUtils.setField(algorithm, "populationSize", populationSize);
 
     DoubleSolution solution1 = mock(DoubleSolution.class);
-    Mockito.when(solution1.getNumberOfObjectives()).thenReturn(1);
-    Mockito.when(solution1.getObjective(0)).thenReturn(2.0);
+    when(solution1.getNumberOfObjectives()).thenReturn(1);
+    when(solution1.getObjective(0)).thenReturn(2.0);
 
     DoubleSolution solution2 = mock(DoubleSolution.class);
-    Mockito.when(solution2.getNumberOfObjectives()).thenReturn(1);
-    Mockito.when(solution2.getObjective(0)).thenReturn(1.0);
+    when(solution2.getNumberOfObjectives()).thenReturn(1);
+    when(solution2.getObjective(0)).thenReturn(1.0);
 
     DoubleSolution solution3 = mock(DoubleSolution.class);
-    Mockito.when(solution3.getNumberOfObjectives()).thenReturn(1);
-    Mockito.when(solution3.getObjective(0)).thenReturn(6.0);
+    when(solution3.getNumberOfObjectives()).thenReturn(1);
+    when(solution3.getObjective(0)).thenReturn(6.0);
 
     DoubleSolution solution4 = mock(DoubleSolution.class);
-    Mockito.when(solution4.getNumberOfObjectives()).thenReturn(1);
-    Mockito.when(solution4.getObjective(0)).thenReturn(0.5);
+    when(solution4.getNumberOfObjectives()).thenReturn(1);
+    when(solution4.getObjective(0)).thenReturn(0.5);
 
     List<DoubleSolution> population = Arrays.<DoubleSolution>asList(solution1, solution2);
     List<DoubleSolution> offspringPopulation = Arrays.<DoubleSolution>asList(solution3, solution4);
@@ -246,20 +244,20 @@ public class DifferentialEvolutionTestIT {
     ReflectionTestUtils.setField(algorithm, "populationSize", populationSize);
 
     DoubleSolution solution1 = mock(DoubleSolution.class);
-    Mockito.when(solution1.getNumberOfObjectives()).thenReturn(1);
-    Mockito.when(solution1.getObjective(0)).thenReturn(2.0);
+    when(solution1.getNumberOfObjectives()).thenReturn(1);
+    when(solution1.getObjective(0)).thenReturn(2.0);
 
     DoubleSolution solution2 = mock(DoubleSolution.class);
-    Mockito.when(solution2.getNumberOfObjectives()).thenReturn(1);
-    Mockito.when(solution2.getObjective(0)).thenReturn(1.0);
+    when(solution2.getNumberOfObjectives()).thenReturn(1);
+    when(solution2.getObjective(0)).thenReturn(1.0);
 
     DoubleSolution solution3 = mock(DoubleSolution.class);
-    Mockito.when(solution3.getNumberOfObjectives()).thenReturn(1);
-    Mockito.when(solution3.getObjective(0)).thenReturn(6.0);
+    when(solution3.getNumberOfObjectives()).thenReturn(1);
+    when(solution3.getObjective(0)).thenReturn(6.0);
 
     DoubleSolution solution4 = mock(DoubleSolution.class);
-    Mockito.when(solution4.getNumberOfObjectives()).thenReturn(1);
-    Mockito.when(solution4.getObjective(0)).thenReturn(0.5);
+    when(solution4.getNumberOfObjectives()).thenReturn(1);
+    when(solution4.getObjective(0)).thenReturn(0.5);
 
     List<DoubleSolution> population =
         Arrays.<DoubleSolution>asList(solution1, solution2, solution3, solution4);

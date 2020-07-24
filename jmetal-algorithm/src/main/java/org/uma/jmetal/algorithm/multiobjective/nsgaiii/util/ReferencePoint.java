@@ -35,7 +35,7 @@ public class ReferencePoint<S extends Solution<?>> {
   public ReferencePoint(ReferencePoint<S> point) {
     position = new ArrayList<>(point.position.size());
     for (Double d : point.position) {
-      position.add(new Double(d));
+      position.add(d);
     }
     memberSize = 0 ;
     potentialMembers = new ArrayList<>();
@@ -44,10 +44,10 @@ public class ReferencePoint<S extends Solution<?>> {
   public void generateReferencePoints(
           List<ReferencePoint<S>> referencePoints,
           int numberOfObjectives,
-          List<Integer> numberOfDivisions) {
+          int numberOfDivisions) {
 
     ReferencePoint<S> refPoint = new ReferencePoint<>(numberOfObjectives) ;
-    generateRecursive(referencePoints, refPoint, numberOfObjectives, numberOfDivisions.get(0), numberOfDivisions.get(0), 0);
+    generateRecursive(referencePoints, refPoint, numberOfObjectives, numberOfDivisions, numberOfDivisions, 0);
   }
 
   private void generateRecursive(

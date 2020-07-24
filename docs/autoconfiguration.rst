@@ -1,7 +1,9 @@
+.. _autoconfiguration:
+
 Auto-configuration of evolutionary algorithms: NSGA-II
 ======================================================
 
-Before reading this section, readers are referred to the paper "Automatic configuration of NSGA-II with jMetal and irace", presented in GECCO 2019 (DOI: https://doi.org/10.1145/3319619.3326832), and to the :ref:`installation`. This tutorial is intended as a guide to replicate the experimentation conducted in that paper. Please, take into account that this is a work in progress, based on the new major version of jMetal (v6.0) which is in development. Comments, suggestions, and bugs reporting are welcome.
+Before reading this section, readers are referred to the paper "Automatic configuration of NSGA-II with jMetal and irace", presented in GECCO 2019 (DOI: https://doi.org/10.1145/3319619.3326832), and to the :ref:`installation`. This tutorial is intended as a guide to replicate the experimentation conducted in that paper. Please, take into account that this is a work in progress. Comments, suggestions, and bugs reporting are welcome. The source code is located in the ``org.uma.jmetal.auto`` package of the ``jmetal-experimental`` submodule.
 
 Motivation
 ----------
@@ -289,15 +291,3 @@ Some examples of Pareto front approximations produced with NSGA-II with standard
 .. figure:: ./resources/figures/NSGAII_Tun_WFG3.png
 
 
-.. 
-+------------+------------+-----------+
-  | Header 1   | Header 2   | Header 3  |
-  +============+============+===========+
-  | body row 1 | column 2   | column 3  |
-  +------------+------------+-----------+
-  | body row 2 | Cells may span columns.|
-  +------------+------------+-----------+
-  | body row 3 | Cells may  | - Cells   |
-  +------------+ span rows. | - contain |
-  | body row 4 |            | - blocks. |
-  +------------+------------+-----------+

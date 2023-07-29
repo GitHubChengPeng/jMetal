@@ -2,10 +2,11 @@ package org.uma.jmetal.operator.mutation.impl;
 
 import org.uma.jmetal.operator.mutation.MutationOperator;
 import org.uma.jmetal.problem.integerproblem.IntegerProblem;
+import org.uma.jmetal.solution.doublesolution.repairsolution.RepairDoubleSolution;
+import org.uma.jmetal.solution.doublesolution.repairsolution.impl.RepairDoubleSolutionWithBoundValue;
 import org.uma.jmetal.solution.integersolution.IntegerSolution;
-import org.uma.jmetal.solution.util.repairsolution.RepairDoubleSolution;
-import org.uma.jmetal.solution.util.repairsolution.impl.RepairDoubleSolutionWithBoundValue;
-import org.uma.jmetal.util.JMetalException;
+import org.uma.jmetal.util.bounds.Bounds;
+import org.uma.jmetal.util.errorchecking.JMetalException;
 import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 import org.uma.jmetal.util.pseudorandom.RandomGenerator;
 
@@ -38,7 +39,7 @@ public class IntegerPolynomialMutation implements MutationOperator<IntegerSoluti
 
   /** Constructor */
   public IntegerPolynomialMutation(IntegerProblem problem, double distributionIndex) {
-    this(1.0/problem.getNumberOfVariables(), distributionIndex) ;
+    this(1.0/problem.numberOfVariables(), distributionIndex) ;
   }
 
   /** Constructor */
@@ -69,7 +70,7 @@ public class IntegerPolynomialMutation implements MutationOperator<IntegerSoluti
 
   /* Getters */
   @Override
-  public double getMutationProbability() {
+  public double mutationProbability() {
     return mutationProbability;
   }
 
@@ -101,11 +102,12 @@ public class IntegerPolynomialMutation implements MutationOperator<IntegerSoluti
     Double rnd, delta1, delta2, mutPow, deltaq;
     double y, yl, yu, val, xy;
 
-    for (int i = 0; i < solution.getNumberOfVariables(); i++) {
+    for (int i = 0; i < solution.variables().size(); i++) {
       if (randomGenerator.getRandomValue() <= probability) {
-        y = (double)solution.getVariable(i);
-        yl = (double)solution.getLowerBound(i) ;
-        yu = (double)solution.getUpperBound(i) ;
+        y = (double)solution.variables().get(i);
+        Bounds<Integer> bounds = solution.getBounds(i);
+        yl = (double)bounds.getLowerBound() ;
+        yu = (double)bounds.getUpperBound() ;
         if (yl == yu) {
           y = yl ;
         } else {
@@ -125,7 +127,7 @@ public class IntegerPolynomialMutation implements MutationOperator<IntegerSoluti
           y = y + deltaq * (yu - yl);
           y = solutionRepair.repairSolutionVariableValue(y, yl, yu);
         }
-        solution.setVariable(i, (int) y);
+        solution.variables().set(i, (int) y);
       }
     }
   }

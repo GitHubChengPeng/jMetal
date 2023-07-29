@@ -1,16 +1,15 @@
 package org.uma.jmetal.operator.selection.impl;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.uma.jmetal.solution.Solution;
-import org.uma.jmetal.util.JMetalException;
-import org.uma.jmetal.util.comparator.DirScoreComparator;
-import org.uma.jmetal.util.solutionattribute.Ranking;
-import org.uma.jmetal.util.solutionattribute.impl.DirScore;
-import org.uma.jmetal.util.solutionattribute.impl.DominanceRanking;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import org.apache.commons.collections4.CollectionUtils;
+import org.uma.jmetal.solution.Solution;
+import org.uma.jmetal.util.comparator.DirScoreComparator;
+import org.uma.jmetal.util.errorchecking.JMetalException;
+import org.uma.jmetal.util.ranking.Ranking;
+import org.uma.jmetal.util.ranking.impl.FastNonDominatedSortRanking;
+import org.uma.jmetal.util.solutionattribute.impl.DirScore;
 
 /**
  * created at 11:47 am, 2019/1/29 Used for DIR-enhanced NSGA-II (D-NSGA-II) to select the joint
@@ -44,8 +43,8 @@ public class RankingAndDirScoreSelection<S extends Solution<?>>
     if (CollectionUtils.isEmpty(solutionSet)) {
       throw new JMetalException("solution set can not be null");
     }
-    Ranking<S> ranking = new DominanceRanking<>(dominanceComparator);
-    ranking.computeRanking(solutionSet);
+    Ranking<S> ranking = new FastNonDominatedSortRanking<>(dominanceComparator);
+    ranking.compute(solutionSet);
     return dirScoreSelection(ranking);
   }
 

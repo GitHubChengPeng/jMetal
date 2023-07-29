@@ -1,8 +1,14 @@
 package org.uma.jmetal.algorithm.multiobjective.mombi.util;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import org.uma.jmetal.solution.Solution;
-
-import java.util.*;
 
 @SuppressWarnings("serial")
 public class R2RankingNormalized<S extends Solution<?>> extends R2Ranking<S> {
@@ -18,10 +24,10 @@ public class R2RankingNormalized<S extends Solution<?>> extends R2Ranking<S> {
   }
 
   private double computeNorm(S solution) {
-    List<Double> values = new ArrayList<Double>(solution.getNumberOfObjectives());
-    for (int i = 0; i < solution.getNumberOfObjectives(); i++)
-      if (normalizer == null) values.add(solution.getObjective(i));
-      else values.add(this.normalizer.normalize(solution.getObjective(i), i));
+    List<Double> values = new ArrayList<Double>(solution.objectives().length);
+    for (int i = 0; i < solution.objectives().length; i++)
+      if (normalizer == null) values.add(solution.objectives()[i]);
+      else values.add(this.normalizer.normalize(solution.objectives()[i], i));
 
     double result = 0.0;
     for (Double d : values) result += Math.pow(d, 2.0);
@@ -33,7 +39,7 @@ public class R2RankingNormalized<S extends Solution<?>> extends R2Ranking<S> {
     for (S solution : population) {
       R2SolutionData data = new R2SolutionData();
       data.utility = this.computeNorm(solution);
-      solution.setAttribute(getAttributeIdentifier(), data);
+      solution.attributes().put(getAttributeIdentifier(), data);
     }
 
     for (int i = 0; i < this.getUtilityFunctions().getSize(); i++) {

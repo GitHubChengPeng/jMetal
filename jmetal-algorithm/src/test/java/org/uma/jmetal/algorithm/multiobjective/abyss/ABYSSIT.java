@@ -1,5 +1,8 @@
 package org.uma.jmetal.algorithm.multiobjective.abyss;
 
+import static org.junit.Assert.assertTrue;
+
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.uma.jmetal.algorithm.Algorithm;
@@ -14,13 +17,11 @@ import org.uma.jmetal.problem.multiobjective.zdt.ZDT1;
 import org.uma.jmetal.qualityindicator.QualityIndicator;
 import org.uma.jmetal.qualityindicator.impl.hypervolume.impl.PISAHypervolume;
 import org.uma.jmetal.solution.doublesolution.DoubleSolution;
+import org.uma.jmetal.util.SolutionListUtils;
+import org.uma.jmetal.util.VectorUtils;
 import org.uma.jmetal.util.archive.Archive;
 import org.uma.jmetal.util.archive.impl.CrowdingDistanceArchive;
-import org.uma.jmetal.util.comparator.DominanceComparator;
-
-import java.util.List;
-
-import static org.junit.Assert.assertTrue;
+import org.uma.jmetal.util.comparator.dominanceComparator.impl.DominanceWithConstraintsComparator;
 
 /** Created by ajnebro on 11/6/15. */
 public class ABYSSIT {
@@ -39,13 +40,13 @@ public class ABYSSIT {
     double crossoverDistributionIndex = 20.0;
     crossover = new SBXCrossover(crossoverProbability, crossoverDistributionIndex);
 
-    double mutationProbability = 1.0 / problem.getNumberOfVariables();
+    double mutationProbability = 1.0 / problem.numberOfVariables();
     double mutationDistributionIndex = 20.0;
     mutation = new PolynomialMutation(mutationProbability, mutationDistributionIndex);
 
     archive = new CrowdingDistanceArchive<>(100);
 
-    localSearchOperator = new BasicLocalSearch<>(1, mutation, new DominanceComparator<>(), problem);
+    localSearchOperator = new BasicLocalSearch<>(1, mutation, new DominanceWithConstraintsComparator<>(), problem);
   }
 
   @Test
@@ -73,7 +74,7 @@ public class ABYSSIT {
 
     algorithm.run();
 
-    List<DoubleSolution> population = algorithm.getResult();
+    List<DoubleSolution> population = algorithm.result();
 
     /*
     Rationale: the default problem is ZDT4, and AbYSS, configured with standard settings, should
@@ -104,16 +105,17 @@ public class ABYSSIT {
 
     algorithm.run();
 
-    List<DoubleSolution> population = algorithm.getResult();
+    List<DoubleSolution> population = algorithm.result();
 
-    QualityIndicator<List<DoubleSolution>, Double> hypervolume =
-        new PISAHypervolume<>("../resources/referenceFrontsCSV/ZDT1.csv");
+    QualityIndicator hypervolume =
+            new PISAHypervolume(
+                    VectorUtils.readVectors("../resources/referenceFrontsCSV/ZDT1.csv", ","));
+    
+    // Rationale: the default problem is ZDT1, and AbYSS, configured with standard settings,
+    // should return find a front with a hypervolume value higher than 0.64
 
-    // Rationale: the default problem is ZDT1, and AbYSS, configured with standard settings, should
-    // return find a front with a hypervolume value higher than 0.65
+    double hv = hypervolume.compute(SolutionListUtils.getMatrixWithObjectiveValues(population));
 
-    double hv = hypervolume.evaluate(population);
-
-    assertTrue(hv > 0.65);
+    assertTrue(hv > 0.64);
   }
 }

@@ -1,15 +1,14 @@
 package org.uma.jmetal.algorithm.multiobjective.moead;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.uma.jmetal.operator.crossover.CrossoverOperator;
 import org.uma.jmetal.operator.crossover.impl.DifferentialEvolutionCrossover;
 import org.uma.jmetal.operator.mutation.MutationOperator;
 import org.uma.jmetal.problem.Problem;
 import org.uma.jmetal.solution.doublesolution.DoubleSolution;
-import org.uma.jmetal.util.JMetalException;
+import org.uma.jmetal.util.errorchecking.JMetalException;
 import org.uma.jmetal.util.pseudorandom.JMetalRandom;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Class implementing the MOEA/D-DRA algorithm described in :
@@ -78,7 +77,7 @@ public class MOEADDRA extends AbstractMOEAD<DoubleSolution> {
 
         evaluations++;
 
-        idealPoint.update(child.getObjectives());
+        idealPoint.update(child.objectives());
         updateNeighborhood(child, subProblemId, neighborType);
       }
 
@@ -121,12 +120,12 @@ public class MOEADDRA extends AbstractMOEAD<DoubleSolution> {
     List<Integer> selected = new ArrayList<Integer>();
     List<Integer> candidate = new ArrayList<Integer>();
 
-    for (int k = 0; k < problem.getNumberOfObjectives(); k++) {
+    for (int k = 0; k < problem.numberOfObjectives(); k++) {
       // WARNING! HERE YOU HAVE TO USE THE WEIGHT PROVIDED BY QINGFU Et AL (NOT SORTED!!!!)
       selected.add(k);
     }
 
-    for (int n = problem.getNumberOfObjectives(); n < populationSize; n++) {
+    for (int n = problem.numberOfObjectives(); n < populationSize; n++) {
       // set of unselected weights
       candidate.add(n);
     }
@@ -150,11 +149,11 @@ public class MOEADDRA extends AbstractMOEAD<DoubleSolution> {
     return selected;
   }
 
-  @Override public String getName() {
+  @Override public String name() {
     return "MOEADDRA" ;
   }
 
-  @Override public String getDescription() {
+  @Override public String description() {
     return "Multi-Objective Evolutionary Algorithm based on Decomposition. Version with Dynamic Resource Allocation" ;
   }
 }

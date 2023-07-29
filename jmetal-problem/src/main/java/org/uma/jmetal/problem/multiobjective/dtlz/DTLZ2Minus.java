@@ -22,15 +22,16 @@ public class DTLZ2Minus extends DTLZ2 {
    */
   public DTLZ2Minus(Integer numberOfVariables, Integer numberOfObjectives) {
     super(numberOfVariables, numberOfObjectives) ;
-    setName("DTLZ2Minus");
+    name("DTLZ2Minus");
   }
 
   /** Evaluate() method */
   @Override
-  public void evaluate(DoubleSolution solution) {
+  public DoubleSolution evaluate(DoubleSolution solution) {
     super.evaluate(solution);
-    for (int i = 0; i < getNumberOfObjectives(); i++) {
-      solution.setObjective(i, -1.0 * solution.getObjective(i));
+    for (int i = 0; i < solution.objectives().length; i++) {
+      solution.objectives()[i] = -1.0 * solution.objectives()[i];
     }
+    return solution ;
   }
 }

@@ -1,13 +1,17 @@
 package org.uma.jmetal.algorithm.singleobjective.evolutionstrategy;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Random;
 import org.uma.jmetal.algorithm.impl.AbstractEvolutionStrategy;
 import org.uma.jmetal.algorithm.singleobjective.evolutionstrategy.util.CMAESUtils;
 import org.uma.jmetal.problem.doubleproblem.DoubleProblem;
 import org.uma.jmetal.solution.doublesolution.DoubleSolution;
 import org.uma.jmetal.util.JMetalLogger;
+import org.uma.jmetal.util.bounds.Bounds;
 import org.uma.jmetal.util.comparator.ObjectiveComparator;
-
-import java.util.*;
 
 /**
  * Class implementing the CMA-ES algorithm
@@ -92,7 +96,7 @@ public class CovarianceMatrixAdaptationEvolutionStrategy
 
   /** Constructor */
   private CovarianceMatrixAdaptationEvolutionStrategy (Builder builder) {
-    super(builder.problem) ;
+    this.problem = builder.problem ;
     this.lambda = builder.lambda ;
     this.maxEvaluations = builder.maxEvaluations ;
     this.typicalX = builder.typicalX;
@@ -210,14 +214,14 @@ public class CovarianceMatrixAdaptationEvolutionStrategy
     return offspringPopulation;
   }
 
-  @Override public DoubleSolution getResult() {
+  @Override public DoubleSolution result() {
     return bestSolutionEver;
   }
 
   private void initializeInternalParameters() {
 
     // number of objective variables/problem dimension
-    int numberOfVariables = getProblem().getNumberOfVariables();
+    int numberOfVariables = getProblem().numberOfVariables();
 
     // objective variables initial point
     // TODO: Initialize the mean in a better way
@@ -320,7 +324,7 @@ public class CovarianceMatrixAdaptationEvolutionStrategy
 
   private void updateInternalParameters() {
 
-    int numberOfVariables = getProblem().getNumberOfVariables();
+    int numberOfVariables = getProblem().numberOfVariables();
 
     double[] oldDistributionMean = new double[numberOfVariables];
     System.arraycopy( distributionMean, 0, oldDistributionMean, 0, numberOfVariables );
@@ -350,12 +354,12 @@ public class CovarianceMatrixAdaptationEvolutionStrategy
 
   private void updateDistributionMean() {
 
-    int numberOfVariables = getProblem().getNumberOfVariables();
+    int numberOfVariables = getProblem().numberOfVariables();
 
     for (int i = 0; i < numberOfVariables; i++) {
       distributionMean[i] = 0.;
       for (int iNk = 0; iNk < mu; iNk++) {
-        double variableValue = (double) getPopulation().get(iNk).getVariable(i);
+        double variableValue = (double) getPopulation().get(iNk).variables().get(i);
         distributionMean[i] += weights[iNk] * variableValue;
       }
     }
@@ -364,7 +368,7 @@ public class CovarianceMatrixAdaptationEvolutionStrategy
 
   private int updateEvolutionPaths(double[] oldDistributionMean) {
 
-    int numberOfVariables = getProblem().getNumberOfVariables();
+    int numberOfVariables = getProblem().numberOfVariables();
 
     double[] artmp = new double[numberOfVariables];
     for (int i = 0; i < numberOfVariables; i++) {
@@ -402,7 +406,7 @@ public class CovarianceMatrixAdaptationEvolutionStrategy
 
   private void adaptCovarianceMatrix(double[] oldDistributionMean, int hsig) {
 
-    int numberOfVariables = getProblem().getNumberOfVariables();
+    int numberOfVariables = getProblem().numberOfVariables();
 
     for (int i = 0; i < numberOfVariables; i++) {
       for (int j = 0; j <= i; j++) {
@@ -415,8 +419,8 @@ public class CovarianceMatrixAdaptationEvolutionStrategy
            * additional rank mu
            * update
            */
-          double valueI = getPopulation().get(k).getVariable(i);
-          double valueJ = getPopulation().get(k).getVariable(j);
+          double valueI = getPopulation().get(k).variables().get(i);
+          double valueJ = getPopulation().get(k).variables().get(j);
           c[i][j] += cmu
                 * weights[k]
                 * (valueI - oldDistributionMean[i])
@@ -429,7 +433,7 @@ public class CovarianceMatrixAdaptationEvolutionStrategy
   }
 
   private void decomposeCovarianceMatrix() {
-    int numberOfVariables = getProblem().getNumberOfVariables();
+    int numberOfVariables = getProblem().numberOfVariables();
 
     if (evaluations - eigenEval > lambda / (c1 + cmu) / numberOfVariables / 10) {
 
@@ -472,7 +476,7 @@ public class CovarianceMatrixAdaptationEvolutionStrategy
   }
 
   private void checkEigenCorrectness() {
-    int numberOfVariables = getProblem().getNumberOfVariables();
+    int numberOfVariables = getProblem().numberOfVariables();
 
     if (CMAESUtils.checkEigenSystem(numberOfVariables, c, diagD, b) > 0) {
       evaluations = maxEvaluations;
@@ -494,7 +498,7 @@ public class CovarianceMatrixAdaptationEvolutionStrategy
 
     DoubleSolution solution = getProblem().createSolution();
 
-    int numberOfVariables = getProblem().getNumberOfVariables();
+    int numberOfVariables = getProblem().numberOfVariables();
     double[] artmp = new double[numberOfVariables];
     double sum;
 
@@ -509,30 +513,27 @@ public class CovarianceMatrixAdaptationEvolutionStrategy
       }
 
       double value = distributionMean[i] + sigma * sum;
-      if (value > ((DoubleProblem)getProblem()).getUpperBound(i)) {
-        value = ((DoubleProblem)getProblem()).getUpperBound(i);
-      } else if (value < ((DoubleProblem)getProblem()).getLowerBound(i)) {
-        value = ((DoubleProblem)getProblem()).getLowerBound(i);
-      }
+      Bounds<Double> bounds = ((DoubleProblem)getProblem()).variableBounds().get(i) ;
+      value = bounds.restrict(value);
 
-      solution.setVariable(i, value);
+      solution.variables().set(i, value);
     }
 
     return solution;
   }
 
   private void storeBest() {
-    if ((bestSolutionEver == null) || (bestSolutionEver.getObjective(0) > getPopulation().get(0)
-        .getObjective(0))) {
+    if ((bestSolutionEver == null) || (bestSolutionEver.objectives()[0] > getPopulation().get(0)
+        .objectives()[0])) {
       bestSolutionEver = getPopulation().get(0);
     }
   }
 
-  @Override public String getName() {
+  @Override public String name() {
     return "CMAES" ;
   }
 
-  @Override public String getDescription() {
+  @Override public String description() {
     return "Covariance Matrix Adaptation Evolution Strategy" ;
   }
 

@@ -1,12 +1,9 @@
 package org.uma.jmetal.lab.visualization.plot.impl;
 
+import java.lang.reflect.InvocationTargetException;
 import org.uma.jmetal.lab.visualization.plot.PlotFront;
-import org.uma.jmetal.util.checking.Check;
-import smile.plot.PlotCanvas;
-import smile.plot.ScatterPlot;
-
-import javax.swing.*;
-import java.awt.*;
+import org.uma.jmetal.util.errorchecking.Check;
+import smile.plot.swing.ScatterPlot;
 
 
 public class PlotSmile implements PlotFront {
@@ -18,34 +15,24 @@ public class PlotSmile implements PlotFront {
   }
 
   public PlotSmile(double[][] matrix, String plotTitle) {
-    Check.isNotNull(matrix);
+    Check.notNull(matrix);
     Check.that(matrix.length >= 1, "The data matrix is empty");
 
     this.matrix = matrix;
     this.plotTitle = plotTitle ;
   }
 
-  @SuppressWarnings("serial")
-  class LocalPanel extends JPanel {
-    public LocalPanel(){
-      super(new GridLayout(1, 1)) ;
-
-      double[][] data = matrix ;
-
-      PlotCanvas canvas = ScatterPlot.plot(data);
-      canvas.setTitle(plotTitle);
-      add(canvas);
-
-    }
-  }
-
   @Override
   public void plot() {
-    JFrame frame = new JFrame() ;
-    frame.setSize(500, 500);
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.setLocationRelativeTo(null);
-    frame.getContentPane().add(new LocalPanel());
-    frame.setVisible(true);
+    var canvas = ScatterPlot.of(matrix).canvas() ;
+    canvas.setTitle(plotTitle) ;
+    try {
+      canvas.window() ;
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+      Thread.currentThread().interrupt();
+    } catch (InvocationTargetException e) {
+      e.printStackTrace();
+    }
   }
 }

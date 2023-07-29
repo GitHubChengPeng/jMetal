@@ -1,10 +1,9 @@
 package org.uma.jmetal.problem.multiobjective;
 
-import org.uma.jmetal.problem.doubleproblem.impl.AbstractDoubleProblem;
-import org.uma.jmetal.solution.doublesolution.DoubleSolution;
-
 import java.util.Arrays;
 import java.util.List;
+import org.uma.jmetal.problem.doubleproblem.impl.AbstractDoubleProblem;
+import org.uma.jmetal.solution.doublesolution.DoubleSolution;
 
 /** Class representing problem Golinski. */
 @SuppressWarnings("serial")
@@ -12,28 +11,27 @@ public class Golinski extends AbstractDoubleProblem {
 
   /** Constructor. Creates a default instance of the Golinski problem. */
   public Golinski() {
-    setNumberOfVariables(7);
-    setNumberOfObjectives(2);
-    setNumberOfConstraints(11);
-    setName("Golinski");
+    numberOfObjectives(2);
+    numberOfConstraints(11);
+    name("Golinski");
 
     List<Double> lowerLimit = Arrays.asList(2.6, 0.7, 17.0, 7.3, 7.3, 2.9, 5.0);
     List<Double> upperLimit = Arrays.asList(3.6, 0.8, 28.0, 8.3, 8.3, 3.9, 5.5);
 
-    setVariableBounds(lowerLimit, upperLimit);
+    variableBounds(lowerLimit, upperLimit);
   }
 
   /** Evaluate() method */
   @Override
-  public void evaluate(DoubleSolution solution) {
+  public DoubleSolution evaluate(DoubleSolution solution) {
     double x1, x2, x3, x4, x5, x6, x7;
-    x1 = solution.getVariable(0);
-    x2 = solution.getVariable(1);
-    x3 = solution.getVariable(2);
-    x4 = solution.getVariable(3);
-    x5 = solution.getVariable(4);
-    x6 = solution.getVariable(5);
-    x7 = solution.getVariable(6);
+    x1 = solution.variables().get(0);
+    x2 = solution.variables().get(1);
+    x3 = solution.variables().get(2);
+    x4 = solution.variables().get(3);
+    x5 = solution.variables().get(4);
+    x6 = solution.variables().get(5);
+    x7 = solution.variables().get(6);
 
     double f1 =
         0.7854 * x1 * x2 * x2 * ((10 * x3 * x3) / 3.0 + 14.933 * x3 - 43.0934)
@@ -44,24 +42,25 @@ public class Golinski extends AbstractDoubleProblem {
     double aux = 745.0 * x4 / (x2 * x3);
     double f2 = Math.sqrt((aux * aux) + 1.69e7) / (0.1 * x6 * x6 * x6);
 
-    solution.setObjective(0, f1);
-    solution.setObjective(1, f2);
+    solution.objectives()[0] = f1;
+    solution.objectives()[1] = f2;
 
     evaluateConstraints(solution);
+    return solution ;
   }
 
   /** EvaluateConstraints() method */
   public void evaluateConstraints(DoubleSolution solution) {
-    double[] constraint = new double[this.getNumberOfConstraints()];
+    double[] constraint = new double[this.numberOfConstraints()];
     double x1, x2, x3, x4, x5, x6, x7;
 
-    x1 = solution.getVariable(0);
-    x2 = solution.getVariable(1);
-    x3 = solution.getVariable(2);
-    x4 = solution.getVariable(3);
-    x5 = solution.getVariable(4);
-    x6 = solution.getVariable(5);
-    x7 = solution.getVariable(6);
+    x1 = solution.variables().get(0);
+    x2 = solution.variables().get(1);
+    x3 = solution.variables().get(2);
+    x4 = solution.variables().get(3);
+    x5 = solution.variables().get(4);
+    x6 = solution.variables().get(5);
+    x7 = solution.variables().get(6);
 
     constraint[0] = -((1.0 / (x1 * x2 * x2 * x3)) - (1.0 / 27.0));
     constraint[1] = -((1.0 / (x1 * x2 * x2 * x3 * x3)) - (1.0 / 397.5));
@@ -80,8 +79,8 @@ public class Golinski extends AbstractDoubleProblem {
     double b = 1.575e8;
     constraint[10] = -(java.lang.Math.sqrt(a * a + b) / (0.1 * x7 * x7 * x7) - 1100.0);
 
-    for (int i = 0; i < getNumberOfConstraints(); i++) {
-      solution.setConstraint(i, constraint[i]);
+    for (int i = 0; i < numberOfConstraints(); i++) {
+      solution.constraints()[i] = constraint[i];
     }
   }
 }

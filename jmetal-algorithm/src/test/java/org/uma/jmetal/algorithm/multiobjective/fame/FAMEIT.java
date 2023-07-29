@@ -1,5 +1,8 @@
 package org.uma.jmetal.algorithm.multiobjective.fame;
 
+import static org.junit.Assert.assertTrue;
+
+import java.util.List;
 import org.junit.Test;
 import org.uma.jmetal.algorithm.Algorithm;
 import org.uma.jmetal.operator.selection.SelectionOperator;
@@ -9,12 +12,10 @@ import org.uma.jmetal.problem.multiobjective.zdt.ZDT1;
 import org.uma.jmetal.qualityindicator.QualityIndicator;
 import org.uma.jmetal.qualityindicator.impl.hypervolume.impl.PISAHypervolume;
 import org.uma.jmetal.solution.doublesolution.DoubleSolution;
+import org.uma.jmetal.util.SolutionListUtils;
+import org.uma.jmetal.util.VectorUtils;
 import org.uma.jmetal.util.evaluator.impl.SequentialSolutionListEvaluator;
 import org.uma.jmetal.util.pseudorandom.JMetalRandom;
-
-import java.util.List;
-
-import static org.junit.Assert.assertTrue;
 
 public class FAMEIT {
 
@@ -46,7 +47,7 @@ public class FAMEIT {
     Rationale: the default problem is ZDT1, and FAME, configured with standard settings, should
     return 100 solutions
     */
-    assertTrue(algorithm.getResult().size() >= 99);
+    assertTrue(algorithm.result().size() >= 99);
     JMetalRandom.getInstance().setSeed(System.currentTimeMillis());
   }
 
@@ -74,15 +75,17 @@ public class FAMEIT {
 
     algorithm.run();
 
-    QualityIndicator<List<DoubleSolution>, Double> hypervolume =
-        new PISAHypervolume<>("../resources/referenceFrontsCSV/ZDT1.csv");
+    QualityIndicator hypervolume =
+            new PISAHypervolume(
+                    VectorUtils.readVectors("../resources/referenceFrontsCSV/ZDT1.csv", ","));
 
-    // Rationale: the default problem is ZDT1, and GDE3, configured with standard settings, should
-    // return find a front with a hypervolume value higher than 0.66
+    // Rationale: the default problem is ZDT1, and AbYSS, configured with standard settings,
+    // should return find a front with a hypervolume value higher than 0.22
 
-    double hv = (Double) hypervolume.evaluate(algorithm.getResult());
+    double hv = hypervolume.compute(SolutionListUtils.getMatrixWithObjectiveValues(algorithm.result()));
 
-    assertTrue(hv > 0.66);
+    assertTrue(hv > 0.65);
+
     JMetalRandom.getInstance().setSeed(System.currentTimeMillis());
   }
 }

@@ -1,71 +1,54 @@
 package org.uma.jmetal.solution.doublesolution.impl;
 
-import org.apache.commons.lang3.tuple.Pair;
-import org.uma.jmetal.solution.AbstractSolution;
-import org.uma.jmetal.solution.doublesolution.DoubleSolution;
-import org.uma.jmetal.util.pseudorandom.JMetalRandom;
-
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.IntStream;
+import org.uma.jmetal.solution.AbstractSolution;
+import org.uma.jmetal.solution.doublesolution.DoubleSolution;
+import org.uma.jmetal.util.bounds.Bounds;
+import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 
 /**
- * Defines an implementation of a double solution. Each variable is given by a pair <lower bound, upper bound>.
+ * Defines an implementation of the {@link DoubleSolution} interface
  *
  * @author Antonio J. Nebro <antonio@lcc.uma.es>
  */
 @SuppressWarnings("serial")
 public class DefaultDoubleSolution extends AbstractSolution<Double> implements DoubleSolution {
-  protected List<Pair<Double, Double>> bounds ;
+  protected List<Bounds<Double>> bounds;
 
-  /** Constructor */
-  public DefaultDoubleSolution(
-      List<Pair<Double, Double>> bounds,
-      int numberOfObjectives,
-      int numberOfConstraints) {
-    super(bounds.size(), numberOfObjectives, numberOfConstraints) ;
+  /**
+   * Constructor
+   */
+  public DefaultDoubleSolution(List<Bounds<Double>> boundsList,
+          int numberOfObjectives,
+          int numberOfConstraints) {
+    super(boundsList.size(), numberOfObjectives, numberOfConstraints);
 
-    this.bounds = bounds ;
+    this.bounds = boundsList;
 
-    for (int i = 0 ; i < bounds.size(); i++) {
-      setVariable(i, JMetalRandom.getInstance().nextDouble(bounds.get(i).getLeft(), bounds.get(i).getRight())); ;
+    for (int i = 0; i < boundsList.size(); i++) {
+      variables().set(i, JMetalRandom.getInstance().nextDouble(bounds.get(i).getLowerBound(), bounds.get(i).getUpperBound()));
     }
   }
 
-  /** Constructor */
-  public DefaultDoubleSolution(
-      List<Pair<Double, Double>> bounds,
-      int numberOfObjectives) {
-    this(bounds, numberOfObjectives, 0) ;
-  }
-
-  /** Copy constructor */
+  /**
+   * Copy constructor
+   */
   public DefaultDoubleSolution(DefaultDoubleSolution solution) {
-    super(solution.getNumberOfVariables(), solution.getNumberOfObjectives(), solution.getNumberOfConstraints()) ;
+    super(solution.variables().size(), solution.objectives().length, solution.constraints().length);
 
-    for (int i = 0; i < solution.getNumberOfVariables(); i++) {
-      setVariable(i, solution.getVariable(i));
-    }
+    IntStream.range(0, solution.variables().size()).forEach(i -> variables().set(i, solution.variables().get(i)));
+    IntStream.range(0, solution.objectives().length).forEach(i -> objectives()[i] = solution.objectives()[i]);
+    IntStream.range(0, solution.constraints().length).forEach(i -> constraints()[i] = solution.constraints()[i]);
 
-    for (int i = 0; i < solution.getNumberOfObjectives(); i++) {
-      setObjective(i, solution.getObjective(i)) ;
-    }
-
-    for (int i = 0; i < solution.getNumberOfConstraints(); i++) {
-      setConstraint(i, solution.getConstraint(i));
-    }
-
-    bounds = solution.bounds ;
-    attributes = new HashMap<Object, Object>(solution.attributes) ;
+    bounds = solution.bounds;
+    attributes = new HashMap<>(solution.attributes);
   }
 
   @Override
-  public Double getLowerBound(int index) {
-    return this.bounds.get(index).getLeft() ;
-  }
-
-  @Override
-  public Double getUpperBound(int index) {
-    return this.bounds.get(index).getRight() ;
+  public Bounds<Double> getBounds(int index) {
+    return this.bounds.get(index);
   }
 
   @Override

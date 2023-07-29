@@ -1,13 +1,13 @@
 package org.uma.jmetal.util;
 
-import org.uma.jmetal.solution.Solution;
-import org.uma.jmetal.solution.doublesolution.DoubleSolution;
-import org.uma.jmetal.util.pseudorandom.JMetalRandom;
-import org.uma.jmetal.util.pseudorandom.RandomGenerator;
-
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.BinaryOperator;
+import org.uma.jmetal.solution.Solution;
+import org.uma.jmetal.solution.doublesolution.DoubleSolution;
+import org.uma.jmetal.util.errorchecking.JMetalException;
+import org.uma.jmetal.util.pseudorandom.JMetalRandom;
+import org.uma.jmetal.util.pseudorandom.RandomGenerator;
 
 /** Created by Antonio J. Nebro on 6/12/14. */
 public class SolutionUtils {
@@ -67,24 +67,24 @@ public class SolutionUtils {
     double distance = 0.0;
 
     // euclidean distance
-    for (int nObj = 0; nObj < firstSolution.getNumberOfObjectives(); nObj++) {
-      diff = firstSolution.getObjective(nObj) - secondSolution.getObjective(nObj);
+    for (int nObj = 0; nObj < firstSolution.objectives().length; nObj++) {
+      diff = firstSolution.objectives()[nObj] - secondSolution.objectives()[nObj];
       distance += Math.pow(diff, 2.0);
     }
 
     return Math.sqrt(distance);
   }
 
-  static <S extends Solution<?>> double normalizedDistanceBetweenObjectives(
-      S firstSolution, S secondSolution, double maxs[], double mins[]) {
+  public static <S extends Solution<?>> double normalizedDistanceBetweenObjectives(
+      S firstSolution, S secondSolution, double[] maxs, double[] mins) {
 
     double diff;
     double distance = 0.0;
     // euclidean distance
-    for (int nObj = 0; nObj < firstSolution.getNumberOfObjectives(); nObj++) {
+    for (int nObj = 0; nObj < firstSolution.objectives().length; nObj++) {
       diff =
-          (firstSolution.getObjective(nObj) / (maxs[nObj] - mins[nObj]))
-              - (secondSolution.getObjective(nObj) / (maxs[nObj] - mins[nObj]));
+          (firstSolution.objectives()[nObj] / (maxs[nObj] - mins[nObj]))
+              - (secondSolution.objectives()[nObj] / (maxs[nObj] - mins[nObj]));
       distance += Math.pow(diff, 2.0);
     }
 
@@ -123,8 +123,8 @@ public class SolutionUtils {
     double distance = 0.0;
 
     double diff;
-    for (int i = 0; i < solutionI.getNumberOfVariables(); i++) {
-      diff = solutionI.getVariable(i) - solutionJ.getVariable(i);
+    for (int i = 0; i < solutionI.variables().size(); i++) {
+      diff = solutionI.variables().get(i) - solutionJ.variables().get(i);
       distance += Math.pow(diff, 2.0);
     }
 
@@ -169,16 +169,15 @@ public class SolutionUtils {
       throw new JMetalException("The minValues and maxValues should have the same length");
     }
 
-    if (solution.getNumberOfObjectives() != minValues.length) {
+    if (solution.objectives().length != minValues.length) {
       throw new JMetalException(
           "The number of objectives should be the same to min and max length");
     }
 
     S copy = (S) solution.copy();
 
-    for (int i = 0; i < copy.getNumberOfObjectives(); i++) {
-      copy.setObjective(
-          i, NormalizeUtils.normalize(solution.getObjective(i), minValues[i], maxValues[i]));
+    for (int i = 0; i < copy.objectives().length; i++) {
+      copy.objectives()[i] = NormalizeUtils.normalize(solution.objectives()[i], minValues[i], maxValues[i]);
     }
 
     return copy;

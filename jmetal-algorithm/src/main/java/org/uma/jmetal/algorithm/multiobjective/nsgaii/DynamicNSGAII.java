@@ -1,33 +1,29 @@
 package org.uma.jmetal.algorithm.multiobjective.nsgaii;
 
-import org.uma.jmetal.algorithm.DynamicAlgorithm;
-import org.uma.jmetal.operator.crossover.CrossoverOperator;
-import org.uma.jmetal.operator.mutation.MutationOperator;
-import org.uma.jmetal.operator.selection.SelectionOperator;
-import org.uma.jmetal.problem.DynamicProblem;
-import org.uma.jmetal.qualityindicator.impl.CoverageFront;
-import org.uma.jmetal.solution.Solution;
-import org.uma.jmetal.util.evaluator.SolutionListEvaluator;
-import org.uma.jmetal.util.front.Front;
-import org.uma.jmetal.util.front.impl.ArrayFront;
-import org.uma.jmetal.util.observable.Observable;
-import org.uma.jmetal.util.point.PointSolution;
-import org.uma.jmetal.util.restartstrategy.RestartStrategy;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.uma.jmetal.algorithm.multiobjective.nsgaii.util.CoverageFront;
+import org.uma.jmetal.operator.crossover.CrossoverOperator;
+import org.uma.jmetal.operator.mutation.MutationOperator;
+import org.uma.jmetal.operator.selection.SelectionOperator;
+import org.uma.jmetal.problem.DynamicProblem;
+import org.uma.jmetal.solution.Solution;
+import org.uma.jmetal.solution.pointsolution.PointSolution;
+import org.uma.jmetal.util.SolutionListUtils;
+import org.uma.jmetal.util.evaluator.SolutionListEvaluator;
+import org.uma.jmetal.util.observable.Observable;
+import org.uma.jmetal.util.restartstrategy.RestartStrategy;
 
 @SuppressWarnings("serial")
-public class DynamicNSGAII<S extends Solution<?>> extends NSGAII<S>
-    implements DynamicAlgorithm<List<S>> {
+public class DynamicNSGAII<S extends Solution<?>> extends NSGAII<S> {
 
   private RestartStrategy<S> restartStrategy;
   private DynamicProblem<S, Integer> problem;
   private Observable<Map<String, Object>> observable;
   private int completedIterations;
-  private CoverageFront<PointSolution> coverageFront;
+  private CoverageFront coverageFront;
   private List<S> lastReceivedFront;
   /**
    * Constructor
@@ -56,7 +52,7 @@ public class DynamicNSGAII<S extends Solution<?>> extends NSGAII<S>
       SolutionListEvaluator<S> evaluator,
       RestartStrategy<S> restartStrategy,
       Observable<Map<String, Object>> observable,
-      CoverageFront<PointSolution> coverageFront) {
+      CoverageFront coverageFront) {
     super(
         problem,
         maxEvaluations,
@@ -81,8 +77,7 @@ public class DynamicNSGAII<S extends Solution<?>> extends NSGAII<S>
 
       boolean coverage = false;
       if (lastReceivedFront != null) {
-        Front referenceFront = new ArrayFront(lastReceivedFront);
-        coverageFront.updateFront(referenceFront);
+        coverageFront.updateFront(SolutionListUtils.getMatrixWithObjectiveValues(lastReceivedFront));
         List<PointSolution> pointSolutionList = new ArrayList<>();
         List<S> list = getPopulation();
         for (S s : list) {
@@ -90,7 +85,6 @@ public class DynamicNSGAII<S extends Solution<?>> extends NSGAII<S>
           pointSolutionList.add(pointSolution);
         }
         coverage = coverageFront.isCoverageWithLast(pointSolutionList);
-
       }
 
       if (coverage) {
@@ -121,22 +115,18 @@ public class DynamicNSGAII<S extends Solution<?>> extends NSGAII<S>
     super.updateProgress();
   }
 
-  @Override
   public DynamicProblem<S, ?> getDynamicProblem() {
     return problem;
   }
 
-  @Override
   public void restart() {
     this.restartStrategy.restart(getPopulation(), (DynamicProblem<S, ?>) getProblem());
   }
 
-  @Override
   public RestartStrategy<?> getRestartStrategy() {
     return restartStrategy;
   }
 
-  @Override
   public Observable<Map<String, Object>> getObservable() {
     return observable;
   }

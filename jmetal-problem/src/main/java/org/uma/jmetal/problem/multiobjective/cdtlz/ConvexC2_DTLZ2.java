@@ -1,10 +1,9 @@
 package org.uma.jmetal.problem.multiobjective.cdtlz;
 
-import org.uma.jmetal.problem.multiobjective.dtlz.DTLZ2;
-import org.uma.jmetal.solution.doublesolution.DoubleSolution;
-
 import java.util.HashMap;
 import java.util.Map;
+import org.uma.jmetal.problem.multiobjective.dtlz.DTLZ2;
+import org.uma.jmetal.solution.doublesolution.DoubleSolution;
 
 /**
  * Problem ConvexC2-DTLZ2, defined in: Jain, H. and K. Deb. "An Evolutionary Many-Objective
@@ -36,34 +35,36 @@ public class ConvexC2_DTLZ2 extends DTLZ2 {
   public ConvexC2_DTLZ2(int numberOfVariables, int numberOfObjectives) {
     super(numberOfVariables, numberOfObjectives);
 
-    setNumberOfConstraints(1);
+    numberOfConstraints(1);
   }
 
   @Override
-  public void evaluate(DoubleSolution solution) {
+  public DoubleSolution evaluate(DoubleSolution solution) {
     super.evaluate(solution);
     this.evaluateConstraints(solution);
+
+    return solution ;
   }
 
   public void evaluateConstraints(DoubleSolution solution) {
-    double[] constraint = new double[getNumberOfConstraints()];
+    double[] constraint = new double[numberOfConstraints()];
 
     double sum = 0;
-    for (int i = 0; i < getNumberOfObjectives(); i++) {
-      sum += solution.getObjective(i);
+    for (int i = 0; i < solution.objectives().length; i++) {
+      sum += solution.objectives()[i];
     }
 
-    double lambda = sum / getNumberOfObjectives();
+    double lambda = sum / solution.objectives().length;
 
     sum = 0;
-    for (int i = 0; i < getNumberOfObjectives(); i++) {
-      sum += Math.pow(solution.getObjective(i) - lambda, 2.0);
+    for (int i = 0; i < solution.objectives().length; i++) {
+      sum += Math.pow(solution.objectives()[i] - lambda, 2.0);
     }
 
-    constraint[0] = sum - Math.pow(rValue.get(getNumberOfObjectives()), 2.0);
+    constraint[0] = sum - Math.pow(rValue.get(solution.objectives().length), 2.0);
 
-    for (int i = 0; i < getNumberOfConstraints(); i++) {
-      solution.setConstraint(i, constraint[i]);
+    for (int i = 0; i < numberOfConstraints(); i++) {
+      solution.constraints()[i] = constraint[i];
     }
   }
 }

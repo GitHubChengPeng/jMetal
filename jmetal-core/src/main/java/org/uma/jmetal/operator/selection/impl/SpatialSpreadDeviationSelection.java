@@ -13,15 +13,14 @@
 
 package org.uma.jmetal.operator.selection.impl;
 
-import org.uma.jmetal.operator.selection.SelectionOperator;
-import org.uma.jmetal.solution.Solution;
-import org.uma.jmetal.util.JMetalException;
-import org.uma.jmetal.util.SolutionListUtils;
-import org.uma.jmetal.util.SolutionUtils;
-import org.uma.jmetal.util.comparator.RankingAndSSDComparator;
-
 import java.util.Comparator;
 import java.util.List;
+import org.uma.jmetal.operator.selection.SelectionOperator;
+import org.uma.jmetal.solution.Solution;
+import org.uma.jmetal.util.ListUtils;
+import org.uma.jmetal.util.SolutionUtils;
+import org.uma.jmetal.util.comparator.RankingAndSSDComparator;
+import org.uma.jmetal.util.errorchecking.Check;
 
 /**
  * Spatial Spread Deviation selection operator
@@ -37,7 +36,7 @@ public class SpatialSpreadDeviationSelection<S extends Solution<?>>
 
   /** Constructor */
   public SpatialSpreadDeviationSelection(int numberOfTournaments) {
-    this(new RankingAndSSDComparator<S>(), numberOfTournaments) ;
+    this(new RankingAndSSDComparator<>(), numberOfTournaments) ;
   }
 
   /** Constructor */
@@ -49,20 +48,17 @@ public class SpatialSpreadDeviationSelection<S extends Solution<?>>
   @Override
   /** Execute() method */
   public S execute(List<S> solutionList) {
-    if (null == solutionList) {
-      throw new JMetalException("The solution list is null") ;
-    } else if (solutionList.isEmpty()) {
-      throw new JMetalException("The solution list is empty") ;
-    }
+    Check.notNull(solutionList) ;
+    Check.collectionIsNotEmpty(solutionList);
 
     S result;
     if (solutionList.size() == 1) {
       result = solutionList.get(0);
     } else {
-      result = SolutionListUtils.selectNRandomDifferentSolutions(1, solutionList).get(0);
+      result = ListUtils.randomSelectionWithoutReplacement(1, solutionList).get(0);
       int count = 1; // at least 2 solutions are compared
       do {
-        S candidate = SolutionListUtils.selectNRandomDifferentSolutions(1, solutionList).get(0);
+        S candidate = ListUtils.randomSelectionWithoutReplacement(1, solutionList).get(0);
         result = SolutionUtils.getBestSolution(result, candidate, comparator) ;
       } while (++count < this.numberOfTournaments);
     }

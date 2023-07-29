@@ -1,9 +1,8 @@
 package org.uma.jmetal.util.distance.impl;
 
+import java.util.List;
 import org.uma.jmetal.solution.Solution;
 import org.uma.jmetal.util.distance.Distance;
-
-import java.util.List;
 
 /**
  * Class for calculating the Euclidean distance between a {@link Solution} object a list of {@link Solution}
@@ -25,8 +24,8 @@ public class EuclideanDistanceBetweenSolutionAndASolutionListInObjectiveSpace
   public double compute(S solution, L solutionList) {
     double bestDistance = Double.MAX_VALUE;
 
-    for (int i = 0; i < solutionList.size();i++){
-      double aux = distance.compute(solution.getObjectives(), solutionList.get(i).getObjectives());
+    for (S s : solutionList) {
+      double aux = distance.compute(solution.objectives(), s.objectives());
       if (aux < bestDistance)
         bestDistance = aux;
     }

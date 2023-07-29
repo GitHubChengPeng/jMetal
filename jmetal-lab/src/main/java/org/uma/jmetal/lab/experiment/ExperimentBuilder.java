@@ -1,12 +1,11 @@
 package org.uma.jmetal.lab.experiment;
 
-import org.uma.jmetal.lab.experiment.util.ExperimentAlgorithm;
-import org.uma.jmetal.lab.experiment.util.ExperimentProblem;
-import org.uma.jmetal.qualityindicator.impl.GenericIndicator;
-import org.uma.jmetal.solution.Solution;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.uma.jmetal.lab.experiment.util.ExperimentAlgorithm;
+import org.uma.jmetal.lab.experiment.util.ExperimentProblem;
+import org.uma.jmetal.qualityindicator.QualityIndicator;
+import org.uma.jmetal.solution.Solution;
 
 /**
  * Builder for class {@link Experiment}
@@ -22,9 +21,7 @@ public class ExperimentBuilder<S extends Solution<?>, Result extends List<S>> {
   private String outputParetoFrontFileName;
   private String outputParetoSetFileName;
   private int independentRuns;
-
-  private List<GenericIndicator<S>> indicatorList ;
-
+  private List<QualityIndicator> indicatorList ;
   private int numberOfCores ;
 
   public ExperimentBuilder(String experimentName) {
@@ -59,7 +56,7 @@ public class ExperimentBuilder<S extends Solution<?>, Result extends List<S>> {
   }
 
   public ExperimentBuilder<S, Result> setIndicatorList(
-      List<GenericIndicator<S>> indicatorList ) {
+      List<QualityIndicator> indicatorList ) {
     this.indicatorList = indicatorList ;
 
     return this ;
@@ -130,7 +127,7 @@ public class ExperimentBuilder<S extends Solution<?>, Result extends List<S>> {
     return referenceFrontDirectory;
   }
 
-  public List<GenericIndicator<S>> getIndicatorList() {
+  public List<QualityIndicator> getIndicatorList() {
     return indicatorList;
   }
 }

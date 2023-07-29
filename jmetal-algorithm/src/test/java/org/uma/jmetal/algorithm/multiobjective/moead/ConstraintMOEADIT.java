@@ -1,5 +1,8 @@
 package org.uma.jmetal.algorithm.multiobjective.moead;
 
+import static org.junit.Assert.assertTrue;
+
+import java.util.List;
 import org.junit.Test;
 import org.uma.jmetal.algorithm.Algorithm;
 import org.uma.jmetal.operator.crossover.CrossoverOperator;
@@ -9,13 +12,9 @@ import org.uma.jmetal.operator.mutation.impl.PolynomialMutation;
 import org.uma.jmetal.problem.doubleproblem.DoubleProblem;
 import org.uma.jmetal.problem.multiobjective.Srinivas;
 import org.uma.jmetal.problem.multiobjective.Tanaka;
-import org.uma.jmetal.qualityindicator.QualityIndicator;
-import org.uma.jmetal.qualityindicator.impl.hypervolume.impl.PISAHypervolume;
 import org.uma.jmetal.solution.doublesolution.DoubleSolution;
-
-import java.util.List;
-
-import static org.junit.Assert.assertTrue;
+import org.uma.jmetal.util.legacy.qualityindicator.QualityIndicator;
+import org.uma.jmetal.util.legacy.qualityindicator.impl.hypervolume.impl.PISAHypervolume;
 
 public class ConstraintMOEADIT {
 
@@ -29,7 +28,7 @@ public class ConstraintMOEADIT {
     CrossoverOperator<DoubleSolution> crossover = new DifferentialEvolutionCrossover(cr, f,
             DifferentialEvolutionCrossover.DE_VARIANT.RAND_1_BIN);
 
-    double mutationProbability = 1.0 / problem.getNumberOfVariables();
+    double mutationProbability = 1.0 / problem.numberOfVariables();
     double mutationDistributionIndex = 20.0;
     MutationOperator<DoubleSolution> mutation = new PolynomialMutation(mutationProbability,
         mutationDistributionIndex);
@@ -48,7 +47,7 @@ public class ConstraintMOEADIT {
         .build();
 
     algorithm.run() ;
-    List<DoubleSolution> population = algorithm.getResult();
+    List<DoubleSolution> population = algorithm.result();
 
     assertTrue(population.size() == 100);
   }
@@ -63,7 +62,7 @@ public class ConstraintMOEADIT {
     CrossoverOperator<DoubleSolution> crossover = new DifferentialEvolutionCrossover(cr, f,
             DifferentialEvolutionCrossover.DE_VARIANT.RAND_1_BIN);
 
-    double mutationProbability = 1.0 / problem.getNumberOfVariables();
+    double mutationProbability = 1.0 / problem.numberOfVariables();
     double mutationDistributionIndex = 20.0;
     MutationOperator<DoubleSolution> mutation = new PolynomialMutation(mutationProbability,
         mutationDistributionIndex);
@@ -84,7 +83,7 @@ public class ConstraintMOEADIT {
 
     algorithm.run();
 
-    List<DoubleSolution> population = algorithm.getResult();
+    List<DoubleSolution> population = algorithm.result();
 
     QualityIndicator<List<DoubleSolution>, Double> hypervolume =
         new PISAHypervolume<>("../resources/referenceFrontsCSV/Tanaka.csv");

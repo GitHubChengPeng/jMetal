@@ -1,10 +1,9 @@
 package org.uma.jmetal.problem.multiobjective.maf;
 
-import org.uma.jmetal.problem.doubleproblem.impl.AbstractDoubleProblem;
-import org.uma.jmetal.solution.doublesolution.DoubleSolution;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.uma.jmetal.problem.doubleproblem.impl.AbstractDoubleProblem;
+import org.uma.jmetal.solution.doublesolution.DoubleSolution;
 
 /**
  * Class representing problem MaF15
@@ -52,23 +51,23 @@ public class MaF15 extends AbstractDoubleProblem {
     //re-update numberOfObjectives,numberOfVariables
     numberOfVariables = numberOfObjectives - 1 + len[numberOfObjectives];
 
-    setNumberOfVariables(numberOfVariables);
-    setNumberOfObjectives(numberOfObjectives);
-    setNumberOfConstraints(0);
-    setName("MaF15");
+    numberOfObjectives(numberOfObjectives);
+    numberOfConstraints(0);
+    name("MaF15");
 
-    List<Double> lower = new ArrayList<>(getNumberOfVariables()), upper = new ArrayList<>(getNumberOfVariables());
+    List<Double> lower = new ArrayList<>(numberOfVariables), upper = new ArrayList<>(
+        numberOfVariables);
 
-    for (int var = 0; var < numberOfObjectives - 1; var++) {
+    for (int i = 0; i < numberOfObjectives - 1; i++) {
         lower.add(0.0);
         upper.add(1.0);
-    } //for
-    for (int var = numberOfObjectives - 1; var < numberOfVariables; var++) {
+    }
+    for (int i = numberOfObjectives - 1; i < numberOfVariables; i++) {
         lower.add(0.0);
         upper.add(10.0);
-    } //for
+    }
 
-    setVariableBounds(lower, upper);
+    variableBounds(lower, upper);
   }
 
   /**
@@ -77,16 +76,16 @@ public class MaF15 extends AbstractDoubleProblem {
    * @param solution The solution to evaluate
    */
   @Override
-  public void evaluate(DoubleSolution solution) {
+  public DoubleSolution evaluate(DoubleSolution solution) {
 
-    int numberOfVariables = solution.getNumberOfVariables();
-    int numberOfObjectives = solution.getNumberOfObjectives();
+    int numberOfVariables = solution.variables().size();
+    int numberOfObjectives = solution.objectives().length;
 
     double[] x = new double[numberOfVariables];
     double[] f = new double[numberOfObjectives];
 
     for (int i = 0; i < numberOfVariables; i++) {
-      x[i] = solution.getVariable(i);
+      x[i] = solution.variables().get(i);
     }
 
     // change x
@@ -130,9 +129,10 @@ public class MaF15 extends AbstractDoubleProblem {
     f[0] = (1 - subf1 * Math.cos(Math.PI * x[numberOfObjectives - 2] / 2)) * (1 + g[0] + g[1]);
 
     for (int i = 0; i < numberOfObjectives; i++) {
-      solution.setObjective(i, f[i]);
+      solution.objectives()[i] = f[i];
     }
 
+    return solution ;
   }
 
   public static double Griewank(double[] x) {

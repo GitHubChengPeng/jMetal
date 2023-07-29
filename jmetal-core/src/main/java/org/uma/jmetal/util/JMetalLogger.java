@@ -1,12 +1,15 @@
 package org.uma.jmetal.util;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 /**
  * This class provides some facilities to manage loggers. One might use the
@@ -27,7 +30,8 @@ public class JMetalLogger implements Serializable {
 
 	static {
 		/*
-		 * Configure the loggers with the default configuration. If the
+		 * Configure the loggers with the default configuration and the
+		 * `java.util.logging.config.file` JVM property, if provided. If the
 		 * configuration method is called manually, this default configuration
 		 * will be called before anyway, leading to 2 configuration calls,
 		 * although only the last one is considered. This is a trade off to
@@ -36,7 +40,11 @@ public class JMetalLogger implements Serializable {
 		 * have at least the default configuration.
 		 */
 		try {
-			configureLoggers(null);
+			var value = System.getProperty("java.util.logging.config.file");
+			if (value != null)
+				configureLoggers(new File(value));
+			else
+				configureLoggers(null);
 		} catch (IOException e) {
 			throw new RuntimeException(
 					"Impossible to configure the loggers in a static way", e);

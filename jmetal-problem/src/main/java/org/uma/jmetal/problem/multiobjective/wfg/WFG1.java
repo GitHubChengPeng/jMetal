@@ -1,10 +1,9 @@
 package org.uma.jmetal.problem.multiobjective.wfg;
 
-import org.uma.jmetal.solution.doublesolution.DoubleSolution;
-import org.uma.jmetal.util.JMetalException;
-import org.uma.jmetal.util.JMetalLogger;
-
 import java.util.logging.Level;
+import org.uma.jmetal.solution.doublesolution.DoubleSolution;
+import org.uma.jmetal.util.JMetalLogger;
+import org.uma.jmetal.util.errorchecking.JMetalException;
 
 /**
  * This class implements the WFG1 problem
@@ -36,7 +35,7 @@ public class WFG1 extends WFG {
    */
   public WFG1(Integer k, Integer l, Integer m) {
     super(k, l, m);
-    setName("WFG1");
+    name("WFG1");
 
     s = new int[m];
     for (int i = 0; i < m; i++) {
@@ -108,7 +107,7 @@ public class WFG1 extends WFG {
   /**
    * WFG1 t3 transformation
    *
-   * @throws org.uma.jmetal.util.JMetalException
+   * @throws JMetalException
    */
   public float[] t3(float[] z) throws JMetalException {
     float[] result = new float[z.length];
@@ -153,24 +152,25 @@ public class WFG1 extends WFG {
    * Evaluates a solution
    *
    * @param solution The solution to runAlgorithm
-   * @throws org.uma.jmetal.util.JMetalException
+   * @throws JMetalException
    */
-  public void evaluate(DoubleSolution solution) {
-    float[] variables = new float[getNumberOfVariables()];
-    double[] x = new double[getNumberOfVariables()];
+  public DoubleSolution evaluate(DoubleSolution solution) {
+    float[] variables = new float[numberOfVariables()];
+    double[] x = new double[numberOfVariables()];
 
-    for (int i = 0; i < getNumberOfVariables(); i++) {
-      x[i] = solution.getVariable(i);
+    for (int i = 0; i < numberOfVariables(); i++) {
+      x[i] = solution.variables().get(i);
     }
 
-    for (int i = 0; i < getNumberOfVariables(); i++) {
+    for (int i = 0; i < numberOfVariables(); i++) {
       variables[i] = (float) x[i] ;
     }
 
     float[] f = evaluate(variables);
 
     for (int i = 0; i < f.length; i++) {
-      solution.setObjective(i, f[i]);
+      solution.objectives()[i] = f[i];
     }
+    return solution ;
   }
 }

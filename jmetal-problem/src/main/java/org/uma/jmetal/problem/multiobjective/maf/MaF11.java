@@ -1,10 +1,9 @@
 package org.uma.jmetal.problem.multiobjective.maf;
 
-import org.uma.jmetal.problem.doubleproblem.impl.AbstractDoubleProblem;
-import org.uma.jmetal.solution.doublesolution.DoubleSolution;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.uma.jmetal.problem.doubleproblem.impl.AbstractDoubleProblem;
+import org.uma.jmetal.solution.doublesolution.DoubleSolution;
 
 /**
  * Class representing problem MaF11
@@ -29,25 +28,25 @@ public class MaF11 extends AbstractDoubleProblem {
    */
   public MaF11(Integer numberOfVariables,
       Integer numberOfObjectives) {
-    setNumberOfVariables((int) (
+    numberOfVariables = ((int) (
         Math.ceil((numberOfVariables - numberOfObjectives + 1) / 2.0) * 2 + numberOfObjectives
             - 1));
-    setNumberOfObjectives(numberOfObjectives);
-    setNumberOfConstraints(0);
-    setName("MaF11");
+    numberOfObjectives(numberOfObjectives);
+    numberOfConstraints(0);
+    name("MaF11");
 
     K11 = numberOfObjectives - 1;
     L11 = numberOfVariables - K11;
 
-    List<Double> lower = new ArrayList<>(getNumberOfVariables()), upper = new ArrayList<>(
-        getNumberOfVariables());
+    List<Double> lower = new ArrayList<>(numberOfVariables), upper = new ArrayList<>(
+        numberOfVariables);
 
-    for (int var = 0; var < numberOfVariables; var++) {
+    for (int i = 0; i < numberOfVariables; i++) {
       lower.add(0.0);
-      upper.add(2.0 * (var + 1));
+      upper.add(2.0 * (i + 1));
     }
 
-    setVariableBounds(lower, upper);
+    variableBounds(lower, upper);
   }
 
   /**
@@ -56,15 +55,15 @@ public class MaF11 extends AbstractDoubleProblem {
    * @param solution The solution to evaluate
    */
   @Override
-  public void evaluate(DoubleSolution solution) {
-    int numberOfVariables = solution.getNumberOfVariables();
-    int numberOfObjectives = solution.getNumberOfObjectives();
+  public DoubleSolution evaluate(DoubleSolution solution) {
+    int numberOfVariables = solution.variables().size();
+    int numberOfObjectives = solution.objectives().length;
 
     double[] x = new double[numberOfVariables];
     double[] f = new double[numberOfObjectives];
 
     for (int i = 0; i < numberOfVariables; i++) {
-      x[i] = solution.getVariable(i);
+      x[i] = solution.variables().get(i);
     }
 
     // evaluate zi,t1i,t2i,t3i,t4i,yi
@@ -125,7 +124,8 @@ public class MaF11 extends AbstractDoubleProblem {
         .cos(Math.PI * y[numberOfObjectives - 2] / 2));
 
     for (int i = 0; i < numberOfObjectives; i++) {
-      solution.setObjective(i, f[i]);
+      solution.objectives()[i] = f[i];
     }
+    return solution ;
   }
 }

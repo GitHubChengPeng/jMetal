@@ -1,12 +1,11 @@
 package org.uma.jmetal.util.comparator;
 
-import org.uma.jmetal.util.checking.Check;
-
 import java.util.Comparator;
+import org.uma.jmetal.util.errorchecking.Check;
 
 /**
  * This class implements the Comparator interface for comparing two vectors.
- * The order used is lexicographical order.
+ * The order used is lexicographical numerical order.
  *
  * @author Antonio J. Nebro <antonio@lcc.uma.es>
  */
@@ -21,8 +20,8 @@ public class LexicographicalVectorComparator implements Comparator<double[]> {
    */
   @Override
   public int compare(double[] x, double[] y) {
-    Check.isNotNull(x);
-    Check.isNotNull(y);
+    Check.notNull(x);
+    Check.notNull(y);
 
     // Find the first i such as x[i] != y[i];
     int index = 0;
@@ -35,13 +34,8 @@ public class LexicographicalVectorComparator implements Comparator<double[]> {
     int result;
     if ((index >= x.length) || (index >= y.length)) {
       result = 0 ;
-    } else if (x[index] < y[index]) {
-      result = -1;
-    } else if (x[index] > y[index]) {
-      result = 1;
-    } else {
-      result = 0 ;
-    }
+    } else
+      result = Double.compare(x[index], y[index]);
     return result ;
   }
 }

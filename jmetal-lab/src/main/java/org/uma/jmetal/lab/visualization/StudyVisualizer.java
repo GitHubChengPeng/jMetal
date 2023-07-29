@@ -1,5 +1,7 @@
 package org.uma.jmetal.lab.visualization;
 
+import java.io.IOException;
+import java.util.LinkedList;
 import org.uma.jmetal.lab.experiment.Experiment;
 import org.uma.jmetal.lab.visualization.html.Html;
 import org.uma.jmetal.lab.visualization.html.impl.HtmlFigure;
@@ -7,7 +9,7 @@ import org.uma.jmetal.lab.visualization.html.impl.HtmlGridView;
 import org.uma.jmetal.lab.visualization.html.impl.htmlTable.impl.FriedmanTestTable;
 import org.uma.jmetal.lab.visualization.html.impl.htmlTable.impl.MedianValuesTable;
 import org.uma.jmetal.lab.visualization.html.impl.htmlTable.impl.WilcoxonTestTable;
-import org.uma.jmetal.util.JMetalException;
+import org.uma.jmetal.util.errorchecking.JMetalException;
 import tech.tablesaw.api.StringColumn;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.io.csv.CsvReadOptions;
@@ -17,9 +19,6 @@ import tech.tablesaw.plotly.traces.BoxTrace;
 import tech.tablesaw.plotly.traces.Scatter3DTrace;
 import tech.tablesaw.plotly.traces.ScatterTrace;
 import tech.tablesaw.plotly.traces.Trace;
-
-import java.io.IOException;
-import java.util.LinkedList;
 /**
  * This class generates HTML files to visualize and analyze the results of a experiment.
  *

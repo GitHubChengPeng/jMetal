@@ -1,10 +1,14 @@
 package org.uma.jmetal.problem.multiobjective;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StreamTokenizer;
 import org.uma.jmetal.problem.permutationproblem.impl.AbstractIntegerPermutationProblem;
 import org.uma.jmetal.solution.permutationsolution.PermutationSolution;
-import org.uma.jmetal.util.JMetalException;
-
-import java.io.*;
+import org.uma.jmetal.util.errorchecking.JMetalException;
 
 /**
  * Class representing a bi-objective TSP (Traveling Salesman Problem) problem.
@@ -23,14 +27,30 @@ public class MultiobjectiveTSP extends AbstractIntegerPermutationProblem {
   public MultiobjectiveTSP(String distanceFile, String costFile) throws IOException {
     distanceMatrix = readProblem(distanceFile) ;
     costMatrix     = readProblem(costFile);
+  }
 
-    setNumberOfVariables(numberOfCities);
-    setNumberOfObjectives(2);
-    setName("MultiobjectiveTSP");
+  @Override
+  public int numberOfVariables() {
+    return numberOfCities ;
+  }
+
+  @Override
+  public int numberOfObjectives() {
+    return 2;
+  }
+
+  @Override
+  public int numberOfConstraints() {
+    return 0;
+  }
+
+  @Override
+  public String name() {
+    return "MultiobjectiveTSP";
   }
 
   /** Evaluate() method */
-  public void evaluate(PermutationSolution<Integer> solution){
+  public PermutationSolution<Integer> evaluate(PermutationSolution<Integer> solution){
     double fitness1   ;
     double fitness2   ;
 
@@ -41,8 +61,8 @@ public class MultiobjectiveTSP extends AbstractIntegerPermutationProblem {
       int x ;
       int y ;
 
-      x = solution.getVariable(i) ;
-      y = solution.getVariable(i+1) ;
+      x = solution.variables().get(i) ;
+      y = solution.variables().get(i+1) ;
 
       fitness1 += distanceMatrix[x][y] ;
       fitness2 += costMatrix[x][y];
@@ -50,14 +70,16 @@ public class MultiobjectiveTSP extends AbstractIntegerPermutationProblem {
     int firstCity ;
     int lastCity  ;
 
-    firstCity = solution.getVariable(0) ;
-    lastCity = solution.getVariable(numberOfCities - 1) ;
+    firstCity = solution.variables().get(0) ;
+    lastCity = solution.variables().get(numberOfCities - 1) ;
 
     fitness1 += distanceMatrix[firstCity][lastCity] ;
     fitness2 += costMatrix[firstCity][lastCity];
 
-    solution.setObjective(0, fitness1);
-    solution.setObjective(1, fitness2);
+    solution.objectives()[0] = fitness1 ;
+    solution.objectives()[1] = fitness2 ;
+
+    return solution ;
   }
 
   private double [][] readProblem(String file) throws IOException {
@@ -130,7 +152,7 @@ public class MultiobjectiveTSP extends AbstractIntegerPermutationProblem {
     return matrix;
   }
 
-  @Override public int getLength() {
+  @Override public int length() {
     return numberOfCities ;
   }
 }

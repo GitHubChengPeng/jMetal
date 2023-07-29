@@ -1,15 +1,15 @@
 package org.uma.jmetal.algorithm.multiobjective.nsgaii;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import org.uma.jmetal.operator.crossover.CrossoverOperator;
 import org.uma.jmetal.operator.mutation.MutationOperator;
 import org.uma.jmetal.operator.selection.SelectionOperator;
 import org.uma.jmetal.problem.Problem;
 import org.uma.jmetal.solution.Solution;
 import org.uma.jmetal.util.evaluator.SolutionListEvaluator;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import org.uma.jmetal.util.evaluator.impl.SequentialSolutionListEvaluator;
 
 /**
  * @author Antonio J. Nebro <antonio@lcc.uma.es>
@@ -21,9 +21,17 @@ public class SteadyStateNSGAII<S extends Solution<?>> extends NSGAII<S> {
    */
   public SteadyStateNSGAII(Problem<S> problem, int maxEvaluations, int populationSize,
                            CrossoverOperator<S> crossoverOperator, MutationOperator<S> mutationOperator,
-                           SelectionOperator<List<S>, S> selectionOperator, Comparator<S> dominanceComparator, SolutionListEvaluator<S> evaluator) {
+                           SelectionOperator<List<S>, S> selectionOperator, Comparator<S> dominanceComparator,
+                           SolutionListEvaluator<S> evaluator) {
     super(problem, maxEvaluations, populationSize,100, 100, crossoverOperator, mutationOperator,
         selectionOperator, dominanceComparator, evaluator);
+  }
+
+  public SteadyStateNSGAII(Problem<S> problem, int maxEvaluations, int populationSize,
+                           CrossoverOperator<S> crossoverOperator, MutationOperator<S> mutationOperator,
+                           SelectionOperator<List<S>, S> selectionOperator, Comparator<S> dominanceComparator) {
+    super(problem, maxEvaluations, populationSize,100, 100, crossoverOperator, mutationOperator,
+            selectionOperator, dominanceComparator, new SequentialSolutionListEvaluator<>());
   }
 
   @Override protected void updateProgress() {
@@ -54,11 +62,11 @@ public class SteadyStateNSGAII<S extends Solution<?>> extends NSGAII<S> {
     return offspringPopulation;
   }
 
-  @Override public String getName() {
+  @Override public String name() {
     return "ssNSGAII" ;
   }
 
-  @Override public String getDescription() {
+  @Override public String description() {
     return "Nondominated Sorting Genetic Algorithm version II. Steady-state version" ;
   }
 }

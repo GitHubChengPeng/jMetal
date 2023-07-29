@@ -1,19 +1,18 @@
 package org.uma.jmetal.algorithm.multiobjective.smsemoa;
 
+import java.util.Comparator;
+import java.util.List;
 import org.uma.jmetal.algorithm.AlgorithmBuilder;
 import org.uma.jmetal.operator.crossover.CrossoverOperator;
 import org.uma.jmetal.operator.mutation.MutationOperator;
 import org.uma.jmetal.operator.selection.SelectionOperator;
 import org.uma.jmetal.operator.selection.impl.RandomSelection;
 import org.uma.jmetal.problem.Problem;
-import org.uma.jmetal.qualityindicator.impl.hypervolume.Hypervolume;
-import org.uma.jmetal.qualityindicator.impl.hypervolume.impl.PISAHypervolume;
 import org.uma.jmetal.solution.Solution;
-import org.uma.jmetal.util.JMetalException;
-import org.uma.jmetal.util.comparator.DominanceComparator;
-
-import java.util.Comparator;
-import java.util.List;
+import org.uma.jmetal.util.comparator.dominanceComparator.impl.DominanceWithConstraintsComparator;
+import org.uma.jmetal.util.errorchecking.JMetalException;
+import org.uma.jmetal.util.legacy.qualityindicator.impl.hypervolume.Hypervolume;
+import org.uma.jmetal.util.legacy.qualityindicator.impl.hypervolume.impl.PISAHypervolume;
 
 /**
  * @author Antonio J. Nebro <antonio@lcc.uma.es>
@@ -47,7 +46,7 @@ public class SMSEMOABuilder<S extends Solution<?>> implements AlgorithmBuilder<S
     this.crossoverOperator = crossoverOperator ;
     this.mutationOperator = mutationOperator ;
     this.selectionOperator = new RandomSelection<S>() ;
-    this.dominanceComparator = new DominanceComparator<>()  ;
+    this.dominanceComparator = new DominanceWithConstraintsComparator<>()  ;
   }
 
   public SMSEMOABuilder<S> setPopulationSize(int populationSize) {

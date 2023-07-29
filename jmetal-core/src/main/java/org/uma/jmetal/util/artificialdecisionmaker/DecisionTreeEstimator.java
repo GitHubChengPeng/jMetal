@@ -1,5 +1,7 @@
 package org.uma.jmetal.util.artificialdecisionmaker;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.uma.jmetal.solution.Solution;
 import org.uma.jmetal.solution.doublesolution.DoubleSolution;
 import weka.classifiers.Classifier;
@@ -11,9 +13,6 @@ import weka.core.Instance;
 import weka.core.Instances;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.StringToWordVector;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class DecisionTreeEstimator<S extends Solution<?>> {
 
@@ -32,7 +31,7 @@ public class DecisionTreeEstimator<S extends Solution<?>> {
     double result = 0.0d;
 
     try {
-      int numberOfObjectives = solutionList.get(0).getNumberOfObjectives();
+      int numberOfObjectives = solutionList.get(0).objectives().length;
       //Attributes
       //numeric
       Attribute attr = new Attribute("my-numeric");
@@ -61,7 +60,7 @@ public class DecisionTreeEstimator<S extends Solution<?>> {
         //instaces
         for (int i = 0; i <numberOfObjectives ; i++) {
           double[] attValues = new double[dataset.numAttributes()];
-          attValues[0] = solution.getObjective(i);
+          attValues[0] = solution.objectives()[i];
           attValues[1] = dataset.attribute(NOMINAL_STRING).indexOfValue(VALUE_STRING+i);
           attValues[2] = dataset.attribute(MY_STRING).addStringValue(solution.toString()+i);
           dataset.add(new DenseInstance(1.0, attValues));
@@ -75,7 +74,7 @@ public class DecisionTreeEstimator<S extends Solution<?>> {
       //Add instances
       for (int i = 0; i < numberOfObjectives; i++) {
         Instance test = new DenseInstance(3);
-        test.setValue(attr, testSolution.getObjective(i));
+        test.setValue(attr, testSolution.objectives()[i]);
         test.setValue(attr1, VALUE_STRING+i);
         test.setValue(attr2, testSolution.toString()+i);
         datasetTest.add(test);
@@ -104,7 +103,7 @@ public class DecisionTreeEstimator<S extends Solution<?>> {
       eval.evaluateModel(classifier, datasetTest); //testset
       result = classifier.classifyInstance(datasetTest.get(index));
     } catch (Exception e) {
-      result = testSolution.getObjective(index);
+      result = testSolution.objectives()[index];
     }
     return result;
   }
@@ -114,7 +113,7 @@ public class DecisionTreeEstimator<S extends Solution<?>> {
     double result = 0.0d;
 
     try {
-      int numberOfVariables = solutionList.get(0).getNumberOfVariables();
+      int numberOfVariables = solutionList.get(0).variables().size();
       //Attributes
       //numeric
       Attribute attr = new Attribute("my-numeric");
@@ -141,7 +140,7 @@ public class DecisionTreeEstimator<S extends Solution<?>> {
         //instaces
         for (int i = 0; i <numberOfVariables ; i++) {
           double[] attValues = new double[dataset.numAttributes()];
-          attValues[0] = ((DoubleSolution)solution).getVariable(i);
+          attValues[0] = ((DoubleSolution)solution).variables().get(i);
           attValues[1] = dataset.attribute(NOMINAL_STRING).indexOfValue(VALUE_STRING+i);
           attValues[2] = dataset.attribute(MY_STRING).addStringValue(solution.toString()+i);
           dataset.add(new DenseInstance(1.0, attValues));
@@ -155,7 +154,7 @@ public class DecisionTreeEstimator<S extends Solution<?>> {
       //Add instances
       for (int i = 0; i < numberOfVariables; i++) {
         Instance test = new DenseInstance(3);
-        test.setValue(attr, ((DoubleSolution)testSolution).getVariable(i));
+        test.setValue(attr, ((DoubleSolution)testSolution).variables().get(i));
         test.setValue(attr1, VALUE_STRING+i);
         test.setValue(attr2, testSolution.toString()+i);
         datasetTest.add(test);
@@ -184,7 +183,7 @@ public class DecisionTreeEstimator<S extends Solution<?>> {
       eval.evaluateModel(classifier, datasetTest); //testset
       result = classifier.classifyInstance(datasetTest.get(index));
     } catch (Exception e) {
-      result = ((DoubleSolution)testSolution).getVariable(index);
+      result = ((DoubleSolution)testSolution).variables().get(index);
     }
     return result;
   }

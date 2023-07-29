@@ -1,15 +1,14 @@
 package org.uma.jmetal.algorithm.multiobjective.espea.util;
 
+import java.util.Comparator;
+import org.uma.jmetal.algorithm.multiobjective.espea.ESPEA;
 import org.uma.jmetal.algorithm.multiobjective.espea.util.ScalarizationWrapper.ScalarizationType;
 import org.uma.jmetal.solution.Solution;
 import org.uma.jmetal.util.SolutionListUtils;
 import org.uma.jmetal.util.archive.impl.AbstractBoundedArchive;
 import org.uma.jmetal.util.comparator.FitnessComparator;
-import org.uma.jmetal.util.front.util.FrontNormalizer;
+import org.uma.jmetal.util.legacy.front.util.FrontNormalizer;
 import org.uma.jmetal.util.solutionattribute.impl.Fitness;
-
-import java.util.Collections;
-import java.util.Comparator;
 
 /**
  * The archive that is used within the {@link ESPEA} algorithm. The archive is
@@ -150,7 +149,7 @@ public class EnergyArchive<S extends Solution<?>> extends AbstractBoundedArchive
   }
 
   @Override
-  public Comparator<S> getComparator() {
+  public Comparator<S> comparator() {
     return fitnessComparator;
   }
 
@@ -164,16 +163,16 @@ public class EnergyArchive<S extends Solution<?>> extends AbstractBoundedArchive
   @Override
   public void computeDensityEstimator() {
     // Compute scalarization values
-    this.scalWrapper.execute(getSolutionList());
+    this.scalWrapper.execute(solutions());
     scaleToPositive();
 
     // Distance matrix
     double[][] distanceMatrix;
     if (normalizeObjectives) {
-      FrontNormalizer normalizer = new FrontNormalizer(getSolutionList());
-      distanceMatrix = SolutionListUtils.distanceMatrix(normalizer.normalize(getSolutionList()));
+      FrontNormalizer normalizer = new FrontNormalizer(solutions());
+      distanceMatrix = SolutionListUtils.distanceMatrix(normalizer.normalize(solutions()));
     } else
-      distanceMatrix = SolutionListUtils.distanceMatrix(getSolutionList());
+      distanceMatrix = SolutionListUtils.distanceMatrix(solutions());
 
     // Set fitness based on replacement strategy
     double[] energyVector = energyVector(distanceMatrix);
@@ -201,7 +200,7 @@ public class EnergyArchive<S extends Solution<?>> extends AbstractBoundedArchive
       } else {
         // If archive member is not eligible for replacement, make sure
         // it is retained in any case.
-        archive.get(i).setAttribute(fitness.getAttributeIdentifier(), -Double.MAX_VALUE);
+        archive.get(i).attributes().put(fitness.getAttributeIdentifier(), -Double.MAX_VALUE);
       }
       if (eligible) {
         // New solution is always retained
@@ -214,16 +213,11 @@ public class EnergyArchive<S extends Solution<?>> extends AbstractBoundedArchive
   }
 
   @Override
-  public void sortByDensityEstimator() {
-    Collections.sort(getSolutionList(), fitnessComparator);
-  }
-
-  @Override
   public void prune() {
-    if (getSolutionList().size() > getMaxSize()) {
+    if (solutions().size() > maximumSize()) {
       computeDensityEstimator();
-      S worst = new SolutionListUtils().findWorstSolution(getSolutionList(), fitnessComparator);
-      getSolutionList().remove(worst);
+      S worst = new SolutionListUtils().findWorstSolution(solutions(), fitnessComparator);
+      solutions().remove(worst);
     }
   }
 
@@ -240,7 +234,7 @@ public class EnergyArchive<S extends Solution<?>> extends AbstractBoundedArchive
   private void scaleToPositive() {
     // Obtain min value
     double minScalarization = Double.MAX_VALUE;
-    for (S solution : getSolutionList()) {
+    for (S solution : solutions()) {
       if (scalarization.getAttribute(solution) < minScalarization) {
         minScalarization = scalarization.getAttribute(solution);
       }
@@ -248,7 +242,7 @@ public class EnergyArchive<S extends Solution<?>> extends AbstractBoundedArchive
     if (minScalarization < 0) {
       // Avoid scalarization values of 0
       double eps = 10e-6;
-      for (S solution : getSolutionList()) {
+      for (S solution : solutions()) {
         scalarization.setAttribute(solution, eps + scalarization.getAttribute(solution) + minScalarization);
       }
     }
@@ -308,7 +302,7 @@ public class EnergyArchive<S extends Solution<?>> extends AbstractBoundedArchive
    * False otherwise.
    */
   public boolean isFull() {
-    return getSolutionList().size() == maxSize;
+    return solutions().size() == maxSize;
   }
 
 }

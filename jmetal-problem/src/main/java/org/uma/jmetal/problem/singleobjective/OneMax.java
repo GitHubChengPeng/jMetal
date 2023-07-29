@@ -1,22 +1,19 @@
 package org.uma.jmetal.problem.singleobjective;
 
+import java.util.BitSet;
+import java.util.List;
 import org.uma.jmetal.problem.binaryproblem.impl.AbstractBinaryProblem;
 import org.uma.jmetal.solution.binarysolution.BinarySolution;
 import org.uma.jmetal.solution.binarysolution.impl.DefaultBinarySolution;
-import org.uma.jmetal.util.JMetalException;
-
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.List;
 
 /**
- * Class representing problem OneMax. The problem consist of maximizing the
- * number of '1's in a binary string.
+ * Class representing problem OneMax. The problem consist of maximizing the number of '1's in a
+ * binary string.
  */
 @SuppressWarnings("serial")
 public class OneMax extends AbstractBinaryProblem {
-	private int bits ;
-	
+  private int bits;
+
   /** Constructor */
   public OneMax() {
     this(256);
@@ -24,39 +21,45 @@ public class OneMax extends AbstractBinaryProblem {
 
   /** Constructor */
   public OneMax(Integer numberOfBits) {
-    setNumberOfVariables(1);
-    setNumberOfObjectives(1);
-    setName("OneMax");
-
-    bits = numberOfBits ;
+    bits = numberOfBits;
   }
 
   @Override
-  public int getBitsFromVariable(int index) {
-  	if (index != 0) {
-  		throw new JMetalException("Problem OneMax has only a variable. Index = " + index) ;
-  	}
-  	return bits ;
+  public int numberOfVariables() {
+    return 1 ;
+  }
+  @Override
+  public int numberOfObjectives() {
+    return 1 ;
+  }
+  @Override
+  public int numberOfConstraints() {
+    return 0 ;
   }
 
   @Override
-  public List<Integer> getListOfBitsPerVariable() {
-    return Arrays.asList(bits) ;
+  public String name() {
+    return "OneMax" ;
+  }
+
+  @Override
+  public List<Integer> numberOfBitsPerVariable() {
+    return List.of(bits);
   }
 
   @Override
   public BinarySolution createSolution() {
-    return new DefaultBinarySolution(getListOfBitsPerVariable(), getNumberOfObjectives()) ;
+    return new DefaultBinarySolution(numberOfBitsPerVariable(), numberOfObjectives());
   }
 
   /** Evaluate() method */
   @Override
-  public void evaluate(BinarySolution solution) {
+  public BinarySolution evaluate(BinarySolution solution) {
     int counterOnes;
 
     counterOnes = 0;
 
-    BitSet bitset = solution.getVariable(0) ;
+    BitSet bitset = solution.variables().get(0);
 
     for (int i = 0; i < bitset.length(); i++) {
       if (bitset.get(i)) {
@@ -65,8 +68,8 @@ public class OneMax extends AbstractBinaryProblem {
     }
 
     // OneMax is a maximization problem: multiply by -1 to minimize
-    solution.setObjective(0, -1.0 * counterOnes);
+    solution.objectives()[0] = -1.0 * counterOnes;
+
+    return solution;
   }
 }
-
-

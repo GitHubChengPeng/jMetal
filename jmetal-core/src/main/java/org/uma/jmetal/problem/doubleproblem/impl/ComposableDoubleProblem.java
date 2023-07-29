@@ -1,15 +1,13 @@
 package org.uma.jmetal.problem.doubleproblem.impl;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
-import org.uma.jmetal.problem.doubleproblem.DoubleProblem;
-import org.uma.jmetal.solution.doublesolution.DoubleSolution;
-import org.uma.jmetal.solution.doublesolution.impl.DefaultDoubleSolution;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.IntStream;
+import org.uma.jmetal.problem.doubleproblem.DoubleProblem;
+import org.uma.jmetal.solution.doublesolution.DoubleSolution;
+import org.uma.jmetal.solution.doublesolution.impl.DefaultDoubleSolution;
+import org.uma.jmetal.util.bounds.Bounds;
 
 /**
  * This class allows to define a continuous (double) problem dynamically, by adding the ranges of
@@ -36,12 +34,10 @@ import java.util.stream.IntStream;
  * <p>This class does not intend to be a replacement of the existing of {@link
  * AbstractDoubleProblem}; it is merely an alternative way of defining a problem.
  */
-@SuppressWarnings("serial")
 public class ComposableDoubleProblem implements DoubleProblem {
-
   private List<Function<Double[], Double>> objectiveFunctions;
   private List<Function<Double[], Double>> constraints;
-  private List<Pair<Double, Double>> bounds;
+  private List<Bounds<Double>> bounds;
   private String name;
 
   public ComposableDoubleProblem() {
@@ -63,64 +59,56 @@ public class ComposableDoubleProblem implements DoubleProblem {
   }
 
   public ComposableDoubleProblem addVariable(double lowerBound, double upperBound) {
-    bounds.add(new ImmutablePair<>(lowerBound, upperBound));
+    bounds.add(Bounds.create(lowerBound, upperBound));
     return this;
   }
 
-  public ComposableDoubleProblem setName(String name) {
+  public ComposableDoubleProblem name(String name) {
     this.name = name;
 
     return this;
   }
 
   @Override
-  public int getNumberOfVariables() {
+  public int numberOfVariables() {
     return bounds.size();
   }
 
   @Override
-  public int getNumberOfObjectives() {
+  public int numberOfObjectives() {
     return objectiveFunctions.size();
   }
 
   @Override
-  public int getNumberOfConstraints() {
+  public int numberOfConstraints() {
     return constraints.size();
   }
 
   @Override
-  public String getName() {
+  public String name() {
     return name;
   }
 
   @Override
-  public Double getLowerBound(int index) {
-    return bounds.get(index).getLeft();
-  }
-
-  @Override
-  public Double getUpperBound(int index) {
-    return bounds.get(index).getRight();
-  }
-
-  @Override
   public DoubleSolution createSolution() {
-    return new DefaultDoubleSolution(bounds, getNumberOfObjectives(), getNumberOfConstraints());
+    return new DefaultDoubleSolution(bounds, numberOfObjectives(), numberOfConstraints());
   }
 
   @Override
-  public List<Pair<Double, Double>> getBounds() {
+  public List<Bounds<Double>> variableBounds() {
     return bounds;
   }
 
   @Override
-  public void evaluate(DoubleSolution solution) {
-    Double[] vars = solution.getVariables().toArray(new Double[getNumberOfVariables()]);
+  public DoubleSolution evaluate(DoubleSolution solution) {
+    Double[] vars = solution.variables().toArray(new Double[numberOfVariables()]);
 
-    IntStream.range(0, getNumberOfObjectives())
-        .forEach(i -> solution.setObjective(i, objectiveFunctions.get(i).apply(vars)));
+    IntStream.range(0, numberOfObjectives())
+        .forEach(i -> solution.objectives()[i] =  objectiveFunctions.get(i).apply(vars));
 
-    IntStream.range(0, getNumberOfConstraints())
-        .forEach(i -> solution.setConstraint(i, constraints.get(i).apply(vars)));
+    IntStream.range(0, numberOfConstraints())
+        .forEach(i -> solution.constraints()[i] =  constraints.get(i).apply(vars));
+
+    return solution ;
   }
 }

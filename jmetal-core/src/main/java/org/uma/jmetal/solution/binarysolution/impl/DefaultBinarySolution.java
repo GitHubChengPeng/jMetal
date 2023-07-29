@@ -1,72 +1,77 @@
 package org.uma.jmetal.solution.binarysolution.impl;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import org.uma.jmetal.solution.AbstractSolution;
 import org.uma.jmetal.solution.binarysolution.BinarySolution;
 import org.uma.jmetal.util.binarySet.BinarySet;
 import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
- * Defines an implementation of a binary solution
+ * This defines an implementation of a binary solution. These solutions are composed of a number
+ * of variables containing {@link BinarySet} objects.
  *
  * @author Antonio J. Nebro <antonio@lcc.uma.es>
  */
-@SuppressWarnings("serial")
 public class DefaultBinarySolution
-    extends AbstractSolution<BinarySet>
-    implements BinarySolution {
+        extends AbstractSolution<BinarySet>
+        implements BinarySolution {
 
-  protected List<Integer> bitsPerVariable ;
+  protected List<Integer> numberOfBitsPerVariable;
 
-  /** Constructor */
+  /**
+   * Constructor
+   */
   public DefaultBinarySolution(List<Integer> bitsPerVariable, int numberOfObjectives) {
-    super(bitsPerVariable.size(), numberOfObjectives) ;
-    this.bitsPerVariable = bitsPerVariable ;
+    this(bitsPerVariable, numberOfObjectives, 0);
+  }
+
+  /**
+   * Constructor
+   */
+  public DefaultBinarySolution(List<Integer> bitsPerVariable, int numberOfObjectives, int numberOfConstraints) {
+    super(bitsPerVariable.size(), numberOfObjectives, numberOfConstraints);
+    this.numberOfBitsPerVariable = bitsPerVariable;
 
     initializeBinaryVariables(JMetalRandom.getInstance());
   }
 
-  /** Copy constructor */
+  /**
+   * Copy constructor
+   */
   public DefaultBinarySolution(DefaultBinarySolution solution) {
-    super(solution.getNumberOfVariables(), solution.getNumberOfObjectives()) ;
+    super(solution.variables().size(), solution.objectives().length, solution.constraints().length);
 
-    this.bitsPerVariable = solution.bitsPerVariable ;
+    this.numberOfBitsPerVariable = solution.numberOfBitsPerVariable;
 
-    for (int i = 0; i < getNumberOfVariables(); i++) {
-      setVariable(i, (BinarySet) solution.getVariable(i).clone());
+    for (int i = 0; i < variables().size(); i++) {
+      variables().set(i, (BinarySet) solution.variables().get(i).clone());
     }
 
-    for (int i = 0; i < getNumberOfObjectives(); i++) {
-      setObjective(i, solution.getObjective(i)) ;
-    }
+    Arrays.setAll(objectives(), i -> solution.objectives()[i]);
+    Arrays.setAll(constraints(), i -> solution.constraints()[i]);
 
-    for (int i = 0; i < getNumberOfConstraints(); i++) {
-      setConstraint(i, solution.getConstraint(i));
-    }
-
-    attributes = new HashMap<Object, Object>(solution.attributes) ;
+    attributes = new HashMap<>(solution.attributes);
   }
 
-  private static BinarySet createNewBitSet(int numberOfBits, JMetalRandom randomGenerator) {
-    BinarySet bitSet = new BinarySet(numberOfBits) ;
+  private static BinarySet createNewBinarySet(int numberOfBits, JMetalRandom randomGenerator) {
+    BinarySet bitSet = new BinarySet(numberOfBits);
 
     for (int i = 0; i < numberOfBits; i++) {
-      double rnd = randomGenerator.nextDouble() ;
+      double rnd = randomGenerator.nextDouble();
       if (rnd < 0.5) {
         bitSet.set(i);
       } else {
         bitSet.clear(i);
       }
     }
-    return bitSet ;
+    return bitSet;
   }
 
   @Override
-  public int getNumberOfBits(int index) {
-    return getVariable(index).getBinarySetLength() ;
+  public List<Integer> numberOfBitsPerVariable() {
+    return numberOfBitsPerVariable ;
   }
 
   @Override
@@ -75,23 +80,18 @@ public class DefaultBinarySolution
   }
 
   @Override
-  public int getTotalNumberOfBits() {
-    int sum = 0 ;
-    for (int i = 0; i < getNumberOfVariables(); i++) {
-      sum += getVariable(i).getBinarySetLength() ;
+  public int totalNumberOfBits() {
+    int sum = 0;
+    for (int i = 0; i < variables().size(); i++) {
+      sum += variables().get(i).getBinarySetLength();
     }
 
-    return sum ;
+    return sum;
   }
-  
+
   private void initializeBinaryVariables(JMetalRandom randomGenerator) {
-    for (int i = 0; i < getNumberOfVariables(); i++) {
-      setVariable(i, createNewBitSet(bitsPerVariable.get(i), randomGenerator));
+    for (int i = 0; i < variables().size(); i++) {
+      variables().set(i, createNewBinarySet(numberOfBitsPerVariable.get(i), randomGenerator));
     }
   }
-
-	@Override
-	public Map<Object, Object> getAttributes() {
-		return attributes;
-	}
 }

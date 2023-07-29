@@ -1,10 +1,9 @@
 package org.uma.jmetal.algorithm.multiobjective.mombi.util;
 
-import org.uma.jmetal.solution.Solution;
-import org.uma.jmetal.util.JMetalException;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.uma.jmetal.solution.Solution;
+import org.uma.jmetal.util.errorchecking.JMetalException;
 
 /**
  * This class implements a set of utility functions based on the Tchebycheff aggregation approach
@@ -42,7 +41,7 @@ public class TchebycheffUtilityFunctionsSet<S extends Solution<?>>
           Math.max(
               result,
               weightVector.get(i)
-                  * Math.abs(solution.getObjective(i) - this.referencePoint.get(i)));
+                  * Math.abs(solution.objectives()[i] - this.referencePoint.get(i)));
 
     return result;
   }

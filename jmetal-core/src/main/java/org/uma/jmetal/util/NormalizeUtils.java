@@ -1,9 +1,8 @@
 package org.uma.jmetal.util;
 
-import org.uma.jmetal.util.checking.Check;
-
 import java.util.Arrays;
 import java.util.stream.IntStream;
+import org.uma.jmetal.util.errorchecking.Check;
 
 /**
  * Class responsible for normalizing values
@@ -38,7 +37,7 @@ public class NormalizeUtils {
    */
   public static double normalize(
           double value, double minRangeValue, double maxRangeValue, double min, double max) {
-    Check.that(max != min, "Max minus min should not be zero");
+    Check.that(max != min, "" + max + " minus " + min + " should not be zero");
 
     return minRangeValue + (((value - min) * (maxRangeValue - minRangeValue)) / (max - min));
   }
@@ -62,7 +61,7 @@ public class NormalizeUtils {
    * @return A matrix with normalized values for each of its rows
    */
   public static double[][] normalize(double[][] matrix) {
-    Check.isNotNull(matrix);
+    Check.notNull(matrix);
 
     double[][] normalizedMatrix = new double[matrix.length][matrix[0].length];
 
@@ -72,6 +71,29 @@ public class NormalizeUtils {
     for (int i = 0; i < matrix.length; i++) {
       for (int j = 0; j < matrix[0].length; j++) {
         normalizedMatrix[i][j] = NormalizeUtils.normalize(matrix[i][j], minValue[j], maxValue[j]) ;
+      }
+    }
+
+    return normalizedMatrix;
+  }
+
+  /**
+   * Normalize the vectors (rows) of bi-dimensional matrix
+   *
+   * @param matrix
+   * @return A matrix with normalized values for each of its rows
+   */
+  public static double[][] normalize(double[][] matrix, double[] minRangeValue, double[] maxRangeValue) {
+    Check.notNull(matrix);
+
+    double[][] normalizedMatrix = new double[matrix.length][matrix[0].length];
+
+    //double[] minValue = getMinValuesOfTheColumnsOfAMatrix(matrix) ;
+    //double[] maxValue = getMaxValuesOfTheColumnsOfAMatrix(matrix) ;
+
+    for (int i = 0; i < matrix.length; i++) {
+      for (int j = 0; j < matrix[0].length; j++) {
+        normalizedMatrix[i][j] = normalize(matrix[i][j], minRangeValue[j], maxRangeValue[j]) ;
       }
     }
 

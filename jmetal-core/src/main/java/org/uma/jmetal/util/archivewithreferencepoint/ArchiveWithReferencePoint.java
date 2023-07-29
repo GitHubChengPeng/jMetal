@@ -1,12 +1,11 @@
 package org.uma.jmetal.util.archivewithreferencepoint;
 
+import java.util.Comparator;
+import java.util.List;
 import org.uma.jmetal.solution.Solution;
 import org.uma.jmetal.util.SolutionListUtils;
 import org.uma.jmetal.util.archive.impl.AbstractBoundedArchive;
 import org.uma.jmetal.util.pseudorandom.JMetalRandom;
-
-import java.util.Comparator;
-import java.util.List;
 
 /**
  * This class defines a bounded archive that has associated a reference point as described in the paper
@@ -39,15 +38,15 @@ public abstract class ArchiveWithReferencePoint <S extends Solution<?>> extends 
       @SuppressWarnings("unchecked")
       S copy = (S) solution.copy();
       referencePointSolution = copy;
-      for (int i = 0; i < solution.getNumberOfObjectives(); i++) {
-        referencePointSolution.setObjective(i, this.referencePoint.get(i));
+      for (int i = 0; i < solution.objectives().length; i++) {
+        referencePointSolution.objectives()[i] = this.referencePoint.get(i);
       }
     }
 
     S dominatedSolution = null ;
 
     if (dominanceTest(solution, referencePointSolution) == 0) {
-      if (getSolutionList().size() == 0) {
+      if (solutions().size() == 0) {
         result = true ;
       } else {
         if (JMetalRandom.getInstance().nextDouble() < 0.05) {
@@ -65,8 +64,8 @@ public abstract class ArchiveWithReferencePoint <S extends Solution<?>> extends 
       result = super.add(solution);
     }
 
-    if (result && (dominatedSolution != null) && (getSolutionList().size() > 1)) {
-      getSolutionList().remove(dominatedSolution) ;
+    if (result && (dominatedSolution != null) && (solutions().size() > 1)) {
+      solutions().remove(dominatedSolution) ;
     }
 
     return result;
@@ -74,25 +73,25 @@ public abstract class ArchiveWithReferencePoint <S extends Solution<?>> extends 
 
   @Override
   public synchronized void prune() {
-    if (getSolutionList().size() > getMaxSize()) {
+    if (solutions().size() > maximumSize()) {
 
       computeDensityEstimator();
 
-      S worst = new SolutionListUtils().findWorstSolution(getSolutionList(), comparator);
-      getSolutionList().remove(worst);
+      S worst = new SolutionListUtils().findWorstSolution(solutions(), comparator);
+      solutions().remove(worst);
     }
   }
 
   public synchronized void changeReferencePoint(List<Double> newReferencePoint) {
     this.referencePoint = newReferencePoint ;
     for (int i = 0; i < referencePoint.size(); i++) {
-      referencePointSolution.setObjective(i, this.referencePoint.get(i));
+      referencePointSolution.objectives()[i] = this.referencePoint.get(i);
     }
 
     int i = 0 ;
-    while (i < getSolutionList().size()) {
-      if (dominanceTest(getSolutionList().get(i), referencePointSolution) == 0) {
-        getSolutionList().remove(i) ;
+    while (i < solutions().size()) {
+      if (dominanceTest(solutions().get(i), referencePointSolution) == 0) {
+        solutions().remove(i) ;
       } else {
         i++;
       }
@@ -105,9 +104,9 @@ public abstract class ArchiveWithReferencePoint <S extends Solution<?>> extends 
     int bestIsOne = 0 ;
     int bestIsTwo = 0 ;
     int result ;
-    for (int i = 0; i < solution1.getNumberOfObjectives(); i++) {
-      double value1 = solution1.getObjective(i);
-      double value2 = solution2.getObjective(i);
+    for (int i = 0; i < solution1.objectives().length; i++) {
+      double value1 = solution1.objectives()[i];
+      double value2 = solution2.objectives()[i];
       if (value1 != value2) {
         if (value1 < value2) {
           bestIsOne = 1;

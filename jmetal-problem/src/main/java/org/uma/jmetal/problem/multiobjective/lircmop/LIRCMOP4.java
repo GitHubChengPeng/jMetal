@@ -13,23 +13,23 @@ public class LIRCMOP4 extends LIRCMOP2 {
   /** Constructor */
   public LIRCMOP4() {
     super();
-    setNumberOfConstraints(3);
-    setName("LIRCMOP4");
+    numberOfConstraints(3);
+    name("LIRCMOP4");
   }
 
   /** EvaluateConstraints() method */
   public void evaluateConstraints(DoubleSolution solution) {
-    double[] x = new double[getNumberOfVariables()];
-    for (int i = 0; i < getNumberOfVariables(); i++) {
-      x[i] = solution.getVariable(i);
+    double[] x = new double[numberOfVariables()];
+    for (int i = 0; i < numberOfVariables(); i++) {
+      x[i] = solution.variables().get(i);
     }
 
     final double a = 0.51;
     final double b = 0.5;
     final double c = 20.0;
 
-    solution.setConstraint(0, (a - g1(x)) * (g1(x) - b));
-    solution.setConstraint(1, (a - g2(x)) * (g2(x) - b));
-    solution.setConstraint(2, Math.sin(c * Math.PI * x[0]) - 0.5);
+    solution.constraints()[0] = (a - g1(x)) * (g1(x) - b);
+    solution.constraints()[1] = (a - g2(x)) * (g2(x) - b);
+    solution.constraints()[2] = Math.sin(c * Math.PI * x[0]) - 0.5;
   }
 }

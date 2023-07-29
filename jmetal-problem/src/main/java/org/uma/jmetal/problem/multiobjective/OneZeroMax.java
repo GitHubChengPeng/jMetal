@@ -1,13 +1,11 @@
 package org.uma.jmetal.problem.multiobjective;
 
+import java.util.BitSet;
+import java.util.List;
 import org.uma.jmetal.problem.binaryproblem.impl.AbstractBinaryProblem;
 import org.uma.jmetal.solution.binarysolution.BinarySolution;
 import org.uma.jmetal.solution.binarysolution.impl.DefaultBinarySolution;
-import org.uma.jmetal.util.JMetalException;
-
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.List;
+import org.uma.jmetal.util.errorchecking.JMetalException;
 
 /**
  * Class representing problem OneZeroMax. The problem consist of maximizing the
@@ -16,6 +14,7 @@ import java.util.List;
 @SuppressWarnings("serial")
 public class OneZeroMax extends AbstractBinaryProblem {
   private int bits ;
+
   /** Constructor */
   public OneZeroMax() throws JMetalException {
     this(512);
@@ -23,41 +22,47 @@ public class OneZeroMax extends AbstractBinaryProblem {
 
   /** Constructor */
   public OneZeroMax(Integer numberOfBits) throws JMetalException {
-    setNumberOfVariables(1);
-    setNumberOfObjectives(2);
-    setName("OneZeroMax");
-
     bits = numberOfBits ;
   }
 
   @Override
-  public List<Integer> getListOfBitsPerVariable() {
-    return Arrays.asList(bits);
+  public int numberOfVariables() {
+    return 1 ;
+  }
+  @Override
+  public int numberOfObjectives() {
+    return 2 ;
+  }
+  @Override
+  public int numberOfConstraints() {
+    return 0 ;
   }
 
   @Override
-  public int getBitsFromVariable(int index) {
-  	if (index != 0) {
-  		throw new JMetalException("Problem OneZeroMax has only a variable. Index = " + index) ;
-  	}
-  	return bits ;
+  public String name() {
+    return "OneZeroMax" ;
+  }
+
+  @Override
+  public List<Integer> numberOfBitsPerVariable() {
+    return List.of(bits);
   }
 
   @Override
   public BinarySolution createSolution() {
-    return new DefaultBinarySolution(getListOfBitsPerVariable(), getNumberOfObjectives()) ;
+    return new DefaultBinarySolution(numberOfBitsPerVariable(), numberOfObjectives()) ;
   }
 
   /** Evaluate() method */
   @Override
-    public void evaluate(BinarySolution solution) {
+    public BinarySolution evaluate(BinarySolution solution) {
     int counterOnes;
     int counterZeroes;
 
     counterOnes = 0;
     counterZeroes = 0;
 
-    BitSet bitset = solution.getVariable(0) ;
+    BitSet bitset = solution.variables().get(0) ;
 
     for (int i = 0; i < bitset.length(); i++) {
       if (bitset.get(i)) {
@@ -68,7 +73,9 @@ public class OneZeroMax extends AbstractBinaryProblem {
     }
 
     // OneZeroMax is a maximization problem: multiply by -1 to minimize
-    solution.setObjective(0, -1.0 * counterOnes);
-    solution.setObjective(1, -1.0 * counterZeroes);
+    solution.objectives()[0] = -1.0 * counterOnes ;
+    solution.objectives()[1] = -1.0 * counterZeroes ;
+
+    return solution ;
   }
 }

@@ -1,10 +1,9 @@
 package org.uma.jmetal.problem.multiobjective.mop;
 
-import org.uma.jmetal.problem.doubleproblem.impl.AbstractDoubleProblem;
-import org.uma.jmetal.solution.doublesolution.DoubleSolution;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.uma.jmetal.problem.doubleproblem.impl.AbstractDoubleProblem;
+import org.uma.jmetal.solution.doublesolution.DoubleSolution;
 
 /**
  * Problem MOP7. Defined in
@@ -29,35 +28,35 @@ public class MOP7 extends AbstractDoubleProblem {
    * @param numberOfVariables Number of variables.
    */
   public MOP7(Integer numberOfVariables) {
-    setNumberOfVariables(numberOfVariables);
-    setNumberOfObjectives(3);
-    setName("MOP7");
+    numberOfObjectives(3);
+    name("MOP7");
 
-    List<Double> lowerLimit = new ArrayList<>(getNumberOfVariables()) ;
-    List<Double> upperLimit = new ArrayList<>(getNumberOfVariables()) ;
+    List<Double> lowerLimit = new ArrayList<>(numberOfVariables) ;
+    List<Double> upperLimit = new ArrayList<>(numberOfVariables) ;
 
-    for (int i = 0; i < getNumberOfVariables(); i++) {
+    for (int i = 0; i < numberOfVariables; i++) {
       lowerLimit.add(0.0);
       upperLimit.add(1.0);
     }
 
-    setVariableBounds(lowerLimit, upperLimit);
+    variableBounds(lowerLimit, upperLimit);
   }
 
   /** Evaluate() method */
-  public void evaluate(DoubleSolution solution) {
-    double[] f = new double[getNumberOfObjectives()];
+  public DoubleSolution evaluate(DoubleSolution solution) {
+    double[] f = new double[solution.objectives().length];
 
     double g = this.evalG(solution);
-    f[0] = (1 + g) * Math.cos(0.5 * Math.PI * solution.getVariable(0))
-    		* Math.cos(0.5 * Math.PI * solution.getVariable(1));
-    f[1] = (1 + g) * Math.cos(0.5 * Math.PI * solution.getVariable(0))
-    		* Math.sin(0.5 * Math.PI * solution.getVariable(1));
-    f[2] = (1 + g) * Math.sin(0.5 * Math.PI * solution.getVariable(0));
+    f[0] = (1 + g) * Math.cos(0.5 * Math.PI * solution.variables().get(0))
+    		* Math.cos(0.5 * Math.PI * solution.variables().get(1));
+    f[1] = (1 + g) * Math.cos(0.5 * Math.PI * solution.variables().get(0))
+    		* Math.sin(0.5 * Math.PI * solution.variables().get(1));
+    f[2] = (1 + g) * Math.sin(0.5 * Math.PI * solution.variables().get(0));
 
-    solution.setObjective(0, f[0]);
-    solution.setObjective(1, f[1]);
-    solution.setObjective(2, f[2]);
+    solution.objectives()[0] = f[0];
+    solution.objectives()[1] = f[1];
+    solution.objectives()[2] = f[2];
+    return solution ;
   }
 
   /**
@@ -67,11 +66,11 @@ public class MOP7 extends AbstractDoubleProblem {
    */
   private double evalG(DoubleSolution solution) {
     double g = 0.0;
-    for (int i = 2; i < solution.getNumberOfVariables(); i++) {
-      double t = solution.getVariable(i) - solution.getVariable(0) * solution.getVariable(1);
+    for (int i = 2; i < solution.variables().size(); i++) {
+      double t = solution.variables().get(i) - solution.variables().get(0) * solution.variables().get(1);
       g += -0.9 * t * t + Math.pow(Math.abs(t), 0.6);
     }
-    g = 2 * Math.sin(Math.PI * solution.getVariable(0)) * g;
+    g = 2 * Math.sin(Math.PI * solution.variables().get(0)) * g;
     return g;
   }
 

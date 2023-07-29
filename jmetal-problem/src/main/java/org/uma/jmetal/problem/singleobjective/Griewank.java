@@ -1,15 +1,13 @@
 package org.uma.jmetal.problem.singleobjective;
 
-import org.uma.jmetal.problem.doubleproblem.impl.AbstractDoubleProblem;
-import org.uma.jmetal.solution.doublesolution.DoubleSolution;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.uma.jmetal.problem.doubleproblem.impl.AbstractDoubleProblem;
+import org.uma.jmetal.solution.doublesolution.DoubleSolution;
 
 /**
  * Class representing problem Griewank
  */
-@SuppressWarnings("serial")
 public class Griewank extends AbstractDoubleProblem {
 
   /**
@@ -19,31 +17,30 @@ public class Griewank extends AbstractDoubleProblem {
    * @param numberOfVariables Number of variables of the problem
    */
   public Griewank(Integer numberOfVariables)  {
-    setNumberOfVariables(numberOfVariables);
-    setNumberOfObjectives(1);
-    setNumberOfConstraints(0) ;
-    setName("Griewank");
+    numberOfObjectives(1);
+    numberOfConstraints(0) ;
+    name("Griewank");
 
-    List<Double> lowerLimit = new ArrayList<>(getNumberOfVariables()) ;
-    List<Double> upperLimit = new ArrayList<>(getNumberOfVariables()) ;
+    List<Double> lowerLimit = new ArrayList<>(numberOfVariables) ;
+    List<Double> upperLimit = new ArrayList<>(numberOfVariables) ;
 
-    for (int i = 0; i < getNumberOfVariables(); i++) {
+    for (int i = 0; i < numberOfVariables; i++) {
       lowerLimit.add(-600.0);
       upperLimit.add(600.0);
     }
 
-    setVariableBounds(lowerLimit, upperLimit);
+    variableBounds(lowerLimit, upperLimit);
   }
 
   /** Evaluate() method */
   @Override
-  public void evaluate(DoubleSolution solution) {
-    int numberOfVariables = getNumberOfVariables() ;
+  public DoubleSolution evaluate(DoubleSolution solution) {
+    int numberOfVariables = numberOfVariables() ;
 
     double[] x = new double[numberOfVariables] ;
 
     for (int i = 0; i < numberOfVariables; i++) {
-      x[i] = solution.getVariable(i) ;
+      x[i] = solution.variables().get(i) ;
     }
 
     double sum = 0.0;
@@ -54,7 +51,9 @@ public class Griewank extends AbstractDoubleProblem {
       mult *= Math.cos(x[var] / Math.sqrt(var + 1));
     }
 
-    solution.setObjective(0, 1.0 / d * sum - mult + 1.0);
+    solution.objectives()[0] = 1.0 / d * sum - mult + 1.0;
+
+    return solution ;
   }
 }
 

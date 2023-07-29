@@ -1,13 +1,14 @@
 package org.uma.jmetal.operator.crossover.impl;
 
-import org.uma.jmetal.operator.crossover.CrossoverOperator;
-import org.uma.jmetal.solution.integersolution.IntegerSolution;
-import org.uma.jmetal.util.JMetalException;
-import org.uma.jmetal.util.pseudorandom.JMetalRandom;
-import org.uma.jmetal.util.pseudorandom.RandomGenerator;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.uma.jmetal.operator.crossover.CrossoverOperator;
+import org.uma.jmetal.solution.integersolution.IntegerSolution;
+import org.uma.jmetal.util.bounds.Bounds;
+import org.uma.jmetal.util.errorchecking.Check;
+import org.uma.jmetal.util.errorchecking.JMetalException;
+import org.uma.jmetal.util.pseudorandom.JMetalRandom;
+import org.uma.jmetal.util.pseudorandom.RandomGenerator;
 
 /**
  * This class allows to apply a SBX crossover operator using two parent solutions (Integer encoding)
@@ -31,11 +32,8 @@ public class IntegerSBXCrossover implements CrossoverOperator<IntegerSolution> {
 
   /** Constructor */
   public IntegerSBXCrossover(double crossoverProbability, double distributionIndex, RandomGenerator<Double> randomGenerator) {
-    if (crossoverProbability < 0) {
-      throw new JMetalException("Crossover probability is negative: " + crossoverProbability) ;
-    } else if (distributionIndex < 0) {
-      throw new JMetalException("Distribution index is negative: " + distributionIndex);
-    }
+    Check.probabilityIsValid(crossoverProbability);
+    Check.valueIsNotNegative(distributionIndex);
 
     this.crossoverProbability = crossoverProbability ;
     this.distributionIndex = distributionIndex ;
@@ -44,7 +42,7 @@ public class IntegerSBXCrossover implements CrossoverOperator<IntegerSolution> {
 
   /* Getters */
   @Override
-  public double getCrossoverProbability() {
+  public double crossoverProbability() {
     return crossoverProbability;
   }
 
@@ -89,9 +87,9 @@ public class IntegerSBXCrossover implements CrossoverOperator<IntegerSolution> {
     int valueX1, valueX2;
 
     if (randomGenerator.getRandomValue() <= probability) {
-      for (i = 0; i < parent1.getNumberOfVariables(); i++) {
-        valueX1 = parent1.getVariable(i);
-        valueX2 = parent2.getVariable(i);
+      for (i = 0; i < parent1.variables().size(); i++) {
+        valueX1 = parent1.variables().get(i);
+        valueX2 = parent2.variables().get(i);
         if (randomGenerator.getRandomValue() <= 0.5) {
           if (Math.abs(valueX1 - valueX2) > EPS) {
 
@@ -103,8 +101,9 @@ public class IntegerSBXCrossover implements CrossoverOperator<IntegerSolution> {
               y2 = valueX1;
             }
 
-            yL = parent1.getLowerBound(i);
-            yu = parent1.getUpperBound(i);
+            Bounds<Integer> bounds = parent1.getBounds(i);
+            yL = bounds.getLowerBound();
+            yu = bounds.getUpperBound();
             rand = randomGenerator.getRandomValue();
             beta = 1.0 + (2.0 * (y1 - yL) / (y2 - y1));
             alpha = 2.0 - Math.pow(beta, -(distributionIndex + 1.0));
@@ -146,19 +145,19 @@ public class IntegerSBXCrossover implements CrossoverOperator<IntegerSolution> {
             }
 
             if (randomGenerator.getRandomValue() <= 0.5) {
-              offspring.get(0).setVariable(i, (int)c2);
-              offspring.get(1).setVariable(i, (int)c1);
+              offspring.get(0).variables().set(i, (int)c2);
+              offspring.get(1).variables().set(i, (int)c1);
             } else {
-              offspring.get(0).setVariable(i, (int)c1);
-              offspring.get(1).setVariable(i, (int)c2);
+              offspring.get(0).variables().set(i, (int)c1);
+              offspring.get(1).variables().set(i, (int)c2);
             }
           } else {
-            offspring.get(0).setVariable(i, valueX1);
-            offspring.get(1).setVariable(i, valueX2);
+            offspring.get(0).variables().set(i, valueX1);
+            offspring.get(1).variables().set(i, valueX2);
           }
         } else {
-          offspring.get(0).setVariable(i, valueX2);
-          offspring.get(1).setVariable(i, valueX1);
+          offspring.get(0).variables().set(i, valueX2);
+          offspring.get(1).variables().set(i, valueX1);
         }
       }
     }
@@ -166,11 +165,11 @@ public class IntegerSBXCrossover implements CrossoverOperator<IntegerSolution> {
     return offspring;
   }
 
-  public int getNumberOfRequiredParents() {
+  public int numberOfRequiredParents() {
     return 2 ;
   }
 
-  public int getNumberOfGeneratedChildren() {
+  public int numberOfGeneratedChildren() {
     return 2 ;
   }
 }

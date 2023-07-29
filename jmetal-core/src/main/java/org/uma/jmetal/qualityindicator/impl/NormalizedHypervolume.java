@@ -1,82 +1,56 @@
 package org.uma.jmetal.qualityindicator.impl;
 
+import org.uma.jmetal.qualityindicator.QualityIndicator;
 import org.uma.jmetal.qualityindicator.impl.hypervolume.Hypervolume;
 import org.uma.jmetal.qualityindicator.impl.hypervolume.impl.PISAHypervolume;
-import org.uma.jmetal.solution.Solution;
-import org.uma.jmetal.util.front.Front;
-import org.uma.jmetal.util.front.impl.ArrayFront;
-import org.uma.jmetal.util.front.util.FrontUtils;
-
-import java.io.FileNotFoundException;
-import java.util.List;
 
 /**
  * Class providing an implementation of the normalized hypervolume, which is calculated as follows:
- * relative hypervolume = 1 - (HV of the front / HV of the reference front)
- *
+ * relative hypervolume = 1 - (HV of the front / HV of the reference front).
  * Before computing this indicator it must be checked that the HV of the reference front is not zero.
  *
  * @author Antonio J. Nebro <antonio@lcc.uma.es>
  */
-@SuppressWarnings("serial")
-public class NormalizedHypervolume<S extends Solution<?>> extends GenericIndicator<S> {
+public class NormalizedHypervolume extends QualityIndicator {
   private double referenceFrontHypervolume;
-  private Hypervolume<S> hypervolume;
+  private Hypervolume hypervolume;
 
   public NormalizedHypervolume() {
   }
 
-  public NormalizedHypervolume(String referenceParetoFrontFile)
-      throws FileNotFoundException {
-    super(referenceParetoFrontFile);
-    Front referenceFront = new ArrayFront(referenceParetoFrontFile);
-    hypervolume = new PISAHypervolume<>(referenceParetoFrontFile) ;
-
-    referenceFrontHypervolume =
-        this.hypervolume.evaluate(
-            (List<S>) FrontUtils.convertFrontToSolutionList(referenceFront));
-  }
-
   public NormalizedHypervolume(double[] referencePoint) {
-    Front referenceFront = new ArrayFront(referencePoint.length, referencePoint.length);
-    hypervolume = new PISAHypervolume<>();
-    hypervolume.setReferenceParetoFront(referenceFront);
+    // TODO: add a unit test
+    double[][] referenceFront = {referencePoint};
+    hypervolume = new PISAHypervolume(referenceFront);
 
-    referenceFrontHypervolume =
-        hypervolume.evaluate((List<S>) FrontUtils.convertFrontToSolutionList(referenceFront));
+    referenceFrontHypervolume = hypervolume.compute(referenceFront);
   }
 
-  public NormalizedHypervolume(Front referenceParetoFront) {
-    super(referenceParetoFront);
-    hypervolume = new PISAHypervolume<>(referenceParetoFront) ;
+  public NormalizedHypervolume(double[][] referenceFront) {
+    super(referenceFront);
+    hypervolume = new PISAHypervolume(referenceFront);
 
-    referenceFrontHypervolume =
-            this.hypervolume.evaluate(
-                    (List<S>) FrontUtils.convertFrontToSolutionList(referenceParetoFront));
+    referenceFrontHypervolume = hypervolume.compute(referenceFront);
   }
 
   @Override
-  public void setReferenceParetoFront(Front referenceFront) {
-    super.setReferenceParetoFront(referenceFront);
+  public void referenceFront(double[][] referenceFront) {
+    super.referenceFront(referenceFront);
 
-    hypervolume = new PISAHypervolume<>(referenceFront) ;
-    referenceFrontHypervolume =
-            hypervolume.evaluate((List<S>) FrontUtils.convertFrontToSolutionList(new ArrayFront(referenceFront)));
+    hypervolume = new PISAHypervolume(referenceFront);
+    referenceFrontHypervolume = hypervolume.compute(referenceFront);
   }
 
   @Override
-  public void setReferenceParetoFront(String referenceParetoFrontFile) throws FileNotFoundException {
-    super.setReferenceParetoFront(referenceParetoFrontFile);
-
-    hypervolume = new PISAHypervolume<>(referenceParetoFrontFile) ;
-    referenceFrontHypervolume =
-            hypervolume.evaluate((List<S>) FrontUtils.convertFrontToSolutionList(new ArrayFront(referenceParetoFrontFile)));
-  }
-
-  @Override
-  public String getName() {
+  public String name() {
     return "NHV";
   }
+
+  @Override
+  public String description() {
+    return "Normalized hypervolume";
+  }
+
 
   @Override
   public boolean isTheLowerTheIndicatorValueTheBetter() {
@@ -84,8 +58,8 @@ public class NormalizedHypervolume<S extends Solution<?>> extends GenericIndicat
   }
 
   @Override
-  public Double evaluate(List<S> solutionList) {
-    double hypervolumeValue = hypervolume.evaluate(solutionList);
+  public double compute(double[][] front) {
+    double hypervolumeValue = hypervolume.compute(front);
 
     return 1 - (hypervolumeValue / referenceFrontHypervolume);
   }

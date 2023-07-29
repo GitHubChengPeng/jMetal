@@ -1,30 +1,33 @@
 package org.uma.jmetal.operator.crossover;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.uma.jmetal.operator.crossover.impl.BLXAlphaCrossover;
 import org.uma.jmetal.problem.doubleproblem.DoubleProblem;
-import org.uma.jmetal.problem.doubleproblem.impl.AbstractDoubleProblem;
+import org.uma.jmetal.problem.doubleproblem.impl.FakeDoubleProblem;
 import org.uma.jmetal.solution.doublesolution.DoubleSolution;
 import org.uma.jmetal.solution.doublesolution.impl.DefaultDoubleSolution;
-import org.uma.jmetal.solution.util.repairsolution.impl.RepairDoubleSolutionWithBoundValue;
-import org.uma.jmetal.util.JMetalException;
-import org.uma.jmetal.util.checking.exception.InvalidConditionException;
-import org.uma.jmetal.util.checking.exception.NullParameterException;
+import org.uma.jmetal.solution.doublesolution.repairsolution.impl.RepairDoubleSolutionWithBoundValue;
+import org.uma.jmetal.util.bounds.Bounds;
+import org.uma.jmetal.util.errorchecking.exception.InvalidConditionException;
+import org.uma.jmetal.util.errorchecking.exception.InvalidProbabilityValueException;
+import org.uma.jmetal.util.errorchecking.exception.NullParameterException;
 import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 import org.uma.jmetal.util.pseudorandom.RandomGenerator;
 import org.uma.jmetal.util.pseudorandom.impl.AuditableRandomGenerator;
-
-import java.util.*;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
 
 /**
  * Note: this class does check that the BLX-aplha crossover operator does not return invalid
@@ -53,13 +56,13 @@ public class BLXAlphaCrossoverTest {
         .getField(crossover, "alpha"), EPSILON) ;
   }
 
-  @Test (expected = JMetalException.class)
+  @Test (expected = InvalidProbabilityValueException.class)
   public void shouldConstructorFailWhenPassedANegativeProbabilityValue() {
     double crossoverProbability = -1.1 ;
     new BLXAlphaCrossover(crossoverProbability, 1.0) ;
   }
 
-  @Test (expected = JMetalException.class)
+  @Test (expected = InvalidConditionException.class)
   public void shouldConstructorFailWhenPassedANegativeAlphaValue() {
     double alpha = -0.1 ;
     new BLXAlphaCrossover(0.1, alpha) ;
@@ -68,14 +71,14 @@ public class BLXAlphaCrossoverTest {
   @Test
   public void shouldGetProbabilityReturnTheRightValue() {
     BLXAlphaCrossover crossover = new BLXAlphaCrossover(0.1, 0.5) ;
-    assertEquals(0.1, crossover.getCrossoverProbability(), EPSILON) ;
+    assertEquals(0.1, crossover.crossoverProbability(), EPSILON) ;
   }
 
   @Test
   public void shouldGetAlphaReturnTheRightValue() {
     double alpha = 0.75 ;
     BLXAlphaCrossover crossover = new BLXAlphaCrossover(0.1, alpha) ;
-    assertEquals(alpha, crossover.getAlpha(), EPSILON) ;
+    assertEquals(alpha, crossover.alpha(), EPSILON) ;
   }
 
   @Test (expected = NullParameterException.class)
@@ -87,7 +90,7 @@ public class BLXAlphaCrossoverTest {
 
   @Test (expected = InvalidConditionException.class)
   public void shouldExecuteWithInvalidSolutionListSizeThrowAnException() {
-    DoubleProblem problem = new MockDoubleProblem(1) ;
+    DoubleProblem problem = new FakeDoubleProblem(1, 2, 0) ;
 
     BLXAlphaCrossover crossover = new BLXAlphaCrossover(0.1, 0.1) ;
 
@@ -101,7 +104,7 @@ public class BLXAlphaCrossoverTest {
     double alpha = 0.25 ;
 
     BLXAlphaCrossover crossover = new BLXAlphaCrossover(crossoverProbability, alpha) ;
-    DoubleProblem problem = new MockDoubleProblem(1) ;
+    DoubleProblem problem = new FakeDoubleProblem(1, 2, 0) ;
     List<DoubleSolution> solutions = Arrays.asList(problem.createSolution(), problem.createSolution()) ;
 
     List<DoubleSolution> newSolutions = crossover.execute(solutions) ;
@@ -119,7 +122,7 @@ public class BLXAlphaCrossoverTest {
     double alpha = 0.3 ;
 
     BLXAlphaCrossover crossover = new BLXAlphaCrossover(crossoverProbability, alpha) ;
-    DoubleProblem problem = new MockDoubleProblem(1) ;
+    DoubleProblem problem = new FakeDoubleProblem(1, 2, 0) ;
     List<DoubleSolution> solutions = Arrays.asList(problem.createSolution(), problem.createSolution()) ;
 
     Mockito.when(randomGenerator.getRandomValue()).thenReturn(1.0) ;
@@ -142,7 +145,7 @@ public class BLXAlphaCrossoverTest {
     Mockito.when(randomGenerator.getRandomValue()).thenReturn(0.2, 0.2, 0.6) ;
 
     BLXAlphaCrossover crossover = new BLXAlphaCrossover(crossoverProbability, alpha) ;
-    DoubleProblem problem = new MockDoubleProblem(1) ;
+    DoubleProblem problem = new FakeDoubleProblem(1, 2, 0) ;
     List<DoubleSolution> solutions = Arrays.asList(problem.createSolution(),
         problem.createSolution()) ;
 
@@ -150,14 +153,16 @@ public class BLXAlphaCrossoverTest {
 
     List<DoubleSolution> newSolutions = crossover.execute(solutions) ;
 
-    assertThat(newSolutions.get(0).getVariable(0), Matchers
-        .greaterThanOrEqualTo(solutions.get(0).getLowerBound(0))) ;
-    assertThat(newSolutions.get(0).getVariable(0), Matchers
-        .lessThanOrEqualTo(solutions.get(1).getUpperBound(0))) ;
-    assertThat(newSolutions.get(1).getVariable(0), Matchers
-        .lessThanOrEqualTo(solutions.get(0).getUpperBound(0))) ;
-    assertThat(newSolutions.get(1).getVariable(0), Matchers
-        .greaterThanOrEqualTo(solutions.get(1).getLowerBound(0))) ;
+    Bounds<Double> bounds0 = solutions.get(0).getBounds(0);
+    Bounds<Double> bounds1 = solutions.get(1).getBounds(0);
+    assertThat(newSolutions.get(0).variables().get(0), Matchers
+        .greaterThanOrEqualTo(bounds0.getLowerBound())) ;
+    assertThat(newSolutions.get(0).variables().get(0), Matchers
+        .lessThanOrEqualTo(bounds1.getUpperBound())) ;
+    assertThat(newSolutions.get(1).variables().get(0), Matchers
+        .lessThanOrEqualTo(bounds0.getUpperBound())) ;
+    assertThat(newSolutions.get(1).variables().get(0), Matchers
+        .greaterThanOrEqualTo(bounds1.getLowerBound())) ;
     verify(randomGenerator, times(3)).getRandomValue();
   }
 
@@ -171,18 +176,18 @@ public class BLXAlphaCrossoverTest {
     Mockito.when(randomGenerator.getRandomValue()).thenReturn(0.2, 0.2, 0.3) ;
 
     BLXAlphaCrossover crossover = new BLXAlphaCrossover(crossoverProbability, alpha) ;
-    DoubleProblem problem = new MockDoubleProblem(1) ;
+    DoubleProblem problem = new FakeDoubleProblem(1, 2, 0) ;
     List<DoubleSolution> solutions = Arrays.asList(problem.createSolution(),
         problem.createSolution()) ;
-    solutions.get(0).setVariable(0, 1.0);
-    solutions.get(1).setVariable(0, 1.0);
+    solutions.get(0).variables().set(0, 1.0);
+    solutions.get(1).variables().set(0, 1.0);
 
     ReflectionTestUtils.setField(crossover, "randomGenerator", randomGenerator);
 
     List<DoubleSolution> newSolutions = crossover.execute(solutions) ;
 
-    assertEquals(solutions.get(0).getVariable(0), newSolutions.get(0).getVariable(0), EPSILON) ;
-    assertEquals(solutions.get(1).getVariable(0), newSolutions.get(1).getVariable(0), EPSILON) ;
+    assertEquals(solutions.get(0).variables().get(0), newSolutions.get(0).variables().get(0), EPSILON) ;
+    assertEquals(solutions.get(1).variables().get(0), newSolutions.get(1).variables().get(0), EPSILON) ;
     verify(randomGenerator, times(3)).getRandomValue();
   }
 
@@ -196,66 +201,38 @@ public class BLXAlphaCrossoverTest {
     Mockito.when(randomGenerator.getRandomValue()).thenReturn(0.2, 0.2, 0.8, 0.3, 0.2) ;
 
     BLXAlphaCrossover crossover = new BLXAlphaCrossover(crossoverProbability, alpha) ;
-    DoubleProblem problem = new MockDoubleProblem(2) ;
+    DoubleProblem problem = new FakeDoubleProblem(2, 2, 0) ;
     DoubleSolution solution1 = problem.createSolution() ;
     DoubleSolution solution2 = problem.createSolution() ;
-    solution1.setVariable(0, 1.0);
-    solution1.setVariable(1, 2.0);
-    solution2.setVariable(0, 2.0);
-    solution2.setVariable(1, 1.0);
+    solution1.variables().set(0, 1.0);
+    solution1.variables().set(1, 2.0);
+    solution2.variables().set(0, 2.0);
+    solution2.variables().set(1, 1.0);
     List<DoubleSolution> solutions = Arrays.asList(solution1, solution2) ;
 
     ReflectionTestUtils.setField(crossover, "randomGenerator", randomGenerator);
 
     List<DoubleSolution> newSolutions = crossover.execute(solutions) ;
 
-    assertThat(newSolutions.get(0).getVariable(0), Matchers
-        .greaterThanOrEqualTo(solutions.get(0).getLowerBound(0))) ;
-    assertThat(newSolutions.get(0).getVariable(0), Matchers
-        .lessThanOrEqualTo(solutions.get(1).getUpperBound(0))) ;
-    assertThat(newSolutions.get(1).getVariable(0), Matchers
-        .lessThanOrEqualTo(solutions.get(0).getUpperBound(0))) ;
-    assertThat(newSolutions.get(1).getVariable(0), Matchers
-        .greaterThanOrEqualTo(solutions.get(1).getLowerBound(0))) ;
-    assertThat(newSolutions.get(0).getVariable(1), Matchers
-        .greaterThanOrEqualTo(solutions.get(0).getLowerBound(0))) ;
-    assertThat(newSolutions.get(0).getVariable(1), Matchers
-        .lessThanOrEqualTo(solutions.get(1).getUpperBound(0))) ;
-    assertThat(newSolutions.get(1).getVariable(1), Matchers
-        .lessThanOrEqualTo(solutions.get(0).getUpperBound(0))) ;
-    assertThat(newSolutions.get(1).getVariable(1), Matchers
-        .greaterThanOrEqualTo(solutions.get(1).getLowerBound(0))) ;
+    Bounds<Double> bounds0 = solutions.get(0).getBounds(0);
+    Bounds<Double> bounds1 = solutions.get(1).getBounds(0);
+    assertThat(newSolutions.get(0).variables().get(0), Matchers
+        .greaterThanOrEqualTo(bounds0.getLowerBound())) ;
+    assertThat(newSolutions.get(0).variables().get(0), Matchers
+        .lessThanOrEqualTo(bounds1.getUpperBound())) ;
+    assertThat(newSolutions.get(1).variables().get(0), Matchers
+        .lessThanOrEqualTo(bounds0.getUpperBound())) ;
+    assertThat(newSolutions.get(1).variables().get(0), Matchers
+        .greaterThanOrEqualTo(bounds1.getLowerBound())) ;
+    assertThat(newSolutions.get(0).variables().get(1), Matchers
+        .greaterThanOrEqualTo(bounds0.getLowerBound())) ;
+    assertThat(newSolutions.get(0).variables().get(1), Matchers
+        .lessThanOrEqualTo(bounds1.getUpperBound())) ;
+    assertThat(newSolutions.get(1).variables().get(1), Matchers
+        .lessThanOrEqualTo(bounds0.getUpperBound())) ;
+    assertThat(newSolutions.get(1).variables().get(1), Matchers
+        .greaterThanOrEqualTo(bounds1.getLowerBound())) ;
     verify(randomGenerator, times(5)).getRandomValue();
-  }
-
-  /**
-   * Mock class representing a double problem
-   */
-  @SuppressWarnings("serial")
-  private class MockDoubleProblem extends AbstractDoubleProblem {
-
-    /** Constructor */
-    public MockDoubleProblem(Integer numberOfVariables) {
-      setNumberOfVariables(numberOfVariables);
-      setNumberOfObjectives(2);
-
-      List<Double> lowerLimit = new ArrayList<>(getNumberOfVariables()) ;
-      List<Double> upperLimit = new ArrayList<>(getNumberOfVariables()) ;
-
-      for (int i = 0; i < getNumberOfVariables(); i++) {
-        lowerLimit.add(-4.0);
-        upperLimit.add(4.0);
-      }
-
-      setVariableBounds(lowerLimit, upperLimit);
-    }
-
-    /** Evaluate() method */
-    @Override
-    public void evaluate(DoubleSolution solution) {
-      solution.setObjective(0, 0.0);
-      solution.setObjective(1, 1.0);
-    }
   }
   
 	@Test
@@ -265,11 +242,11 @@ public class BLXAlphaCrossoverTest {
 		int alpha = 20;
 		RepairDoubleSolutionWithBoundValue solutionRepair = new RepairDoubleSolutionWithBoundValue();
 
-    List<Pair<Double, Double>> bounds = Arrays.asList(new ImmutablePair<>(0.0, 1.0)) ;
+    List<Bounds<Double>> bounds = List.of(Bounds.create(0.0, 1.0)) ;
 
 		List<DoubleSolution> solutions = new LinkedList<>();
-		solutions.add(new DefaultDoubleSolution(bounds, 2));
-		solutions.add(new DefaultDoubleSolution(bounds, 2));
+		solutions.add(new DefaultDoubleSolution(bounds, 2, 0));
+		solutions.add(new DefaultDoubleSolution(bounds, 2, 0));
 
 		// Check configuration leads to use default generator by default
 		final int[] defaultUses = { 0 };

@@ -1,13 +1,11 @@
 package org.uma.jmetal.problem.multiobjective.zdt;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.uma.jmetal.problem.doubleproblem.impl.AbstractDoubleProblem;
 import org.uma.jmetal.solution.doublesolution.DoubleSolution;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /** Class representing problem ZDT1 */
-@SuppressWarnings("serial")
 public class ZDT1 extends AbstractDoubleProblem {
 
   /** Constructor. Creates default instance of problem ZDT1 (30 decision variables) */
@@ -21,32 +19,33 @@ public class ZDT1 extends AbstractDoubleProblem {
    * @param numberOfVariables Number of variables.
    */
   public ZDT1(Integer numberOfVariables) {
-    setNumberOfVariables(numberOfVariables);
-    setNumberOfObjectives(2);
-    setName("ZDT1");
+    numberOfObjectives(2);
+    name("ZDT1");
 
-    List<Double> lowerLimit = new ArrayList<>(getNumberOfVariables()) ;
-    List<Double> upperLimit = new ArrayList<>(getNumberOfVariables()) ;
+    List<Double> lowerLimit = new ArrayList<>(numberOfVariables) ;
+    List<Double> upperLimit = new ArrayList<>(numberOfVariables) ;
 
-    for (int i = 0; i < getNumberOfVariables(); i++) {
+    for (int i = 0; i < numberOfVariables; i++) {
       lowerLimit.add(0.0);
       upperLimit.add(1.0);
     }
 
-    setVariableBounds(lowerLimit, upperLimit);
+    variableBounds(lowerLimit, upperLimit);
   }
 
   /** Evaluate() method */
-  public void evaluate(DoubleSolution solution) {
-    double[] f = new double[getNumberOfObjectives()];
+  public DoubleSolution evaluate(DoubleSolution solution) {
+    double[] f = new double[solution.objectives().length];
 
-    f[0] = solution.getVariable(0);
+    f[0] = solution.variables().get(0);
     double g = this.evalG(solution);
     double h = this.evalH(f[0], g);
     f[1] = h * g;
 
-    solution.setObjective(0, f[0]);
-    solution.setObjective(1, f[1]);
+    solution.objectives()[0] = f[0];
+    solution.objectives()[1] = f[1];
+
+    return solution ;
   }
 
   /**
@@ -56,10 +55,10 @@ public class ZDT1 extends AbstractDoubleProblem {
    */
   protected double evalG(DoubleSolution solution) {
     double g = 0.0;
-    for (int i = 1; i < solution.getNumberOfVariables(); i++) {
-      g += solution.getVariable(i);
+    for (int i = 1; i < solution.variables().size(); i++) {
+      g += solution.variables().get(i);
     }
-    double constant = 9.0 / (solution.getNumberOfVariables() - 1);
+    double constant = 9.0 / (solution.variables().size() - 1);
 
     return constant * g + 1.0;
   }

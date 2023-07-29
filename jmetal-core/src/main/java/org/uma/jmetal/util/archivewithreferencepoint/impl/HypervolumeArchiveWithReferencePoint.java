@@ -13,15 +13,13 @@
 
 package org.uma.jmetal.util.archivewithreferencepoint.impl;
 
-import org.uma.jmetal.qualityindicator.impl.hypervolume.Hypervolume;
-import org.uma.jmetal.qualityindicator.impl.hypervolume.impl.PISAHypervolume;
+import java.util.Comparator;
+import java.util.List;
 import org.uma.jmetal.solution.Solution;
 import org.uma.jmetal.util.archivewithreferencepoint.ArchiveWithReferencePoint;
 import org.uma.jmetal.util.comparator.HypervolumeContributionComparator;
-
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import org.uma.jmetal.util.legacy.qualityindicator.impl.hypervolume.Hypervolume;
+import org.uma.jmetal.util.legacy.qualityindicator.impl.hypervolume.impl.PISAHypervolume;
 
 
 /**
@@ -32,7 +30,7 @@ import java.util.List;
  */
 @SuppressWarnings("serial")
 public class HypervolumeArchiveWithReferencePoint<S extends Solution<?>> extends ArchiveWithReferencePoint<S> {
-  private Hypervolume<S> hypervolume ;
+  private Hypervolume hypervolume ;
 
   public HypervolumeArchiveWithReferencePoint(int maxSize, List<Double> refPointDM) {
     super(maxSize, refPointDM, new HypervolumeContributionComparator<>());
@@ -41,7 +39,7 @@ public class HypervolumeArchiveWithReferencePoint<S extends Solution<?>> extends
   }
 
   @Override
-  public Comparator<S> getComparator() {
+  public Comparator<S> comparator() {
     return comparator;
   }
 
@@ -49,12 +47,7 @@ public class HypervolumeArchiveWithReferencePoint<S extends Solution<?>> extends
   public void computeDensityEstimator() {
     if (archive.size() > 3) {
       hypervolume
-          .computeHypervolumeContribution(archive.getSolutionList(), archive.getSolutionList());
+          .computeHypervolumeContribution(archive.solutions(), archive.solutions());
     }
-  }
-
-  @Override
-  public void sortByDensityEstimator() {
-    Collections.sort(getSolutionList(), new HypervolumeContributionComparator<S>());
   }
 }

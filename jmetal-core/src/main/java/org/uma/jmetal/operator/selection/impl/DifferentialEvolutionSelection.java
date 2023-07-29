@@ -1,14 +1,13 @@
 package org.uma.jmetal.operator.selection.impl;
 
-import org.uma.jmetal.operator.selection.SelectionOperator;
-import org.uma.jmetal.solution.doublesolution.DoubleSolution;
-import org.uma.jmetal.util.checking.Check;
-import org.uma.jmetal.util.pseudorandom.BoundedRandomGenerator;
-import org.uma.jmetal.util.pseudorandom.JMetalRandom;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.uma.jmetal.operator.selection.SelectionOperator;
+import org.uma.jmetal.solution.doublesolution.DoubleSolution;
+import org.uma.jmetal.util.errorchecking.Check;
+import org.uma.jmetal.util.pseudorandom.BoundedRandomGenerator;
+import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 
 /**
  * Class implementing the selection operator used in DE: a number of different solutions are
@@ -60,7 +59,7 @@ public class DifferentialEvolutionSelection
   /** Execute() method */
   @Override
   public List<DoubleSolution> execute(List<DoubleSolution> solutionList) {
-    Check.isNotNull(solutionList);
+    Check.notNull(solutionList);
     Check.that(
         (currentSolutionIndex >= 0) && (currentSolutionIndex <= solutionList.size()),
         "Index value invalid: " + currentSolutionIndex);

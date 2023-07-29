@@ -7,33 +7,22 @@
 //  Copyright (c) 2011 Antonio J. Nebro, Juan J. Durillo
 //
 
-
-
+//
 
 //
 
-
-
-
-// 
-
-
 package org.uma.jmetal.problem.multiobjective.zdt;
-
-import org.uma.jmetal.problem.binaryproblem.impl.AbstractBinaryProblem;
-import org.uma.jmetal.solution.binarysolution.BinarySolution;
-import org.uma.jmetal.util.checking.Check;
 
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
+import org.uma.jmetal.problem.binaryproblem.impl.AbstractBinaryProblem;
+import org.uma.jmetal.solution.binarysolution.BinarySolution;
 
-/**
- * Class representing problem ZDT5
- */
-@SuppressWarnings("serial")
+/** Class representing problem ZDT5 */
 public class ZDT5 extends AbstractBinaryProblem {
-	private List<Integer> bitsPerVariable ;
+  private List<Integer> bitsPerVariable;
+  private int numberOfVariables ;
 
   /** Creates a default instance of problem ZDT5 (11 decision variables) */
   public ZDT5() {
@@ -46,40 +35,51 @@ public class ZDT5 extends AbstractBinaryProblem {
    * @param numberOfVariables Number of variables.
    */
   public ZDT5(Integer numberOfVariables) {
-    setNumberOfVariables(numberOfVariables);
-    setNumberOfObjectives(2);
-    setName("ZDT5");
+    this.numberOfVariables = numberOfVariables ;
 
-    bitsPerVariable = new ArrayList<>(numberOfVariables) ;
+    bitsPerVariable = new ArrayList<>(numberOfVariables);
 
     bitsPerVariable.add(30);
-    for (int var = 1; var < numberOfVariables; var++) {
+    for (int i = 1; i < numberOfVariables; i++) {
       bitsPerVariable.add(5);
     }
   }
 
   @Override
-  public List<Integer> getListOfBitsPerVariable() {
-    return bitsPerVariable ;
+  public int numberOfVariables() {
+    return numberOfVariables ;
+  }
+  @Override
+  public int numberOfObjectives() {
+    return 2 ;
+  }
+  @Override
+  public int numberOfConstraints() {
+    return 0 ;
   }
 
   @Override
-  public int getBitsFromVariable(int index) {
-    Check.valueIsInRange(index, 0, this.getNumberOfVariables()) ;
+  public String name() {
+    return "ZDT5" ;
+  }
 
-  	return bitsPerVariable.get(index) ;
+  @Override
+  public List<Integer> numberOfBitsPerVariable() {
+    return bitsPerVariable;
   }
 
   /** Evaluate() method */
-  public void evaluate(BinarySolution solution) {
-    double[] f = new double[solution.getNumberOfObjectives()];
-    f[0] = 1 + u(solution.getVariable(0));
+  public BinarySolution evaluate(BinarySolution solution) {
+    double[] f = new double[solution.objectives().length];
+    f[0] = 1 + u(solution.variables().get(0));
     double g = evalG(solution);
     double h = evalH(f[0], g);
     f[1] = h * g;
 
-    solution.setObjective(0, f[0]);
-    solution.setObjective(1, f[1]);
+    solution.objectives()[0] = f[0];
+    solution.objectives()[1] = f[1];
+
+    return solution;
   }
 
   /**
@@ -89,8 +89,8 @@ public class ZDT5 extends AbstractBinaryProblem {
    */
   public double evalG(BinarySolution solution) {
     double res = 0.0;
-    for (int i = 1; i < solution.getNumberOfVariables(); i++) {
-      res += evalV(u(solution.getVariable(i)));
+    for (int i = 1; i < solution.variables().size(); i++) {
+      res += evalV(u(solution.variables().get(i)));
     }
 
     return res;
@@ -125,6 +125,6 @@ public class ZDT5 extends AbstractBinaryProblem {
    * @param bitset A bitset variable
    */
   private double u(BitSet bitset) {
-    return bitset.cardinality() ;
+    return bitset.cardinality();
   }
 }

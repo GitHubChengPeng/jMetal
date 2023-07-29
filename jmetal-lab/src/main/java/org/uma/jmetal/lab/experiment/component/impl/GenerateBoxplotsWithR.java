@@ -1,15 +1,14 @@
 package org.uma.jmetal.lab.experiment.component.impl;
 
-import org.uma.jmetal.lab.experiment.Experiment;
-import org.uma.jmetal.lab.experiment.component.ExperimentComponent;
-import org.uma.jmetal.lab.experiment.util.ExperimentProblem;
-import org.uma.jmetal.qualityindicator.impl.GenericIndicator;
-import org.uma.jmetal.solution.Solution;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
+import org.uma.jmetal.lab.experiment.Experiment;
+import org.uma.jmetal.lab.experiment.component.ExperimentComponent;
+import org.uma.jmetal.lab.experiment.util.ExperimentProblem;
+import org.uma.jmetal.qualityindicator.QualityIndicator;
+import org.uma.jmetal.solution.Solution;
 
 /**
  * This class generates a R script that generates an eps file containing boxplots
@@ -68,12 +67,12 @@ public class GenerateBoxplotsWithR<Result extends List<? extends Solution<?>>> i
       new File(rDirectoryName).mkdirs();
       System.out.println("Creating " + rDirectoryName + " directory");
     }
-    for (GenericIndicator<? extends Solution<?>> indicator : experiment.getIndicatorList()) {
-     String rFileName = rDirectoryName + "/" + indicator.getName() + ".Boxplot" + ".R";
+    for (QualityIndicator indicator : experiment.getIndicatorList()) {
+     String rFileName = rDirectoryName + "/" + indicator.name() + ".Boxplot" + ".R";
 
      try(FileWriter os = new FileWriter(rFileName, false)){
       os.write("postscript(\"" +
-               indicator.getName() +
+               indicator.name() +
               ".Boxplot.eps\", horizontal=FALSE, onefile=FALSE, height=8, width=12, pointsize=10)" +
               "\n");
 
@@ -112,7 +111,7 @@ public class GenerateBoxplotsWithR<Result extends List<? extends Solution<?>>> i
 
       os.write("par(mfrow=c(" + numberOfRows + "," + numberOfColumns + "))" + "\n");
 
-      os.write("indicator<-\"" +  indicator.getName() + "\"" + "\n");
+      os.write("indicator<-\"" +  indicator.name() + "\"" + "\n");
 
       for (ExperimentProblem<?> problem : experiment.getProblemList()) {
         os.write("qIndicator(indicator, \"" + problem.getTag() + "\")" + "\n");

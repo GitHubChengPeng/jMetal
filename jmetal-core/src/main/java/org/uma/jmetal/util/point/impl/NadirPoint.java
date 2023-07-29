@@ -1,10 +1,9 @@
 package org.uma.jmetal.util.point.impl;
 
-import org.uma.jmetal.solution.Solution;
-import org.uma.jmetal.util.checking.Check;
-
 import java.util.Arrays;
 import java.util.List;
+import org.uma.jmetal.solution.Solution;
+import org.uma.jmetal.util.errorchecking.Check;
 
 /**
  * Class representing a nadir point (minimization is assumed)
@@ -32,7 +31,7 @@ public class NadirPoint extends ArrayPoint {
 
   public void update(List<? extends Solution<?>> solutionList) {
     for (Solution<?> solution : solutionList) {
-      update(solution.getObjectives()) ;
+      update(solution.objectives()) ;
     }
   }
 }

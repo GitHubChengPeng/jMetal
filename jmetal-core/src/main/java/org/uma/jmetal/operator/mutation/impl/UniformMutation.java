@@ -2,9 +2,10 @@ package org.uma.jmetal.operator.mutation.impl;
 
 import org.uma.jmetal.operator.mutation.MutationOperator;
 import org.uma.jmetal.solution.doublesolution.DoubleSolution;
-import org.uma.jmetal.solution.util.repairsolution.RepairDoubleSolution;
-import org.uma.jmetal.solution.util.repairsolution.impl.RepairDoubleSolutionWithBoundValue;
-import org.uma.jmetal.util.JMetalException;
+import org.uma.jmetal.solution.doublesolution.repairsolution.RepairDoubleSolution;
+import org.uma.jmetal.solution.doublesolution.repairsolution.impl.RepairDoubleSolutionWithBoundValue;
+import org.uma.jmetal.util.bounds.Bounds;
+import org.uma.jmetal.util.errorchecking.Check;
 import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 import org.uma.jmetal.util.pseudorandom.RandomGenerator;
 
@@ -57,7 +58,7 @@ public class UniformMutation implements MutationOperator<DoubleSolution> {
   }
 
   @Override
-  public double getMutationProbability() {
+  public double mutationProbability() {
     return mutationProbability;
   }
 
@@ -77,18 +78,19 @@ public class UniformMutation implements MutationOperator<DoubleSolution> {
    * @param solution The solution to mutate
    */
   public void doMutation(double probability, DoubleSolution solution) {
-    for (int i = 0; i < solution.getNumberOfVariables(); i++) {
+    for (int i = 0; i < solution.variables().size(); i++) {
       if (randomGenerator.getRandomValue() < probability) {
         double rand = randomGenerator.getRandomValue();
         double tmp = (rand - 0.5) * perturbation;
 
-        tmp += solution.getVariable(i);
+        tmp += solution.variables().get(i);
 
+        Bounds<Double> bounds = solution.getBounds(i);
         tmp =
             solutionRepair.repairSolutionVariableValue(
-                tmp, solution.getLowerBound(i), solution.getUpperBound(i));
+                tmp, bounds.getLowerBound(), bounds.getUpperBound());
 
-        solution.setVariable(i, tmp);
+        solution.variables().set(i, tmp);
       }
     }
   }
@@ -96,9 +98,7 @@ public class UniformMutation implements MutationOperator<DoubleSolution> {
   /** Execute() method */
   @Override
   public DoubleSolution execute(DoubleSolution solution) {
-    if (null == solution) {
-      throw new JMetalException("Null parameter");
-    }
+    Check.notNull(solution);
 
     doMutation(mutationProbability, solution);
 

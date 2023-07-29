@@ -1,5 +1,8 @@
 package org.uma.jmetal.algorithm.multiobjective.smpso;
 
+import static org.junit.Assert.assertTrue;
+
+import java.util.List;
 import org.junit.Test;
 import org.uma.jmetal.algorithm.Algorithm;
 import org.uma.jmetal.problem.doubleproblem.DoubleProblem;
@@ -8,17 +11,11 @@ import org.uma.jmetal.problem.multiobjective.zdt.ZDT4;
 import org.uma.jmetal.qualityindicator.QualityIndicator;
 import org.uma.jmetal.qualityindicator.impl.hypervolume.impl.PISAHypervolume;
 import org.uma.jmetal.solution.doublesolution.DoubleSolution;
+import org.uma.jmetal.util.NormalizeUtils;
+import org.uma.jmetal.util.SolutionListUtils;
+import org.uma.jmetal.util.VectorUtils;
 import org.uma.jmetal.util.archive.impl.CrowdingDistanceArchive;
-import org.uma.jmetal.util.front.Front;
-import org.uma.jmetal.util.front.impl.ArrayFront;
-import org.uma.jmetal.util.front.util.FrontNormalizer;
-import org.uma.jmetal.util.front.util.FrontUtils;
-import org.uma.jmetal.util.point.PointSolution;
 import org.uma.jmetal.util.pseudorandom.JMetalRandom;
-
-import java.util.List;
-
-import static org.junit.Assert.assertTrue;
 
 public class SMPSOIT {
   Algorithm<List<DoubleSolution>> algorithm;
@@ -34,7 +31,7 @@ public class SMPSOIT {
 
     algorithm.run();
 
-    List<DoubleSolution> population = algorithm.getResult();
+    List<DoubleSolution> population = algorithm.result();
 
     /*
     Rationale: the default problem is ZDT4, and SMPSO, configured with standard settings, should
@@ -47,18 +44,19 @@ public class SMPSOIT {
   public void shouldTheHypervolumeHaveAMininumValue() throws Exception {
     DoubleProblem problem = new ZDT4();
 
-    algorithm = new SMPSOBuilder(problem, new CrowdingDistanceArchive<DoubleSolution>(100)).build();
+    algorithm = new SMPSOBuilder(problem, new CrowdingDistanceArchive<>(100)).build();
     algorithm.run();
 
-    List<DoubleSolution> population = algorithm.getResult();
+    List<DoubleSolution> population = algorithm.result();
 
-    QualityIndicator<List<DoubleSolution>, Double> hypervolume =
-        new PISAHypervolume<>("../resources/referenceFrontsCSV/ZDT4.csv");
+    QualityIndicator hypervolume =
+            new PISAHypervolume(
+                    VectorUtils.readVectors("../resources/referenceFrontsCSV/ZDT4.csv", ","));
 
     // Rationale: the default problem is ZDT4, and SMPSO, configured with standard settings, should
     // return find a front with a hypervolume value higher than 0.64
 
-    double hv = (Double) hypervolume.evaluate(population);
+    double hv = hypervolume.compute(SolutionListUtils.getMatrixWithObjectiveValues(population));
 
     assertTrue(hv > 0.64);
   }
@@ -71,21 +69,23 @@ public class SMPSOIT {
     algorithm = new SMPSOBuilder(problem, new CrowdingDistanceArchive<DoubleSolution>(100)).build();
 
     algorithm.run();
+    List<DoubleSolution> population = algorithm.result() ;
 
-    List<DoubleSolution> population = algorithm.getResult();
+    String referenceFrontFileName = "../resources/referenceFrontsCSV/ConstrEx.csv" ;
 
-    String referenceFrontFileName = "../resources/referenceFrontsCSV/ConstrEx.csv";
+    double[][] referenceFront = VectorUtils.readVectors(referenceFrontFileName, ",") ;
+    QualityIndicator hypervolume = new PISAHypervolume(referenceFront);
 
-    Front referenceFront = new ArrayFront(referenceFrontFileName);
-    FrontNormalizer frontNormalizer = new FrontNormalizer(referenceFront);
+    // Rationale: the default problem is ConstrEx, and PESA-II, configured with standard settings, should
+    // return find a front with a hypervolume value higher than 0.7
 
-    Front normalizedReferenceFront = frontNormalizer.normalize(referenceFront);
-    Front normalizedFront = frontNormalizer.normalize(new ArrayFront(population));
-    List<PointSolution> normalizedPopulation =
-        FrontUtils.convertFrontToSolutionList(normalizedFront);
+    double[][] normalizedFront =
+            NormalizeUtils.normalize(
+                    SolutionListUtils.getMatrixWithObjectiveValues(population),
+                    NormalizeUtils.getMinValuesOfTheColumnsOfAMatrix(referenceFront),
+                    NormalizeUtils.getMaxValuesOfTheColumnsOfAMatrix(referenceFront));
 
-    double hv =
-        new PISAHypervolume<PointSolution>(normalizedReferenceFront).evaluate(normalizedPopulation);
+    double hv = hypervolume.compute(normalizedFront);
 
     assertTrue(population.size() >= 98);
     assertTrue(hv > 0.77);

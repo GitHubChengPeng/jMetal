@@ -1,12 +1,13 @@
 package org.uma.jmetal.problem.multiobjective.maf;
 
-import org.uma.jmetal.problem.doubleproblem.impl.AbstractDoubleProblem;
-import org.uma.jmetal.solution.doublesolution.DoubleSolution;
-import org.uma.jmetal.util.pseudorandom.JMetalRandom;
-
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
+import org.uma.jmetal.problem.doubleproblem.impl.AbstractDoubleProblem;
+import org.uma.jmetal.solution.doublesolution.DoubleSolution;
+import org.uma.jmetal.util.bounds.Bounds;
+import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 
 /**
  * Class representing problem MaF05
@@ -34,10 +35,9 @@ public class MaF09 extends AbstractDoubleProblem {
    */
   public MaF09(Integer numberOfVariables,
       Integer numberOfObjectives) {
-    setNumberOfVariables(2);
-    setNumberOfObjectives(numberOfObjectives);
-    setNumberOfConstraints(0);
-    setName("MaF09");
+    numberOfObjectives(numberOfObjectives);
+    numberOfConstraints(0);
+    name("MaF09");
     M9 = numberOfObjectives;
 
     //other constants during the whole process once M&D are defined
@@ -123,15 +123,14 @@ public class MaF09 extends AbstractDoubleProblem {
     pindex9 = pind;
     oth_poly_points9 = opoly9;
 
-    List<Double> lower = new ArrayList<>(getNumberOfVariables()), upper = new ArrayList<>(
-        getNumberOfVariables());
+    List<Double> lower = new ArrayList<>(numberOfVariables), upper = new ArrayList<>(
+        numberOfVariables);
 
-    for (int var = 0; var < numberOfVariables; var++) {
+    IntStream.range(0, numberOfVariables).forEach(i -> {
       lower.add(-10000.0);
       upper.add(10000.0);
-    }
-
-    setVariableBounds(lower, upper);
+    });
+    variableBounds(lower, upper);
   }
 
   /**
@@ -140,16 +139,15 @@ public class MaF09 extends AbstractDoubleProblem {
    * @param solution The solution to evaluate
    */
   @Override
-  public void evaluate(DoubleSolution solution) {
-
-    int numberOfVariables_ = solution.getNumberOfVariables();
-    int numberOfObjectives = solution.getNumberOfObjectives();
+  public DoubleSolution evaluate(DoubleSolution solution) {
+    int numberOfVariables_ = solution.variables().size();
+    int numberOfObjectives = solution.objectives().length;
 
     double[] x = new double[numberOfVariables_];
     double[] f = new double[numberOfObjectives];
 
     for (int i = 0; i < numberOfVariables_; i++) {
-      x[i] = solution.getVariable(i);
+      x[i] = solution.variables().get(i);
     }
 
     // check if the point is infeasible
@@ -158,8 +156,9 @@ public class MaF09 extends AbstractDoubleProblem {
     while (infeasible) {
       //re-generate a random variable
       for (int i = 0; i < numberOfVariables_; i++) {
-        x[i] = generV(getLowerBound(i), getUpperBound(i));
-        solution.setVariable(i, x[i]);
+        Bounds<Double> bounds = variableBounds().get(i) ;
+        x[i] = generV(bounds.getLowerBound(), bounds.getUpperBound());
+        solution.variables().set(i, x[i]);
       }
       infeasible = if_infeasible(x);
     }
@@ -182,9 +181,9 @@ public class MaF09 extends AbstractDoubleProblem {
     }
 
     for (int i = 0; i < numberOfObjectives; i++) {
-      solution.setObjective(i, f[i]);
+      solution.objectives()[i] = f[i];
     }
-
+    return solution ;
   }
 
   public static double[][] polygonpoints(int m, double r) {

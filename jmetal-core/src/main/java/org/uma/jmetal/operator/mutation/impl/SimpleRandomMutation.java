@@ -2,7 +2,8 @@ package org.uma.jmetal.operator.mutation.impl;
 
 import org.uma.jmetal.operator.mutation.MutationOperator;
 import org.uma.jmetal.solution.doublesolution.DoubleSolution;
-import org.uma.jmetal.util.JMetalException;
+import org.uma.jmetal.util.bounds.Bounds;
+import org.uma.jmetal.util.errorchecking.JMetalException;
 import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 import org.uma.jmetal.util.pseudorandom.RandomGenerator;
 
@@ -33,7 +34,7 @@ public class SimpleRandomMutation implements MutationOperator<DoubleSolution> {
 
   /* Getters */
   @Override
-  public double getMutationProbability() {
+  public double mutationProbability() {
     return mutationProbability;
   }
 
@@ -56,14 +57,15 @@ public class SimpleRandomMutation implements MutationOperator<DoubleSolution> {
 
   /** Implements the mutation operation */
   private void doMutation(double probability, DoubleSolution solution) {
-    for (int i = 0; i < solution.getNumberOfVariables(); i++) {
+    for (int i = 0; i < solution.variables().size(); i++) {
       if (randomGenerator.getRandomValue() <= probability) {
-        Double value =
-            solution.getLowerBound(i)
-                + ((solution.getUpperBound(i) - solution.getLowerBound(i))
-                    * randomGenerator.getRandomValue());
+        Bounds<Double> bounds = solution.getBounds(i);
+        Double lowerBound = bounds.getLowerBound();
+        Double upperBound = bounds.getUpperBound();
+        Double randomValue = randomGenerator.getRandomValue();
+        Double value = lowerBound + ((upperBound - lowerBound) * randomValue);
 
-        solution.setVariable(i, value);
+        solution.variables().set(i, value);
       }
     }
   }

@@ -1,42 +1,41 @@
 package org.uma.jmetal.problem.multiobjective;
 
-import org.uma.jmetal.problem.doubleproblem.impl.AbstractDoubleProblem;
-import org.uma.jmetal.solution.doublesolution.DoubleSolution;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.uma.jmetal.problem.doubleproblem.impl.AbstractDoubleProblem;
+import org.uma.jmetal.solution.doublesolution.DoubleSolution;
 
 /** Class representing problem Viennet4 */
 @SuppressWarnings("serial")
 public class Viennet4 extends AbstractDoubleProblem {
   /** Constructor. Creates a default instance of the Viennet4 problem. */
   public Viennet4() {
-    setNumberOfVariables(2);
-    setNumberOfObjectives(3);
-    setNumberOfConstraints(3);
-    setName("Viennet4");
+    int numberOfVariables = 2 ;
+    numberOfObjectives(3);
+    numberOfConstraints(3);
+    name("Viennet4");
 
-    List<Double> lowerLimit = new ArrayList<>(getNumberOfVariables());
-    List<Double> upperLimit = new ArrayList<>(getNumberOfVariables());
+    List<Double> lowerLimit = new ArrayList<>(numberOfVariables);
+    List<Double> upperLimit = new ArrayList<>(numberOfVariables);
 
-    for (int i = 0; i < getNumberOfVariables(); i++) {
+    for (int i = 0; i < numberOfVariables; i++) {
       lowerLimit.add(-4.0);
       upperLimit.add(4.0);
     }
 
-    setVariableBounds(lowerLimit, upperLimit);
+    variableBounds(lowerLimit, upperLimit);
   }
 
   /** Evaluate() method */
   @Override
-  public void evaluate(DoubleSolution solution) {
-    int numberOfVariables = getNumberOfVariables();
+  public DoubleSolution evaluate(DoubleSolution solution) {
+    int numberOfVariables = numberOfVariables();
 
-    double[] f = new double[getNumberOfObjectives()];
+    double[] f = new double[solution.objectives().length];
     double[] x = new double[numberOfVariables];
 
     for (int i = 0; i < numberOfVariables; i++) {
-      x[i] = solution.getVariable(i);
+      x[i] = solution.variables().get(i);
     }
 
     f[0] = (x[0] - 2.0) * (x[0] - 2.0) / 2.0 + (x[1] + 1.0) * (x[1] + 1.0) / 13.0 + 3.0;
@@ -51,26 +50,27 @@ public class Viennet4 extends AbstractDoubleProblem {
             + (x[0] - x[1] + 1.0) * (x[0] - x[1] + 1.0) / 27.0
             + 15.0;
 
-    for (int i = 0; i < getNumberOfObjectives(); i++) {
-      solution.setObjective(i, f[i]);
+    for (int i = 0; i < solution.objectives().length; i++) {
+      solution.objectives()[i] = f[i];
     }
 
     evaluateConstraints(solution);
+    return solution ;
   }
 
   /** EvaluateConstraints() method */
   public void evaluateConstraints(DoubleSolution solution) {
-    double[] constraint = new double[this.getNumberOfConstraints()];
+    double[] constraint = new double[this.numberOfConstraints()];
 
-    double x1 = solution.getVariable(0);
-    double x2 = solution.getVariable(1);
+    double x1 = solution.variables().get(0);
+    double x2 = solution.variables().get(1);
 
     constraint[0] = -x2 - (4.0 * x1) + 4.0;
     constraint[1] = x1 + 1.0;
     constraint[2] = x2 - x1 + 2.0;
 
-    for (int i = 0; i < getNumberOfConstraints(); i++) {
-      solution.setConstraint(i, constraint[i]);
+    for (int i = 0; i < numberOfConstraints(); i++) {
+      solution.constraints()[i] = constraint[i];
     }
   }
 }

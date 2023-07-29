@@ -1,13 +1,12 @@
 package org.uma.jmetal.utilities;
 
-import org.uma.jmetal.util.JMetalException;
-
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
+import org.uma.jmetal.util.errorchecking.JMetalException;
 
 /**
  * This utility reads a TSV file and generates another file in CSV format
@@ -34,10 +33,9 @@ public class TSVToCSVConverter {
       outputFile = Files.newBufferedWriter(Paths.get(outputFileName));
       lines.forEach(
           line -> {
-            // List<String> values = Arrays.asList(l.split("\\s+")) ;
             String values = line.replaceAll("\\s+", ",");
 
-            if (values.substring(values.length() - 1).equals(",")) {
+            if (values.endsWith(",")) {
               values = values.substring(0, values.length() - 1);
             }
             try {

@@ -1,17 +1,22 @@
 package org.uma.jmetal.util.artificialdecisionmaker.impl;
 
 
-import org.uma.jmetal.algorithm.InteractiveAlgorithm;
-import org.uma.jmetal.problem.BoundedProblem;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import org.uma.jmetal.problem.Problem;
+import org.uma.jmetal.problem.doubleproblem.DoubleProblem;
 import org.uma.jmetal.solution.Solution;
 import org.uma.jmetal.util.artificialdecisionmaker.ArtificialDecisionMaker;
 import org.uma.jmetal.util.artificialdecisionmaker.DecisionTreeEstimator;
+import org.uma.jmetal.util.artificialdecisionmaker.InteractiveAlgorithm;
+import org.uma.jmetal.util.bounds.Bounds;
 import org.uma.jmetal.util.comparator.ObjectiveComparator;
 import org.uma.jmetal.util.distance.impl.EuclideanDistanceBetweenSolutionsInObjectiveSpace;
 import org.uma.jmetal.util.pseudorandom.JMetalRandom;
-
-import java.util.*;
 
 
 /**
@@ -48,7 +53,7 @@ public class ArtificialDecisionMakerDecisionTree<S extends Solution<?>> extends 
     super(problem, algorithm);
     this.considerationProbability = considerationProbability;
     this.tolerance = tolerance;
-    numberOfObjectives=problem.getNumberOfObjectives();
+    numberOfObjectives=problem.numberOfObjectives();
     this.random = JMetalRandom.getInstance();
     this.maxEvaluations = maxEvaluations;
     this.rankingCoeficient = rankingCoeficient;
@@ -68,24 +73,25 @@ public class ArtificialDecisionMakerDecisionTree<S extends Solution<?>> extends 
 
   private  void  initialiceRankingCoeficient(){
     rankingCoeficient = new ArrayList<>();
-    for (int i = 0; i < problem.getNumberOfObjectives() ; i++) {
-      rankingCoeficient.add(1.0/problem.getNumberOfObjectives());
+    for (int i = 0; i < problem.numberOfObjectives() ; i++) {
+      rankingCoeficient.add(1.0/problem.numberOfObjectives());
     }
   }
 
   private void updateObjectiveVector(List<S> solutionList){
    for (int j = 0; j < numberOfObjectives; j++) {
-      Collections.sort(solutionList, new ObjectiveComparator<>(j));
-      double objetiveMinn = solutionList.get(0).getObjective(j);
-      double objetiveMaxn = solutionList.get(solutionList.size() - 1).getObjective(j);
+      solutionList.sort(new ObjectiveComparator<>(j));
+      double objetiveMinn = solutionList.get(0).objectives()[j];
+      double objetiveMaxn = solutionList.get(solutionList.size() - 1).objectives()[j];
       idealOjectiveVector.add(objetiveMinn);
       nadirObjectiveVector.add(objetiveMaxn);
     }
-    if(problem instanceof BoundedProblem){
-      BoundedProblem<?, ?> aux =(BoundedProblem<?, ?>)problem;
+    if(problem instanceof DoubleProblem){
+      DoubleProblem aux =(DoubleProblem) problem;
       for (int i = 0; i < numberOfObjectives ; i++) {
-        idealOjectiveVector.add(aux.getLowerBound(i).doubleValue());
-        nadirObjectiveVector.add(aux.getUpperBound(i).doubleValue());
+        Bounds<?> bounds = aux.variableBounds().get(i);
+        idealOjectiveVector.add(((Number) bounds.getLowerBound()).doubleValue());
+        nadirObjectiveVector.add(((Number) bounds.getUpperBound()).doubleValue());
       }
     }
     if(asp==null)
@@ -159,7 +165,7 @@ public class ArtificialDecisionMakerDecisionTree<S extends Solution<?>> extends 
     S solution = getSolution(front,currentReferencePoint);
     for (Integer i : order) {
       double rand = random.nextDouble(0.0, 1.0);
-      if ((asp.get(i) - solution.getObjective(i)) < tolerance
+      if ((asp.get(i) - solution.objectives()[i]) < tolerance
           && rand < considerationProbability) {
         indexRelevantObjectivesFunctions.add(i);
       } else if (rand < varyingProbability) {
@@ -183,7 +189,7 @@ public class ArtificialDecisionMakerDecisionTree<S extends Solution<?>> extends 
         for (int i = 0; i < numberOfObjectives; i++) {
           if (indexOfRelevantObjectiveFunctions.contains(i)) {
             result.add(
-                asp.get(i) - (asp.get(i) - solution.getObjective(i)) / 2);
+                asp.get(i) - (asp.get(i) - solution.objectives()[i]) / 2);
           } else {
             //predict the i position of reference point
             result.add(prediction(i,front,solution));
@@ -206,8 +212,8 @@ public class ArtificialDecisionMakerDecisionTree<S extends Solution<?>> extends 
   }
   private S getSolutionFromRP(List<Double> referencePoint){
     S result = problem.createSolution();
-    for (int i = 0; i < result.getNumberOfObjectives(); i++) {
-      result.setObjective(i,referencePoint.get(i));
+    for (int i = 0; i < result.objectives().length; i++) {
+      result.objectives()[i] = referencePoint.get(i);
     }
     return result;
   }

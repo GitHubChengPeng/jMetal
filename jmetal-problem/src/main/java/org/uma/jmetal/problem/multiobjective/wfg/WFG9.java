@@ -1,6 +1,7 @@
 package org.uma.jmetal.problem.multiobjective.wfg;
 
 import org.uma.jmetal.solution.doublesolution.DoubleSolution;
+import org.uma.jmetal.util.errorchecking.JMetalException;
 
 /**
  * Creates a default WFG9 problem with
@@ -29,7 +30,7 @@ public class WFG9 extends WFG {
    */
   public WFG9(Integer k, Integer l, Integer m) {
     super(k, l, m);
-    setName("WFG9");
+    name("WFG9");
 
     s = new int[m];
     for (int i = 0; i < m; i++) {
@@ -127,25 +128,26 @@ public class WFG9 extends WFG {
    * Evaluates a solution
    *
    * @param solution The solution to runAlgorithm
-   * @throws org.uma.jmetal.util.JMetalException
+   * @throws JMetalException
    */
-  public void evaluate(DoubleSolution solution) {
-    float[] variables = new float[getNumberOfVariables()];
-    double[] x = new double[getNumberOfVariables()];
+  public DoubleSolution evaluate(DoubleSolution solution) {
+    float[] variables = new float[numberOfVariables()];
+    double[] x = new double[numberOfVariables()];
 
-    for (int i = 0; i < getNumberOfVariables(); i++) {
-      x[i] = solution.getVariable(i);
+    for (int i = 0; i < numberOfVariables(); i++) {
+      x[i] = solution.variables().get(i);
     }
 
-    for (int i = 0; i < getNumberOfVariables(); i++) {
+    for (int i = 0; i < numberOfVariables(); i++) {
       variables[i] = (float) x[i] ;
     }
 
     float[] sol2 = evaluate(variables);
 
     for (int i = 0; i < sol2.length; i++) {
-      solution.setObjective(i, sol2[i]);
+      solution.objectives()[i] = sol2[i];
     }
+    return solution ;
   }
 }
 

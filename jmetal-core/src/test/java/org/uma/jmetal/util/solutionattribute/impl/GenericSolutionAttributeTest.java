@@ -1,17 +1,14 @@
 package org.uma.jmetal.util.solutionattribute.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.uma.jmetal.solution.Solution;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.uma.jmetal.problem.doubleproblem.impl.FakeDoubleProblem;
+import org.uma.jmetal.solution.doublesolution.DoubleSolution;
 
 /** @author Antonio J. Nebro <antonio@lcc.uma.es> */
 public class GenericSolutionAttributeTest {
@@ -51,36 +48,36 @@ public class GenericSolutionAttributeTest {
 
   @Test
   public void shouldGetAttributeReturnNullIfTheSolutionHasNoAttribute() {
-    GenericSolutionAttribute<MockedDoubleSolution, ?> genericSolutionAttribute;
-    genericSolutionAttribute = new GenericSolutionAttribute<>();
+    DoubleSolution solution = new FakeDoubleProblem(2, 2, 2).createSolution() ;
 
-    MockedDoubleSolution solution = new MockedDoubleSolution();
+    GenericSolutionAttribute<DoubleSolution, ?> genericSolutionAttribute;
+    genericSolutionAttribute = new GenericSolutionAttribute<>();
 
     assertNull(genericSolutionAttribute.getAttribute(solution));
   }
 
   @Test
   public void shouldGetAttributeReturnTheAttributeValue() {
-    GenericSolutionAttribute<MockedDoubleSolution, Integer> genericSolutionAttribute;
+    DoubleSolution solution = new FakeDoubleProblem(2, 2, 2).createSolution() ;
+
+    GenericSolutionAttribute<DoubleSolution, Double> genericSolutionAttribute;
     genericSolutionAttribute = new GenericSolutionAttribute<>();
 
-    Object value = Double.valueOf(5);
-
-    MockedDoubleSolution solution = mock(MockedDoubleSolution.class);
-    when(solution.getAttribute(genericSolutionAttribute.getAttributeIdentifier()))
-        .thenReturn(value);
+    Double value = 5.0 ;
+    genericSolutionAttribute.setAttribute(solution, value);
 
     assertEquals(value, genericSolutionAttribute.getAttribute(solution));
   }
 
   @Test
   public void shouldSetAttributeAssignTheAttributeValueToTheSolution() {
-    GenericSolutionAttribute<Solution<?>, Object> genericSolutionAttribute;
+    DoubleSolution solution = new FakeDoubleProblem(2, 2, 2).createSolution() ;
+
+    GenericSolutionAttribute<DoubleSolution, Double> genericSolutionAttribute;
     genericSolutionAttribute = new GenericSolutionAttribute<>();
 
-    Object value = Double.valueOf(5);
+    Double value = 5.0;
 
-    MockedDoubleSolution solution = new MockedDoubleSolution();
     genericSolutionAttribute.setAttribute(solution, value);
 
     assertEquals(value, genericSolutionAttribute.getAttribute(solution));
@@ -89,110 +86,20 @@ public class GenericSolutionAttributeTest {
   @Test
   public void shouldGetAttributesReturnAnNoAttributesWhenInitiateAnPointSolution() {
 
-    MockedDoubleSolution solution = new MockedDoubleSolution();
+    DoubleSolution solution = new FakeDoubleProblem(2, 2, 2).createSolution() ;
 
-    assertTrue(solution.getAttributes().isEmpty());
+    assertTrue(solution.attributes().isEmpty());
   }
 
   @Test
   public void shouldReturnTheCorrectAttributesWhenGetAllAttributes() {
+    DoubleSolution solution = new FakeDoubleProblem(2, 2, 2).createSolution() ;
 
-    MockedDoubleSolution solution = new MockedDoubleSolution();
+    solution.attributes().put("fake-atribute-1", 1);
+    solution.attributes().put("fake-atribute-2", 2);
 
-    solution.setAttribute("fake-atribute-1", 1);
-    solution.setAttribute("fake-atribute-2", 2);
-
-    assertFalse(solution.getAttributes().isEmpty());
-    assertEquals((int) solution.getAttributes().get("fake-atribute-1"), 1);
-    assertEquals((int) solution.getAttributes().get("fake-atribute-2"), 2);
-  }
-
-  @SuppressWarnings("serial")
-  private class MockedDoubleSolution implements Solution<Double> {
-
-    protected Map<Object, Object> attributes;
-
-    public MockedDoubleSolution() {
-      attributes = new HashMap<>();
-    }
-
-    @Override
-    public void setObjective(int index, double value) {}
-
-    @Override
-    public double[] getObjectives() {
-      return null;
-    }
-
-    @Override
-    public List<Double> getVariables() {
-      return Collections.emptyList();
-    }
-
-    @Override
-    public double getObjective(int index) {
-      return 0;
-    }
-
-    @Override
-    public Double getVariable(int index) {
-      return null;
-    }
-
-    @Override
-    public void setVariable(int index, Double value) {}
-
-    @Override
-    public double[] getConstraints() {
-      return new double[0];
-    }
-
-    @Override
-    public double getConstraint(int index) {
-      return 0;
-    }
-
-    @Override
-    public void setConstraint(int index, double value) {}
-
-    @Override
-    public int getNumberOfVariables() {
-      return 0;
-    }
-
-    @Override
-    public int getNumberOfObjectives() {
-      return 0;
-    }
-
-    @Override
-    public int getNumberOfConstraints() {
-      return 0;
-    }
-
-    @Override
-    public Solution<Double> copy() {
-      return null;
-    }
-
-    @Override
-    public void setAttribute(Object id, Object value) {
-      attributes.put(id, value);
-    }
-
-    @Override
-    public Object getAttribute(Object id) {
-      return attributes.get(id);
-    }
-
-    @Override
-    public boolean hasAttribute(Object id) {
-      return false;
-    }
-
-    @Override
-    public Map<Object, Object> getAttributes() {
-      return attributes;
-    }
+    assertFalse(solution.attributes().isEmpty());
+    assertEquals((int) solution.attributes().get("fake-atribute-1"), 1);
+    assertEquals((int) solution.attributes().get("fake-atribute-2"), 2);
   }
 }

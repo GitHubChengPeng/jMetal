@@ -1,5 +1,9 @@
 package org.uma.jmetal.algorithm.multiobjective.moead;
 
+import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+import java.util.List;
 import org.junit.Test;
 import org.uma.jmetal.algorithm.Algorithm;
 import org.uma.jmetal.operator.crossover.CrossoverOperator;
@@ -11,12 +15,9 @@ import org.uma.jmetal.problem.multiobjective.lz09.LZ09F6;
 import org.uma.jmetal.qualityindicator.QualityIndicator;
 import org.uma.jmetal.qualityindicator.impl.hypervolume.impl.PISAHypervolume;
 import org.uma.jmetal.solution.doublesolution.DoubleSolution;
+import org.uma.jmetal.util.SolutionListUtils;
+import org.uma.jmetal.util.VectorUtils;
 import org.uma.jmetal.util.pseudorandom.JMetalRandom;
-
-import java.io.FileNotFoundException;
-import java.util.List;
-
-import static org.junit.Assert.assertTrue;
 
 public class MOEADIT {
 
@@ -31,7 +32,7 @@ public class MOEADIT {
     CrossoverOperator<DoubleSolution> crossover = new DifferentialEvolutionCrossover(cr, f,
             DifferentialEvolutionCrossover.DE_VARIANT.RAND_1_BIN);
 
-    double mutationProbability = 1.0 / problem.getNumberOfVariables();
+    double mutationProbability = 1.0 / problem.numberOfVariables();
     double mutationDistributionIndex = 20.0;
     MutationOperator<DoubleSolution> mutation = new PolynomialMutation(mutationProbability,
         mutationDistributionIndex);
@@ -51,13 +52,13 @@ public class MOEADIT {
         .build();
 
     algorithm.run() ;
-    List<DoubleSolution> population = algorithm.getResult();
+    List<DoubleSolution> population = algorithm.result();
 
     assertTrue(population.size() == 100);
   }
 
   @Test
-  public void shouldTheHypervolumeHaveAMinimumValueWhenSolvingTheLZ09F2Instance() throws FileNotFoundException {
+  public void shouldTheHypervolumeHaveAMinimumValueWhenSolvingTheLZ09F2Instance() throws IOException {
     LZ09F2 problem = new LZ09F2();
 
     double cr = 1.0;
@@ -65,7 +66,7 @@ public class MOEADIT {
     CrossoverOperator<DoubleSolution> crossover = new DifferentialEvolutionCrossover(cr, f,
             DifferentialEvolutionCrossover.DE_VARIANT.RAND_1_BIN);
 
-    double mutationProbability = 1.0 / problem.getNumberOfVariables();
+    double mutationProbability = 1.0 / problem.numberOfVariables();
     double mutationDistributionIndex = 20.0;
     MutationOperator<DoubleSolution> mutation = new PolynomialMutation(mutationProbability,
         mutationDistributionIndex);
@@ -84,14 +85,16 @@ public class MOEADIT {
 
     algorithm.run();
 
-    List<DoubleSolution> population = algorithm.getResult();
+    List<DoubleSolution> population = algorithm.result();
 
-    QualityIndicator<List<DoubleSolution>, Double> hypervolume =
-        new PISAHypervolume<>("../resources/referenceFrontsCSV/LZ09_F2.csv");
+    QualityIndicator hypervolume =
+            new org.uma.jmetal.qualityindicator.impl.hypervolume.impl.PISAHypervolume(
+                    VectorUtils.readVectors("../resources/referenceFrontsCSV/LZ09_F2.csv", ","));
 
-    // Rationale: the default problem is LZ09F2", and MOEA/D-DRA, configured with standard settings, should
+    // Rationale: the default problem is LZ09F2", and MOEA/D, configured with standard settings, should
     // return find a front with a hypervolume value higher than 0.96
-    double hv = hypervolume.evaluate(population);
+
+    double hv = hypervolume.compute(SolutionListUtils.getMatrixWithObjectiveValues(population));
 
     assertTrue(hv > 0.65);
   }
@@ -107,7 +110,7 @@ public class MOEADIT {
     CrossoverOperator<DoubleSolution> crossover = new DifferentialEvolutionCrossover(cr, f,
             DifferentialEvolutionCrossover.DE_VARIANT.RAND_1_BIN);
 
-    double mutationProbability = 1.0 / problem.getNumberOfVariables();
+    double mutationProbability = 1.0 / problem.numberOfVariables();
     double mutationDistributionIndex = 20.0;
     MutationOperator<DoubleSolution> mutation = new PolynomialMutation(mutationProbability,
             mutationDistributionIndex);
@@ -127,14 +130,15 @@ public class MOEADIT {
 
     algorithm.run();
 
-    List<DoubleSolution> population = algorithm.getResult();
+    List<DoubleSolution> population = algorithm.result();
 
-    QualityIndicator<List<DoubleSolution>, Double> hypervolume =
-            new PISAHypervolume<>("../resources/referenceFrontsCSV/LZ09_F6.csv");
+    QualityIndicator hypervolume =
+            new PISAHypervolume(
+                    VectorUtils.readVectors("../resources/referenceFrontsCSV/LZ09_F6.csv", ","));
 
     // Rationale: the default problem is LZ09F6", and MOEA/D, configured with standard settings, should
     // return find a front with a hypervolume value higher than 0.35
-    double hv = hypervolume.evaluate(population);
+    double hv = hypervolume.compute(SolutionListUtils.getMatrixWithObjectiveValues(population));
 
     assertTrue(hv > 0.35);
 

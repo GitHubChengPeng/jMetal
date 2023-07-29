@@ -1,18 +1,17 @@
 package org.uma.jmetal.algorithm.multiobjective.smsemoa;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import org.uma.jmetal.algorithm.impl.AbstractGeneticAlgorithm;
 import org.uma.jmetal.operator.crossover.CrossoverOperator;
 import org.uma.jmetal.operator.mutation.MutationOperator;
 import org.uma.jmetal.operator.selection.SelectionOperator;
 import org.uma.jmetal.problem.Problem;
-import org.uma.jmetal.qualityindicator.impl.hypervolume.Hypervolume;
 import org.uma.jmetal.solution.Solution;
-import org.uma.jmetal.util.solutionattribute.Ranking;
-import org.uma.jmetal.util.solutionattribute.impl.DominanceRanking;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import org.uma.jmetal.util.legacy.qualityindicator.impl.hypervolume.Hypervolume;
+import org.uma.jmetal.util.ranking.Ranking;
+import org.uma.jmetal.util.ranking.impl.MergeNonDominatedSortRanking;
 
 /**
  * @author Antonio J. Nebro <antonio@lcc.uma.es>
@@ -95,7 +94,9 @@ public class SMSEMOA<S extends Solution<?>> extends AbstractGeneticAlgorithm<S, 
     jointPopulation.addAll(population);
     jointPopulation.addAll(offspringPopulation);
 
-    Ranking<S> ranking = computeRanking(jointPopulation);
+    Ranking<S> ranking = new MergeNonDominatedSortRanking<>();
+    ranking.compute(jointPopulation) ;
+
     List<S> lastSubfront = ranking.getSubFront(ranking.getNumberOfSubFronts()-1) ;
 
     lastSubfront = hypervolume.computeHypervolumeContribution(lastSubfront, jointPopulation) ;
@@ -114,22 +115,15 @@ public class SMSEMOA<S extends Solution<?>> extends AbstractGeneticAlgorithm<S, 
     return resultPopulation ;
   }
 
-  @Override public List<S> getResult() {
+  @Override public List<S> result() {
     return getPopulation();
   }
 
-  protected Ranking<S> computeRanking(List<S> solutionList) {
-    Ranking<S> ranking = new DominanceRanking<S>(dominanceComparator);
-    ranking.computeRanking(solutionList);
-
-    return ranking;
-  }
-
-  @Override public String getName() {
+  @Override public String name() {
     return "SMSEMOA" ;
   }
 
-  @Override public String getDescription() {
+  @Override public String description() {
     return "S metric selection EMOA" ;
   }
 }

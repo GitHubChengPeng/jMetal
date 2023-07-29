@@ -1,24 +1,8 @@
 package org.uma.jmetal.lab.experiment.component.impl;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
-import org.uma.jmetal.lab.experiment.Experiment;
-import org.uma.jmetal.lab.experiment.component.ExperimentComponent;
-import org.uma.jmetal.lab.experiment.util.ExperimentAlgorithm;
-import org.uma.jmetal.lab.experiment.util.ExperimentProblem;
-import org.uma.jmetal.qualityindicator.QualityIndicator;
-import org.uma.jmetal.qualityindicator.impl.GenericIndicator;
-import org.uma.jmetal.solution.Solution;
-import org.uma.jmetal.util.JMetalException;
-import org.uma.jmetal.util.JMetalLogger;
-import org.uma.jmetal.util.front.Front;
-import org.uma.jmetal.util.front.impl.ArrayFront;
-import org.uma.jmetal.util.front.util.FrontNormalizer;
-import org.uma.jmetal.util.front.util.FrontUtils;
-import org.uma.jmetal.util.point.PointSolution;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -29,8 +13,18 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.IntStream;
-
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+import org.uma.jmetal.lab.experiment.Experiment;
+import org.uma.jmetal.lab.experiment.component.ExperimentComponent;
+import org.uma.jmetal.lab.experiment.util.ExperimentAlgorithm;
+import org.uma.jmetal.lab.experiment.util.ExperimentProblem;
+import org.uma.jmetal.qualityindicator.QualityIndicator;
+import org.uma.jmetal.solution.Solution;
+import org.uma.jmetal.util.JMetalLogger;
+import org.uma.jmetal.util.NormalizeUtils;
+import org.uma.jmetal.util.VectorUtils;
+import org.uma.jmetal.util.errorchecking.JMetalException;
 
 /**
  * This class computes the {@link QualityIndicator}s of an org.uma.jmetal.experiment. Once the algorithms of an
@@ -54,8 +48,8 @@ public class ComputeQualityIndicators<S extends Solution<?>, Result extends List
     experiment.removeDuplicatedAlgorithms();
     resetIndicatorFiles();
 
-    for (GenericIndicator<S> indicator : experiment.getIndicatorList()) {
-      JMetalLogger.logger.info("Computing indicator: " + indicator.getName());
+    for (QualityIndicator indicator : experiment.getIndicatorList()) {
+      JMetalLogger.logger.info("Computing indicator: " + indicator.name());
 
       for (ExperimentAlgorithm<?, Result> algorithm : experiment.getAlgorithmList()) {
         String algorithmDirectory;
@@ -69,29 +63,39 @@ public class ComputeQualityIndicators<S extends Solution<?>, Result extends List
 
           JMetalLogger.logger.info("RF: " + referenceFrontName);
 
-          Front referenceFront = new ArrayFront(referenceFrontName, ",");
+          double[][] referenceFront = VectorUtils.readVectors(referenceFrontName, ",");
+          double[][] normalizedReferenceFront = NormalizeUtils.normalize(referenceFront);
 
-          FrontNormalizer frontNormalizer = new FrontNormalizer(referenceFront);
-          Front normalizedReferenceFront = frontNormalizer.normalize(referenceFront);
+          indicator.referenceFront(normalizedReferenceFront);
 
-          String qualityIndicatorFile = problemDirectory + "/" + indicator.getName();
 
-          indicator.setReferenceParetoFront(normalizedReferenceFront);
+          //Front referenceFront = new ArrayFront(referenceFrontName, ",");
+
+          //FrontNormalizer frontNormalizer = new FrontNormalizer(referenceFront);
+          //Front normalizedReferenceFront = frontNormalizer.normalize(referenceFront);
+
+          String qualityIndicatorFile = problemDirectory + "/" + indicator.name();
+
+          //indicator.setReferenceParetoFront(normalizedReferenceFront);
 
           double[] indicatorValues = new double[experiment.getIndependentRuns()];
           IntStream.range(0, experiment.getIndependentRuns()).forEach(run -> {
             String frontFileName = problemDirectory + "/" +
                     experiment.getOutputParetoFrontFileName() + run + ".csv";
-            Front front = null;
+            double[][] front = new double[0][];
             try {
-              front = new ArrayFront(frontFileName, ",");
-            } catch (FileNotFoundException e) {
+              front = VectorUtils.readVectors(frontFileName,",");
+            } catch (IOException e) {
               e.printStackTrace();
             }
-            Front normalizedFront = frontNormalizer.normalize(front);
-            List<PointSolution> normalizedPopulation = FrontUtils.convertFrontToSolutionList(normalizedFront);
-            Double indicatorValue = indicator.evaluate((List<S>) normalizedPopulation);
-            JMetalLogger.logger.info(indicator.getName() + ": " + indicatorValue);
+
+            double[][] normalizedFront =
+                    NormalizeUtils.normalize(
+                            front,
+                            NormalizeUtils.getMinValuesOfTheColumnsOfAMatrix(referenceFront),
+                            NormalizeUtils.getMaxValuesOfTheColumnsOfAMatrix(referenceFront));
+            Double indicatorValue = indicator.compute(normalizedFront);
+            JMetalLogger.logger.info(indicator.name() + ": " + indicatorValue);
             indicatorValues[run] = indicatorValue;
           });
 
@@ -130,7 +134,7 @@ public class ComputeQualityIndicators<S extends Solution<?>, Result extends List
   }
 
   public void findBestIndicatorFronts(Experiment<?, Result> experiment) throws IOException {
-    for (GenericIndicator<?> indicator : experiment.getIndicatorList()) {
+    for (QualityIndicator indicator : experiment.getIndicatorList()) {
       for (ExperimentAlgorithm<?, Result> algorithm : experiment.getAlgorithmList()) {
         String algorithmDirectory;
         algorithmDirectory = experiment.getExperimentBaseDirectory() + "/data/" +
@@ -138,7 +142,7 @@ public class ComputeQualityIndicators<S extends Solution<?>, Result extends List
 
         for (ExperimentProblem<?> problem : experiment.getProblemList()) {
           String indicatorFileName =
-                  algorithmDirectory + "/" + problem.getTag() + "/" + indicator.getName();
+                  algorithmDirectory + "/" + problem.getTag() + "/" + indicator.name();
           Path indicatorFile = Paths.get(indicatorFileName);
 
           List<String> fileArray;
@@ -159,10 +163,10 @@ public class ComputeQualityIndicators<S extends Solution<?>, Result extends List
 
           String outputDirectory = algorithmDirectory + "/" + problem.getTag();
 
-          bestFunFileName = outputDirectory + "/BEST_" + indicator.getName() + "_FUN.csv";
-          bestVarFileName = outputDirectory + "/BEST_" + indicator.getName() + "_VAR.csv";
-          medianFunFileName = outputDirectory + "/MEDIAN_" + indicator.getName() + "_FUN.csv";
-          medianVarFileName = outputDirectory + "/MEDIAN_" + indicator.getName() + "_VAR.csv";
+          bestFunFileName = outputDirectory + "/BEST_" + indicator.name() + "_FUN.csv";
+          bestVarFileName = outputDirectory + "/BEST_" + indicator.name() + "_VAR.csv";
+          medianFunFileName = outputDirectory + "/MEDIAN_" + indicator.name() + "_FUN.csv";
+          medianVarFileName = outputDirectory + "/MEDIAN_" + indicator.name() + "_VAR.csv";
           if (indicator.isTheLowerTheIndicatorValueTheBetter()) {
             String bestFunFile = outputDirectory + "/" +
                     experiment.getOutputParetoFrontFileName() + list.get(0).getRight() + ".csv";
@@ -198,13 +202,13 @@ public class ComputeQualityIndicators<S extends Solution<?>, Result extends List
    * Deletes the files containing the indicator values if the exist.
    */
   private void resetIndicatorFiles() {
-    for (GenericIndicator<S> indicator : experiment.getIndicatorList()) {
+    for (QualityIndicator indicator : experiment.getIndicatorList()) {
       for (ExperimentAlgorithm<?, Result> algorithm : experiment.getAlgorithmList()) {
         for (ExperimentProblem<?> problem : experiment.getProblemList()) {
           String algorithmDirectory;
           algorithmDirectory = experiment.getExperimentBaseDirectory() + "/data/" + algorithm.getAlgorithmTag();
           String problemDirectory = algorithmDirectory + "/" + problem.getTag();
-          String qualityIndicatorFile = problemDirectory + "/" + indicator.getName();
+          String qualityIndicatorFile = problemDirectory + "/" + indicator.name();
 
           resetFile(qualityIndicatorFile);
         }
@@ -251,7 +255,7 @@ public class ComputeQualityIndicators<S extends Solution<?>, Result extends List
     try (FileWriter os = new FileWriter(csvFileName, true)) {
       os.write("" + headerOfCSVFile + "\n");
 
-      for (GenericIndicator<?> indicator : experiment.getIndicatorList()) {
+      for (QualityIndicator indicator : experiment.getIndicatorList()) {
         for (ExperimentAlgorithm<?, Result> algorithm : experiment.getAlgorithmList()) {
           String algorithmDirectory;
           algorithmDirectory = experiment.getExperimentBaseDirectory() + "/data/" +
@@ -259,10 +263,10 @@ public class ComputeQualityIndicators<S extends Solution<?>, Result extends List
 
           for (ExperimentProblem<?> problem : experiment.getProblemList()) {
             String indicatorFileName =
-                    algorithmDirectory + "/" + problem.getTag() + "/" + indicator.getName();
+                    algorithmDirectory + "/" + problem.getTag() + "/" + indicator.name();
             Path indicatorFile = Paths.get(indicatorFileName);
             if (indicatorFile == null) {
-              throw new JMetalException("Indicator file " + indicator.getName() + " doesn't exist");
+              throw new JMetalException("Indicator file " + indicator.name() + " doesn't exist");
             }
             System.out.println("-----");
             System.out.println(indicatorFileName);
@@ -273,7 +277,7 @@ public class ComputeQualityIndicators<S extends Solution<?>, Result extends List
             System.out.println("++++++");
 
             for (int i = 0; i < fileArray.size(); i++) {
-              String row = algorithm.getAlgorithmTag() + "," + problem.getTag() + "," + indicator.getName() + "," + i + "," + fileArray.get(i);
+              String row = algorithm.getAlgorithmTag() + "," + problem.getTag() + "," + indicator.name() + "," + i + "," + fileArray.get(i);
               os.write("" + row + "\n");
             }
           }

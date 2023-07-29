@@ -1,16 +1,15 @@
 package org.uma.jmetal.operator.crossover.impl;
 
-import org.uma.jmetal.operator.crossover.CrossoverOperator;
-import org.uma.jmetal.solution.doublesolution.DoubleSolution;
-import org.uma.jmetal.solution.util.repairsolution.RepairDoubleSolution;
-import org.uma.jmetal.solution.util.repairsolution.impl.RepairDoubleSolutionWithBoundValue;
-import org.uma.jmetal.util.JMetalException;
-import org.uma.jmetal.util.checking.Check;
-import org.uma.jmetal.util.pseudorandom.JMetalRandom;
-import org.uma.jmetal.util.pseudorandom.RandomGenerator;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.uma.jmetal.operator.crossover.CrossoverOperator;
+import org.uma.jmetal.solution.doublesolution.DoubleSolution;
+import org.uma.jmetal.solution.doublesolution.repairsolution.RepairDoubleSolution;
+import org.uma.jmetal.solution.doublesolution.repairsolution.impl.RepairDoubleSolutionWithBoundValue;
+import org.uma.jmetal.util.bounds.Bounds;
+import org.uma.jmetal.util.errorchecking.Check;
+import org.uma.jmetal.util.pseudorandom.JMetalRandom;
+import org.uma.jmetal.util.pseudorandom.RandomGenerator;
 
 /**
  * This class allows to apply a BLX-alpha crossover operator to two parent solutions.
@@ -23,9 +22,7 @@ public class BLXAlphaCrossover implements CrossoverOperator<DoubleSolution> {
 
   private double crossoverProbability;
   private double alpha ;
-
   private RepairDoubleSolution solutionRepair ;
-
   private RandomGenerator<Double> randomGenerator ;
 
   /** Constructor */
@@ -45,11 +42,8 @@ public class BLXAlphaCrossover implements CrossoverOperator<DoubleSolution> {
 
   /** Constructor */
   public BLXAlphaCrossover(double crossoverProbability, double alpha, RepairDoubleSolution solutionRepair, RandomGenerator<Double> randomGenerator) {
-    if (crossoverProbability < 0) {
-      throw new JMetalException("Crossover probability is negative: " + crossoverProbability) ;
-    } else if (alpha < 0) {
-      throw new JMetalException("Alpha is negative: " + alpha);
-    }
+    Check.probabilityIsValid(crossoverProbability);
+    Check.that(alpha >= 0, "Alpha is negative: " + alpha);
 
     this.crossoverProbability = crossoverProbability ;
     this.alpha = alpha ;
@@ -59,27 +53,27 @@ public class BLXAlphaCrossover implements CrossoverOperator<DoubleSolution> {
 
   /* Getters */
   @Override
-  public double getCrossoverProbability() {
+  public double crossoverProbability() {
     return crossoverProbability;
   }
 
-  public double getAlpha() {
+  public double alpha() {
     return alpha;
   }
 
   /* Setters */
-  public void setCrossoverProbability(double crossoverProbability) {
+  public void crossoverProbability(double crossoverProbability) {
     this.crossoverProbability = crossoverProbability;
   }
 
-  public void setAlpha(double alpha) {
+  public void alpha(double alpha) {
     this.alpha = alpha;
   }
 
   /** Execute() method */
   @Override
   public List<DoubleSolution> execute(List<DoubleSolution> solutions) {
-    Check.isNotNull(solutions);
+    Check.notNull(solutions);
     Check.that(solutions.size() == 2, "There must be two parents instead of " + solutions.size());
 
     return doCrossover(crossoverProbability, solutions.get(0), solutions.get(1)) ;
@@ -103,11 +97,12 @@ public class BLXAlphaCrossover implements CrossoverOperator<DoubleSolution> {
     double lowerBound;
 
     if (randomGenerator.getRandomValue() <= probability) {
-      for (i = 0; i < parent1.getNumberOfVariables(); i++) {
-        upperBound = parent1.getUpperBound(i);
-        lowerBound = parent1.getLowerBound(i);
-        valueX1 = parent1.getVariable(i);
-        valueX2 = parent2.getVariable(i);
+      for (i = 0; i < parent1.variables().size(); i++) {
+        Bounds<Double> bounds = parent1.getBounds(i);
+        upperBound = bounds.getUpperBound();
+        lowerBound = bounds.getLowerBound();
+        valueX1 = parent1.variables().get(i);
+        valueX2 = parent2.variables().get(i);
 
         double max;
         double min;
@@ -138,19 +133,19 @@ public class BLXAlphaCrossover implements CrossoverOperator<DoubleSolution> {
         valueY1 = solutionRepair.repairSolutionVariableValue(valueY1, lowerBound, upperBound) ;
         valueY2 = solutionRepair.repairSolutionVariableValue(valueY2, lowerBound, upperBound) ;
 
-        offspring.get(0).setVariable(i, valueY1);
-        offspring.get(1).setVariable(i, valueY2);
+        offspring.get(0).variables().set(i, valueY1);
+        offspring.get(1).variables().set(i, valueY2);
       }
     }
 
     return offspring;
   }
 
-  public int getNumberOfRequiredParents() {
+  public int numberOfRequiredParents() {
     return 2 ;
   }
 
-  public int getNumberOfGeneratedChildren() {
+  public int numberOfGeneratedChildren() {
     return 2 ;
   }
 }

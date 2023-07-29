@@ -4,6 +4,10 @@
 
 package org.uma.jmetal.lab.experiment.studies;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.uma.jmetal.algorithm.Algorithm;
 import org.uma.jmetal.algorithm.multiobjective.mocell.MOCellBuilder;
 import org.uma.jmetal.algorithm.multiobjective.mochc.MOCHCBuilder;
@@ -11,7 +15,13 @@ import org.uma.jmetal.algorithm.multiobjective.nsgaii.NSGAIIBuilder;
 import org.uma.jmetal.algorithm.multiobjective.spea2.SPEA2Builder;
 import org.uma.jmetal.lab.experiment.Experiment;
 import org.uma.jmetal.lab.experiment.ExperimentBuilder;
-import org.uma.jmetal.lab.experiment.component.impl.*;
+import org.uma.jmetal.lab.experiment.component.impl.ComputeQualityIndicators;
+import org.uma.jmetal.lab.experiment.component.impl.ExecuteAlgorithms;
+import org.uma.jmetal.lab.experiment.component.impl.GenerateBoxplotsWithR;
+import org.uma.jmetal.lab.experiment.component.impl.GenerateFriedmanTestTables;
+import org.uma.jmetal.lab.experiment.component.impl.GenerateLatexTablesWithStatistics;
+import org.uma.jmetal.lab.experiment.component.impl.GenerateReferenceParetoFront;
+import org.uma.jmetal.lab.experiment.component.impl.GenerateWilcoxonTestTablesWithR;
 import org.uma.jmetal.lab.experiment.util.ExperimentAlgorithm;
 import org.uma.jmetal.lab.experiment.util.ExperimentProblem;
 import org.uma.jmetal.operator.crossover.CrossoverOperator;
@@ -26,16 +36,16 @@ import org.uma.jmetal.problem.Problem;
 import org.uma.jmetal.problem.binaryproblem.BinaryProblem;
 import org.uma.jmetal.problem.multiobjective.OneZeroMax;
 import org.uma.jmetal.problem.multiobjective.zdt.ZDT5;
-import org.uma.jmetal.qualityindicator.impl.*;
+import org.uma.jmetal.qualityindicator.impl.Epsilon;
+import org.uma.jmetal.qualityindicator.impl.GenerationalDistance;
+import org.uma.jmetal.qualityindicator.impl.InvertedGenerationalDistance;
+import org.uma.jmetal.qualityindicator.impl.InvertedGenerationalDistancePlus;
+import org.uma.jmetal.qualityindicator.impl.NormalizedHypervolume;
+import org.uma.jmetal.qualityindicator.impl.Spread;
 import org.uma.jmetal.qualityindicator.impl.hypervolume.impl.PISAHypervolume;
 import org.uma.jmetal.solution.binarysolution.BinarySolution;
-import org.uma.jmetal.util.JMetalException;
+import org.uma.jmetal.util.errorchecking.JMetalException;
 import org.uma.jmetal.util.evaluator.impl.SequentialSolutionListEvaluator;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Example of experimental study based on solving two binary problems with four algorithms: NSGAII,
@@ -79,12 +89,13 @@ public class BinaryProblemsStudy {
         .setOutputParetoSetFileName("VAR")
         .setReferenceFrontDirectory(experimentBaseDirectory + "/BinaryProblemsStudy/referenceFronts")
         .setIndicatorList(Arrays.asList(
-            new Epsilon<BinarySolution>(),
-            new Spread<BinarySolution>(),
-            new GenerationalDistance<BinarySolution>(),
-            new PISAHypervolume<BinarySolution>(),
-            new InvertedGenerationalDistance<BinarySolution>(),
-            new InvertedGenerationalDistancePlus<BinarySolution>())
+            new Epsilon(),
+            new Spread(),
+            new GenerationalDistance(),
+            new PISAHypervolume(),
+                new NormalizedHypervolume(),
+                new InvertedGenerationalDistance(),
+            new InvertedGenerationalDistancePlus())
         )
         .setIndependentRuns(INDEPENDENT_RUNS)
         .setNumberOfCores(8)
@@ -109,66 +120,66 @@ public class BinaryProblemsStudy {
     List<ExperimentAlgorithm<BinarySolution, List<BinarySolution>>> algorithms = new ArrayList<>();
     for (int run = 0; run < INDEPENDENT_RUNS; run++) {
 
-      for (int i = 0; i < problemList.size(); i++) {
-        Algorithm<List<BinarySolution>> algorithm = new NSGAIIBuilder<BinarySolution>(
-            problemList.get(i).getProblem(),
-            new SinglePointCrossover(1.0),
-            new BitFlipMutation(
-                1.0 / ((BinaryProblem) problemList.get(i).getProblem()).getBitsFromVariable(0)),
+      for (ExperimentProblem<BinarySolution> problem : problemList) {
+        Algorithm<List<BinarySolution>> algorithm = new NSGAIIBuilder<>(
+                problem.getProblem(),
+                new SinglePointCrossover(1.0),
+                new BitFlipMutation(
+                        1.0 / ((BinaryProblem) problem.getProblem()).numberOfBitsPerVariable().get(0)),
                 100)
-            .setMaxEvaluations(25000)
-            .build();
-        algorithms.add(new ExperimentAlgorithm<>(algorithm, problemList.get(i), run));
+                .setMaxEvaluations(25000)
+                .build();
+        algorithms.add(new ExperimentAlgorithm<>(algorithm, problem, run));
       }
 
-      for (int i = 0; i < problemList.size(); i++) {
-        Algorithm<List<BinarySolution>> algorithm = new SPEA2Builder<BinarySolution>(
-            problemList.get(i).getProblem(),
-            new SinglePointCrossover(1.0),
-            new BitFlipMutation(
-                1.0 / ((BinaryProblem) problemList.get(i).getProblem()).getBitsFromVariable(0)))
-            .setMaxIterations(250)
-            .setPopulationSize(100)
-            .build();
-        algorithms.add(new ExperimentAlgorithm<>(algorithm, problemList.get(i), run));
+      for (ExperimentProblem<BinarySolution> problem : problemList) {
+        Algorithm<List<BinarySolution>> algorithm = new SPEA2Builder<>(
+                problem.getProblem(),
+                new SinglePointCrossover(1.0),
+                new BitFlipMutation(
+                        1.0 / ((BinaryProblem) problem.getProblem()).numberOfBitsPerVariable().get(0)))
+                .setMaxIterations(250)
+                .setPopulationSize(100)
+                .build();
+        algorithms.add(new ExperimentAlgorithm<>(algorithm, problem, run));
       }
 
-      for (int i = 0; i < problemList.size(); i++) {
-        Algorithm<List<BinarySolution>> algorithm = new MOCellBuilder<BinarySolution>(
-            problemList.get(i).getProblem(),
-            new SinglePointCrossover(1.0),
-            new BitFlipMutation(
-                1.0 / ((BinaryProblem) problemList.get(i).getProblem()).getBitsFromVariable(0)))
-            .setMaxEvaluations(25000)
-            .setPopulationSize(100)
-            .build();
-        algorithms.add(new ExperimentAlgorithm<>(algorithm, problemList.get(i), run));
+      for (ExperimentProblem<BinarySolution> problem : problemList) {
+        Algorithm<List<BinarySolution>> algorithm = new MOCellBuilder<>(
+                problem.getProblem(),
+                new SinglePointCrossover(1.0),
+                new BitFlipMutation(
+                        1.0 / ((BinaryProblem) problem.getProblem()).numberOfBitsPerVariable().get(0)))
+                .setMaxEvaluations(25000)
+                .setPopulationSize(100)
+                .build();
+        algorithms.add(new ExperimentAlgorithm<>(algorithm, problem, run));
       }
 
-      for (int i = 0; i < problemList.size(); i++) {
+      for (ExperimentProblem<BinarySolution> problem : problemList) {
         CrossoverOperator<BinarySolution> crossoverOperator;
         MutationOperator<BinarySolution> mutationOperator;
         SelectionOperator<List<BinarySolution>, BinarySolution> parentsSelection;
         SelectionOperator<List<BinarySolution>, List<BinarySolution>> newGenerationSelection;
 
         crossoverOperator = new HUXCrossover(1.0);
-        parentsSelection = new RandomSelection<BinarySolution>();
-        newGenerationSelection = new RankingAndCrowdingSelection<BinarySolution>(100);
+        parentsSelection = new RandomSelection<>();
+        newGenerationSelection = new RankingAndCrowdingSelection<>(100);
         mutationOperator = new BitFlipMutation(0.35);
         Algorithm<List<BinarySolution>> algorithm = new MOCHCBuilder(
-            (BinaryProblem) problemList.get(i).getProblem())
-            .setInitialConvergenceCount(0.25)
-            .setConvergenceValue(3)
-            .setPreservedPopulation(0.05)
-            .setPopulationSize(100)
-            .setMaxEvaluations(25000)
-            .setCrossover(crossoverOperator)
-            .setNewGenerationSelection(newGenerationSelection)
-            .setCataclysmicMutation(mutationOperator)
-            .setParentSelection(parentsSelection)
-            .setEvaluator(new SequentialSolutionListEvaluator<BinarySolution>())
-            .build();
-        algorithms.add(new ExperimentAlgorithm<>(algorithm, problemList.get(i), run));
+                (BinaryProblem) problem.getProblem())
+                .setInitialConvergenceCount(0.25)
+                .setConvergenceValue(3)
+                .setPreservedPopulation(0.05)
+                .setPopulationSize(100)
+                .setMaxEvaluations(25000)
+                .setCrossover(crossoverOperator)
+                .setNewGenerationSelection(newGenerationSelection)
+                .setCataclysmicMutation(mutationOperator)
+                .setParentSelection(parentsSelection)
+                .setEvaluator(new SequentialSolutionListEvaluator<>())
+                .build();
+        algorithms.add(new ExperimentAlgorithm<>(algorithm, problem, run));
       }
     }
     return algorithms;

@@ -1,10 +1,9 @@
 package org.uma.jmetal.problem.multiobjective.mop;
 
-import org.uma.jmetal.problem.doubleproblem.impl.AbstractDoubleProblem;
-import org.uma.jmetal.solution.doublesolution.DoubleSolution;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.uma.jmetal.problem.doubleproblem.impl.AbstractDoubleProblem;
+import org.uma.jmetal.solution.doublesolution.DoubleSolution;
 
 /**
  * Problem MOP3. Defined in
@@ -29,31 +28,31 @@ public class MOP3 extends AbstractDoubleProblem {
    * @param numberOfVariables Number of variables.
    */
   public MOP3(Integer numberOfVariables) {
-    setNumberOfVariables(numberOfVariables);
-    setNumberOfObjectives(2);
-    setName("MOP3");
+    numberOfObjectives(2);
+    name("MOP3");
 
-    List<Double> lowerLimit = new ArrayList<>(getNumberOfVariables()) ;
-    List<Double> upperLimit = new ArrayList<>(getNumberOfVariables()) ;
+    List<Double> lowerLimit = new ArrayList<>(numberOfVariables) ;
+    List<Double> upperLimit = new ArrayList<>(numberOfVariables) ;
 
-    for (int i = 0; i < getNumberOfVariables(); i++) {
+    for (int i = 0; i < numberOfVariables; i++) {
       lowerLimit.add(0.0);
       upperLimit.add(1.0);
     }
 
-    setVariableBounds(lowerLimit, upperLimit);
+    variableBounds(lowerLimit, upperLimit);
   }
 
   /** Evaluate() method */
-  public void evaluate(DoubleSolution solution) {
-    double[] f = new double[getNumberOfObjectives()];
+  public DoubleSolution evaluate(DoubleSolution solution) {
+    double[] f = new double[solution.objectives().length];
 
     double g = this.evalG(solution);
-    f[0] = (1 + g) * Math.cos(solution.getVariable(0) * Math.PI * 0.5);
-    f[1] = (1 + g) * Math.sin(solution.getVariable(0) * Math.PI * 0.5);
+    f[0] = (1 + g) * Math.cos(solution.variables().get(0) * Math.PI * 0.5);
+    f[1] = (1 + g) * Math.sin(solution.variables().get(0) * Math.PI * 0.5);
 
-    solution.setObjective(0, f[0]);
-    solution.setObjective(1, f[1]);
+    solution.objectives()[0] = f[0];
+    solution.objectives()[1] = f[1];
+    return solution ;
   }
 
   /**
@@ -63,11 +62,11 @@ public class MOP3 extends AbstractDoubleProblem {
    */
   private double evalG(DoubleSolution solution) {
     double g = 0.0;
-    for (int i = 1; i < solution.getNumberOfVariables(); i++) {
-      double t = solution.getVariable(i) - Math.sin(0.5 * Math.PI * solution.getVariable(0));
+    for (int i = 1; i < solution.variables().size(); i++) {
+      double t = solution.variables().get(i) - Math.sin(0.5 * Math.PI * solution.variables().get(0));
       g += Math.abs(t) / (1 + Math.exp(5 * Math.abs(t)));
     }
-    g = 10 * Math.sin(0.5 * Math.PI * solution.getVariable(0)) * g;
+    g = 10 * Math.sin(0.5 * Math.PI * solution.variables().get(0)) * g;
     return g;
   }
 

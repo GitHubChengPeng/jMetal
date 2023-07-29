@@ -1,13 +1,12 @@
 package org.uma.jmetal.util.restartstrategy.impl;
 
-import org.uma.jmetal.problem.DynamicProblem;
-import org.uma.jmetal.solution.Solution;
-import org.uma.jmetal.util.JMetalException;
-import org.uma.jmetal.util.restartstrategy.RemoveSolutionsStrategy;
+import static org.uma.jmetal.util.SolutionListUtils.removeSolutionsFromList;
 
 import java.util.List;
-
-import static org.uma.jmetal.util.SolutionListUtils.removeSolutionsFromList;
+import org.uma.jmetal.problem.DynamicProblem;
+import org.uma.jmetal.solution.Solution;
+import org.uma.jmetal.util.errorchecking.JMetalException;
+import org.uma.jmetal.util.restartstrategy.RemoveSolutionsStrategy;
 
 /**
  * Created by antonio on 6/06/17.

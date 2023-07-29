@@ -1,38 +1,37 @@
 package org.uma.jmetal.problem.multiobjective;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 import org.uma.jmetal.problem.Problem;
 import org.uma.jmetal.solution.integersolution.IntegerSolution;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * Created by Antonio J. Nebro on 17/09/14.
  */
-public class NMMinTest {
+class NMMinTest {
   Problem<IntegerSolution> problem ;
 
   @Test
-  public void evaluateSimpleSolutions() {
+  void evaluateSimpleSolutions() {
     problem = new NMMin(1, 100, -100, -1000, 1000) ;
     IntegerSolution solution = problem.createSolution() ;
-    solution.setVariable(0, 100);
+    solution.variables().set(0, 100);
     problem.evaluate(solution);
 
-    assertEquals(0, (int)solution.getObjective(0)) ;
-    assertEquals(200, (int)solution.getObjective(1)) ;
+    assertEquals(0, (int)solution.objectives()[0]) ;
+    assertEquals(200, (int)solution.objectives()[1]) ;
 
-    solution.setVariable(0, -100);
+    solution.variables().set(0, -100);
     problem.evaluate(solution);
 
-    assertEquals(200, (int)solution.getObjective(0)) ;
-    assertEquals(0, (int)solution.getObjective(1)) ;
+    assertEquals(200, (int)solution.objectives()[0]) ;
+    assertEquals(0, (int)solution.objectives()[1]) ;
 
-    solution.setVariable(0, 0);
+    solution.variables().set(0, 0);
     problem.evaluate(solution);
 
-    assertEquals(100, (int)solution.getObjective(0)) ;
-    assertEquals(100, (int)solution.getObjective(1)) ;
+    assertEquals(100, (int)solution.objectives()[0]) ;
+    assertEquals(100, (int)solution.objectives()[1]) ;
   }
-
 }

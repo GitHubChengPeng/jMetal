@@ -1,9 +1,8 @@
 package org.uma.jmetal.util.comparator;
 
-import org.uma.jmetal.solution.Solution;
-
 import java.io.Serializable;
 import java.util.Comparator;
+import org.uma.jmetal.solution.Solution;
 
 /**
  * This class implements a <code>Comparator</code> (a method for comparing
@@ -42,9 +41,9 @@ public class EqualSolutionsComparator<S extends Solution<?>> implements Comparat
 
     int flag;
     double value1, value2;
-    for (int i = 0; i < solution1.getNumberOfObjectives(); i++) {
-      value1 = solution1.getObjective(i);
-      value2 = solution2.getObjective(i);
+    for (int i = 0; i < solution1.objectives().length; i++) {
+      value1 = solution1.objectives()[i];
+      value2 = solution2.objectives()[i];
 
       if (value1 < value2) {
         flag = -1;

@@ -1,26 +1,26 @@
 package org.uma.jmetal.operator.selection;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
-import org.mockito.Mockito;
-import org.springframework.test.util.ReflectionTestUtils;
-import org.uma.jmetal.operator.selection.impl.NaryTournamentSelection;
-import org.uma.jmetal.problem.Problem;
-import org.uma.jmetal.solution.binarysolution.BinarySolution;
-import org.uma.jmetal.solution.doublesolution.DoubleSolution;
-import org.uma.jmetal.solution.integersolution.IntegerSolution;
-import org.uma.jmetal.util.checking.exception.EmptyCollectionException;
-import org.uma.jmetal.util.checking.exception.InvalidConditionException;
-import org.uma.jmetal.util.checking.exception.NullParameterException;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.MatcherAssert.*;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
+import org.uma.jmetal.operator.selection.impl.NaryTournamentSelection;
+import org.uma.jmetal.problem.doubleproblem.DoubleProblem;
+import org.uma.jmetal.problem.doubleproblem.impl.FakeDoubleProblem;
+import org.uma.jmetal.solution.doublesolution.DoubleSolution;
+import org.uma.jmetal.solution.integersolution.IntegerSolution;
+import org.uma.jmetal.util.errorchecking.exception.EmptyCollectionException;
+import org.uma.jmetal.util.errorchecking.exception.InvalidConditionException;
+import org.uma.jmetal.util.errorchecking.exception.NullParameterException;
 
 /**
  * @author Antonio J. Nebro
@@ -57,20 +57,15 @@ public class NaryTournamentSelectionTest {
 
   @Test
   public void shouldExecuteReturnAValidSolutionIsWithCorrectParameters() {
-    NaryTournamentSelection<BinarySolution> selection = new NaryTournamentSelection<>() ;
-    BinarySolution solution = mock(BinarySolution.class) ;
+    DoubleProblem problem = new FakeDoubleProblem(2, 2, 0) ;
 
-    @SuppressWarnings("unchecked")
-    Problem<BinarySolution> problem = mock(Problem.class) ;
-
-    Mockito.when(problem.createSolution()).thenReturn(solution) ;
-
-    List<BinarySolution> population = new ArrayList<>(POPULATION_SIZE) ;
+    List<DoubleSolution> population = new ArrayList<>(POPULATION_SIZE) ;
     for (int i = 0 ; i < POPULATION_SIZE; i++) {
       population.add(problem.createSolution());
     }
+    NaryTournamentSelection<DoubleSolution> selection = new NaryTournamentSelection<>() ;
+
     assertNotNull(selection.execute(population));
-    verify(problem, times(POPULATION_SIZE)).createSolution();
   }
 
   @Test

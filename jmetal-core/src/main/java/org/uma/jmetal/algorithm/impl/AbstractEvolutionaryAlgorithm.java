@@ -1,9 +1,8 @@
 package org.uma.jmetal.algorithm.impl;
 
+import java.util.List;
 import org.uma.jmetal.algorithm.Algorithm;
 import org.uma.jmetal.problem.Problem;
-
-import java.util.List;
 
 /**
  * Abstract class representing an evolutionary algorithm
@@ -12,7 +11,6 @@ import java.util.List;
  *
  * @author Antonio J. Nebro <antonio@lcc.uma.es>
  */
-@SuppressWarnings("serial")
 public abstract class AbstractEvolutionaryAlgorithm<S, R>  implements Algorithm<R>{
   protected List<S> population;
   protected Problem<S> problem ;
@@ -46,8 +44,6 @@ public abstract class AbstractEvolutionaryAlgorithm<S, R>  implements Algorithm<
   protected abstract List<S> reproduction(List<S> population);
 
   protected abstract List<S> replacement(List<S> population, List<S> offspringPopulation);
-
-  @Override public abstract R getResult();
 
   @Override public void run() {
     List<S> offspringPopulation;

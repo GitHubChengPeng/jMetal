@@ -1,9 +1,8 @@
 package org.uma.jmetal.util.comparator;
 
-import org.uma.jmetal.solution.integersolution.IntegerSolution;
-import org.uma.jmetal.util.checking.Check;
-
 import java.util.Comparator;
+import org.uma.jmetal.solution.integersolution.IntegerSolution;
+import org.uma.jmetal.util.errorchecking.Check;
 
 public class IntegerVariableComparator implements Comparator<IntegerSolution> {
   private int variableIndex ;
@@ -25,14 +24,14 @@ public class IntegerVariableComparator implements Comparator<IntegerSolution> {
    */
   @Override
   public int compare(IntegerSolution solution1, IntegerSolution solution2) {
-    Check.isNotNull(solution1);
-    Check.isNotNull(solution2);
+    Check.notNull(solution1);
+    Check.notNull(solution2);
 
-    if (solution1.getVariable(variableIndex) < solution2.getVariable(variableIndex)) {
+    if (solution1.variables().get(variableIndex) < solution2.variables().get(variableIndex)) {
       return -1;
     }
 
-    if (solution1.getVariable(variableIndex) > solution2.getVariable(variableIndex)) {
+    if (solution1.variables().get(variableIndex) > solution2.variables().get(variableIndex)) {
       return 1;
     }
 

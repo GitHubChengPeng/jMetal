@@ -1,11 +1,10 @@
 package org.uma.jmetal.util.solutionattribute.impl;
 
+import java.util.List;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
 import org.uma.jmetal.solution.Solution;
 import org.uma.jmetal.util.solutionattribute.DensityEstimator;
-
-import java.util.List;
 
 /**
  * created at 11:09 pm, 2019/1/28
@@ -26,7 +25,7 @@ public class DirScore<S extends Solution<?>>  extends GenericSolutionAttribute<S
         int[] dirVector = computeDirVector(solutionSet) ;
         for(int i = 0;i < dirVector.length; i++){
             S solution = solutionSet.get(i) ;
-            solution.setAttribute("dir-score", 1.0 / (double) dirVector[i]);
+            solution.attributes().put("dir-score", 1.0 / (double) dirVector[i]);
         }
     }
 
@@ -38,7 +37,7 @@ public class DirScore<S extends Solution<?>>  extends GenericSolutionAttribute<S
             double minDistance = Double.MAX_VALUE;
             for(int i = 0; i < solutionSet.size(); i++){
                 S solution = solutionSet.get(i) ;
-                double distance = computeAngleDistance(vector, solution.getObjectives()) ;
+                double distance = computeAngleDistance(vector, solution.objectives()) ;
                 if(distance < minDistance){
                     minDistance = distance ;
                     minIndex = i ;

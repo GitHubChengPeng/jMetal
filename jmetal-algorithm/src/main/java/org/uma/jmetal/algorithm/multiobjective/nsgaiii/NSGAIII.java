@@ -1,5 +1,8 @@
 package org.uma.jmetal.algorithm.multiobjective.nsgaiii;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
 import org.uma.jmetal.algorithm.impl.AbstractGeneticAlgorithm;
 import org.uma.jmetal.algorithm.multiobjective.nsgaiii.util.EnvironmentalSelection;
 import org.uma.jmetal.algorithm.multiobjective.nsgaiii.util.ReferencePoint;
@@ -7,12 +10,8 @@ import org.uma.jmetal.solution.Solution;
 import org.uma.jmetal.util.JMetalLogger;
 import org.uma.jmetal.util.SolutionListUtils;
 import org.uma.jmetal.util.evaluator.SolutionListEvaluator;
-import org.uma.jmetal.util.solutionattribute.Ranking;
-import org.uma.jmetal.util.solutionattribute.impl.DominanceRanking;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
+import org.uma.jmetal.util.ranking.Ranking;
+import org.uma.jmetal.util.ranking.impl.FastNonDominatedSortRanking;
 
 /**
  * Created by ajnebro on 30/10/14.
@@ -45,7 +44,7 @@ public class NSGAIII<S extends Solution<?>> extends AbstractGeneticAlgorithm<S, 
     /// NSGAIII
     numberOfDivisions = builder.getNumberOfDivisions() ;
 
-    (new ReferencePoint<S>()).generateReferencePoints(referencePoints,getProblem().getNumberOfObjectives() , numberOfDivisions);
+    (new ReferencePoint<S>()).generateReferencePoints(referencePoints,getProblem().numberOfObjectives() , numberOfDivisions);
 
     int populationSize = referencePoints.size();
     while (populationSize%4>0) {
@@ -128,59 +127,55 @@ public class NSGAIII<S extends Solution<?>> extends AbstractGeneticAlgorithm<S, 
     Ranking<S> ranking = computeRanking(jointPopulation);
     
     //List<Solution> pop = crowdingDistanceSelection(ranking);
+    List<S> last = new ArrayList<>();
     List<S> pop = new ArrayList<>();
     List<List<S>> fronts = new ArrayList<>();
     int rankingIndex = 0;
     int candidateSolutions = 0;
     while (candidateSolutions < getMaxPopulationSize()) {
-      fronts.add(ranking.getSubFront(rankingIndex));
-      candidateSolutions += ranking.getSubFront(rankingIndex).size();
-      if ((pop.size() + ranking.getSubFront(rankingIndex).size()) <= getMaxPopulationSize())
-        addRankedSolutionsToPopulation(ranking, rankingIndex, pop);
+      last = ranking.getSubFront(rankingIndex);
+      fronts.add(last);
+      candidateSolutions += last.size();
+      if ((pop.size() + last.size()) <= getMaxPopulationSize())
+        pop.addAll(last);
       rankingIndex++;
     }
+
+    if (pop.size() == this.getMaxPopulationSize())
+      return pop;
     
     // A copy of the reference list should be used as parameter of the environmental selection
     EnvironmentalSelection<S> selection =
-            new EnvironmentalSelection<>(fronts,getMaxPopulationSize(),getReferencePointsCopy(),
-                    getProblem().getNumberOfObjectives());
+            new EnvironmentalSelection<>(fronts,getMaxPopulationSize() - pop.size(),getReferencePointsCopy(),
+                    getProblem().numberOfObjectives());
     
-    pop = selection.execute(pop);
+    var choosen = selection.execute(last);
+    pop.addAll(choosen);
      
     return pop;
   }
 
   @Override
-  public List<S> getResult() {
+  public List<S> result() {
     return getNonDominatedSolutions(getPopulation()) ;
   }
 
   protected Ranking<S> computeRanking(List<S> solutionList) {
-    Ranking<S> ranking = new DominanceRanking<>() ;
-    ranking.computeRanking(solutionList) ;
+    Ranking<S> ranking = new FastNonDominatedSortRanking<>() ;
+    ranking.compute(solutionList) ;
 
     return ranking ;
-  }
-
-  protected void addRankedSolutionsToPopulation(Ranking<S> ranking, int rank, List<S> population) {
-    List<S> front ;
-
-    front = ranking.getSubFront(rank);
-
-    for (int i = 0 ; i < front.size(); i++) {
-      population.add(front.get(i));
-    }
   }
 
   protected List<S> getNonDominatedSolutions(List<S> solutionList) {
     return SolutionListUtils.getNonDominatedSolutions(solutionList) ;
   }
 
-  @Override public String getName() {
+  @Override public String name() {
     return "NSGAIII" ;
   }
 
-  @Override public String getDescription() {
+  @Override public String description() {
     return "Nondominated Sorting Genetic Algorithm version III" ;
   }
 

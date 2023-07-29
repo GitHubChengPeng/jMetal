@@ -1,11 +1,15 @@
 package org.uma.jmetal.problem.singleobjective;
 
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StreamTokenizer;
 import org.uma.jmetal.problem.permutationproblem.impl.AbstractIntegerPermutationProblem;
 import org.uma.jmetal.solution.permutationsolution.PermutationSolution;
-import org.uma.jmetal.util.JMetalException;
-
-import java.io.*;
+import org.uma.jmetal.util.errorchecking.JMetalException;
 
 /**
  * Class representing a single-objective TSP (Traveling Salesman Problem) problem.
@@ -22,14 +26,30 @@ public class TSP extends AbstractIntegerPermutationProblem {
    */
   public TSP(String distanceFile) throws IOException {
     distanceMatrix = readProblem(distanceFile) ;
+  }
 
-    setNumberOfVariables(numberOfCities);
-    setNumberOfObjectives(1);
-    setName("TSP");
+  @Override
+  public int numberOfVariables() {
+    return numberOfCities ;
+  }
+
+  @Override
+  public int numberOfObjectives() {
+    return 1;
+  }
+
+  @Override
+  public int numberOfConstraints() {
+    return 0;
+  }
+
+  @Override
+  public String name() {
+    return "TSP";
   }
 
   /** Evaluate() method */
-  public void evaluate(PermutationSolution<Integer> solution){
+  public PermutationSolution<Integer> evaluate(PermutationSolution<Integer> solution){
     double fitness1   ;
 
     fitness1 = 0.0 ;
@@ -38,20 +58,22 @@ public class TSP extends AbstractIntegerPermutationProblem {
       int x ;
       int y ;
 
-      x = solution.getVariable(i) ;
-      y = solution.getVariable(i+1) ;
+      x = solution.variables().get(i) ;
+      y = solution.variables().get(i+1) ;
 
       fitness1 += distanceMatrix[x][y] ;
     }
     int firstCity ;
     int lastCity  ;
 
-    firstCity = solution.getVariable(0) ;
-    lastCity = solution.getVariable(numberOfCities - 1) ;
+    firstCity = solution.variables().get(0) ;
+    lastCity = solution.variables().get(numberOfCities - 1) ;
 
     fitness1 += distanceMatrix[firstCity][lastCity] ;
 
-    solution.setObjective(0, fitness1);
+    solution.objectives()[0] = fitness1;
+
+    return solution ;
   }
 
   private double [][] readProblem(String file) throws IOException {
@@ -119,12 +141,12 @@ public class TSP extends AbstractIntegerPermutationProblem {
         }
       }
     } catch (Exception e) {
-      new JMetalException("TSP.readProblem(): error when reading data file " + e);
+      throw new JMetalException("TSP.readProblem(): error when reading data file " + e);
     }
     return matrix;
   }
 
-  @Override public int getLength() {
+  @Override public int length() {
     return numberOfCities ;
   }
 }

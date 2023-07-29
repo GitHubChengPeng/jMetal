@@ -1,11 +1,11 @@
 package org.uma.jmetal.problem.multiobjective.maf;
 
 
-import org.uma.jmetal.problem.doubleproblem.impl.AbstractDoubleProblem;
-import org.uma.jmetal.solution.doublesolution.DoubleSolution;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
+import org.uma.jmetal.problem.doubleproblem.impl.AbstractDoubleProblem;
+import org.uma.jmetal.solution.doublesolution.DoubleSolution;
 
 /**
  * Class representing problem MaF08
@@ -30,23 +30,22 @@ public class MaF08 extends AbstractDoubleProblem {
    */
   public MaF08(Integer numberOfVariables,
       Integer numberOfObjectives) {
-    setNumberOfVariables(2); // always 2
-    setNumberOfObjectives(numberOfObjectives);
-    setNumberOfConstraints(0);
-    setName("MaF08");
+    numberOfObjectives(numberOfObjectives);
+    numberOfConstraints(0);
+    name("MaF08");
 
     double r = 1;
     const8 = polygonpoints(numberOfObjectives, r);
 
-    List<Double> lower = new ArrayList<>(getNumberOfVariables()), upper = new ArrayList<>(
-        getNumberOfVariables());
+    List<Double> lower = new ArrayList<>(numberOfVariables), upper = new ArrayList<>(
+        numberOfVariables);
 
-    for (int var = 0; var < numberOfVariables; var++) {
-      lower.add(-10000.0);
-      upper.add(10000.0);
-    }
+    IntStream.range(0, numberOfVariables).forEach(i -> {
+      lower.add(0.0);
+      upper.add(1.0);
+    });
 
-    setVariableBounds(lower, upper);
+    variableBounds(lower, upper);
   }
 
   /**
@@ -55,16 +54,16 @@ public class MaF08 extends AbstractDoubleProblem {
    * @param solution The solution to evaluate
    */
   @Override
-  public void evaluate(DoubleSolution solution) {
+  public DoubleSolution evaluate(DoubleSolution solution) {
 
-    int numberOfVariables = solution.getNumberOfVariables();
-    int numberOfObjectives = solution.getNumberOfObjectives();
+    int numberOfVariables = solution.variables().size();
+    int numberOfObjectives = solution.objectives().length;
 
     double[] x = new double[numberOfVariables];
     double[] f = new double[numberOfObjectives];
 
     for (int i = 0; i < numberOfVariables; i++) {
-      x[i] = solution.getVariable(i);
+      x[i] = solution.variables().get(i);
     }
     // evaluate f
     for (int i = 0; i < numberOfObjectives; i++) {
@@ -72,8 +71,9 @@ public class MaF08 extends AbstractDoubleProblem {
     }
 
     for (int i = 0; i < numberOfObjectives; i++) {
-      solution.setObjective(i, f[i]);
+      solution.objectives()[i] = f[i];
     }
+    return solution ;
   }
 
   public static double[][] polygonpoints(int m, double r) {

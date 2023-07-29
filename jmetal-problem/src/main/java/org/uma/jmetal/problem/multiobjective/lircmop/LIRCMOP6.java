@@ -9,7 +9,6 @@ import org.uma.jmetal.solution.doublesolution.DoubleSolution;
  */
 @SuppressWarnings("serial")
 public class LIRCMOP6 extends LIRCMOP5 {
-
   public LIRCMOP6() {
     this(30);
   }
@@ -17,22 +16,23 @@ public class LIRCMOP6 extends LIRCMOP5 {
   /** Constructor */
   public LIRCMOP6(int numberOfVariables) {
     super(numberOfVariables);
-    setNumberOfConstraints(2);
-    setName("LIRCMOP6");
+    numberOfConstraints(2);
+    name("LIRCMOP6");
   }
 
   /** Evaluate() method */
   @Override
-  public void evaluate(DoubleSolution solution) {
-    double[] x = new double[getNumberOfVariables()];
-    for (int i = 0; i < getNumberOfVariables(); i++) {
-      x[i] = solution.getVariable(i);
+  public DoubleSolution evaluate(DoubleSolution solution) {
+    double[] x = new double[numberOfVariables()];
+    for (int i = 0; i < numberOfVariables(); i++) {
+      x[i] = solution.variables().get(i);
     }
 
-    solution.setObjective(0, x[0] + 10 * g1(x) + 0.7057);
-    solution.setObjective(1, 1 - x[0] * x[0] + 10 * g2(x) + 7057);
+    solution.objectives()[0] = x[0] + 10 * g1(x) + 0.7057;
+    solution.objectives()[1] = 1 - x[0] * x[0] + 10 * g2(x) + 7057;
 
     evaluateConstraints(solution);
+    return solution ;
   }
 
   /** EvaluateConstraints() method */
@@ -43,9 +43,9 @@ public class LIRCMOP6 extends LIRCMOP5 {
     double[] b_array = new double[] {8.0, 8.0};
     double[] xOffset = new double[] {1.8, 2.8};
     double[] yOffset = new double[] {1.8, 2.8};
-    double f1 = solution.getObjective(0);
-    double f2 = solution.getObjective(1);
-    double[] constraint = new double[getNumberOfConstraints()];
+    double f1 = solution.objectives()[0];
+    double f2 = solution.objectives()[1];
+    double[] constraint = new double[numberOfConstraints()];
     for (int i = 0; i < xOffset.length; i++) {
       constraint[i] =
           Math.pow(
@@ -59,7 +59,7 @@ public class LIRCMOP6 extends LIRCMOP5 {
               - r;
     }
 
-    solution.setConstraint(0, constraint[0]);
-    solution.setConstraint(1, constraint[1]);
+    solution.constraints()[0] = constraint[0];
+    solution.constraints()[1] = constraint[1];
   }
 }

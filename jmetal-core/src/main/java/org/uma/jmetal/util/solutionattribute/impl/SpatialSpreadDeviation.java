@@ -13,15 +13,15 @@
 
 package org.uma.jmetal.util.solutionattribute.impl;
 
-import org.uma.jmetal.solution.Solution;
-import org.uma.jmetal.util.SolutionListUtils;
-import org.uma.jmetal.util.comparator.ObjectiveComparator;
-import org.uma.jmetal.util.solutionattribute.DensityEstimator;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.uma.jmetal.solution.Solution;
+import org.uma.jmetal.util.SolutionListUtils;
+import org.uma.jmetal.util.comparator.ObjectiveComparator;
+import org.uma.jmetal.util.errorchecking.JMetalException;
+import org.uma.jmetal.util.solutionattribute.DensityEstimator;
 
 /**
  * This class implements the Spatial Spread Deviation density estimator
@@ -37,15 +37,15 @@ public class SpatialSpreadDeviation<S extends Solution<?>>
    * Assigns crowding distances to all solutions in a <code>SolutionSet</code>.
    *
    * @param solutionList The <code>SolutionSet</code>.
-   * @throws org.uma.jmetal.util.JMetalException
+   * @throws JMetalException
    */
   @Override
   public void computeDensityEstimator(List<S> solutionList) {
     int size = solutionList.size();
 
-    if (size <= solutionList.get(0).getNumberOfObjectives()) {
+    if (size <= solutionList.get(0).objectives().length) {
       for (int x = 0; x < size; x++) {
-        solutionList.get(x).setAttribute(getAttributeID(), Double.POSITIVE_INFINITY);
+        solutionList.get(x).attributes().put(getAttributeID(), Double.POSITIVE_INFINITY);
       }
       return;
     }
@@ -57,10 +57,10 @@ public class SpatialSpreadDeviation<S extends Solution<?>>
     }
 
     for (int i = 0; i < size; i++) {
-      front.get(i).setAttribute(getAttributeID(), 0.0);
+      front.get(i).attributes().put(getAttributeID(), 0.0);
     }
 
-    int numberOfObjectives = solutionList.get(0).getNumberOfObjectives();
+    int numberOfObjectives = solutionList.get(0).objectives().length;
 
     double objetiveMaxn[] = new double[numberOfObjectives];
     double objetiveMinn[] = new double[numberOfObjectives];
@@ -68,12 +68,12 @@ public class SpatialSpreadDeviation<S extends Solution<?>>
     for (int i = 0; i < numberOfObjectives; i++) {
       // Sort the population by Obj n
       Collections.sort(front, new ObjectiveComparator<S>(i));
-      objetiveMinn[i] = front.get(0).getObjective(i);
-      objetiveMaxn[i] = front.get(front.size() - 1).getObjective(i);
+      objetiveMinn[i] = front.get(0).objectives()[i];
+      objetiveMaxn[i] = front.get(front.size() - 1).objectives()[i];
 
       // Set de crowding distance Los extremos si infinitos
-      front.get(0).setAttribute(getAttributeID(), Double.POSITIVE_INFINITY);
-      front.get(size - 1).setAttribute(getAttributeID(), Double.POSITIVE_INFINITY);
+      front.get(0).attributes().put(getAttributeID(), Double.POSITIVE_INFINITY);
+      front.get(size - 1).attributes().put(getAttributeID(), Double.POSITIVE_INFINITY);
     }
     double[][] distance =
         SolutionListUtils.normalizedDistanceMatrix(front, objetiveMaxn, objetiveMinn);
@@ -103,9 +103,9 @@ public class SpatialSpreadDeviation<S extends Solution<?>>
       temp /= distance.length - 1;
       temp = Math.sqrt(temp);
       temp *= -1;
-      temp += (double) front.get(i).getAttribute(getAttributeID());
+      temp += (double) front.get(i).attributes().get(getAttributeID());
       // if((double) front.get(i).getAttribute(getAttributeID())!=Double.POSITIVE_INFINITY)
-      front.get(i).setAttribute(getAttributeID(), temp);
+      front.get(i).attributes().put(getAttributeID(), temp);
     }
 
     // int k = numberOfObjectives la solucion 0 es ella misma
@@ -117,11 +117,11 @@ public class SpatialSpreadDeviation<S extends Solution<?>>
         // kDistance += (dmaxx-dminn) / (distance[i][k]+dminn);//original
         kDistance += (dmaxx - dminn) / distance[i][k];
       }
-      double temp = (double) front.get(i).getAttribute(getAttributeID());
+      double temp = (double) front.get(i).attributes().get(getAttributeID());
       // if(temp!=Double.POSITIVE_INFINITY)
       // kDistance=kDistance/numberOfObjectives-1;
       temp -= kDistance;
-      front.get(i).setAttribute(getAttributeID(), temp);
+      front.get(i).attributes().put(getAttributeID(), temp);
     }
   }
 

@@ -1,18 +1,17 @@
 package org.uma.jmetal.algorithm.multiobjective.pesa2;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.uma.jmetal.algorithm.impl.AbstractGeneticAlgorithm;
+import org.uma.jmetal.algorithm.multiobjective.pesa2.util.AdaptiveGridArchive;
 import org.uma.jmetal.algorithm.multiobjective.pesa2.util.PESA2Selection;
 import org.uma.jmetal.operator.crossover.CrossoverOperator;
 import org.uma.jmetal.operator.mutation.MutationOperator;
 import org.uma.jmetal.operator.selection.SelectionOperator;
 import org.uma.jmetal.problem.Problem;
 import org.uma.jmetal.solution.Solution;
-import org.uma.jmetal.util.archive.impl.AdaptiveGridArchive;
 import org.uma.jmetal.util.evaluator.SolutionListEvaluator;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author Antonio J. Nebro <antonio@lcc.uma.es>
@@ -45,7 +44,7 @@ public class PESA2<S extends Solution<?>> extends AbstractGeneticAlgorithm<S, Li
 
     this.evaluator = evaluator ;
 
-    archive = new AdaptiveGridArchive<>(this.archiveSize, this.biSections,problem.getNumberOfObjectives()) ;
+    archive = new AdaptiveGridArchive<>(this.archiveSize, this.biSections,problem.numberOfObjectives()) ;
   }
 
   @Override protected void initProgress() {
@@ -106,15 +105,15 @@ public class PESA2<S extends Solution<?>> extends AbstractGeneticAlgorithm<S, Li
     return Collections.emptyList();
   }
 
-  @Override public List<S> getResult() {
-    return archive.getSolutionList();
+  @Override public List<S> result() {
+    return archive.solutions();
   }
 
-  @Override public String getName() {
+  @Override public String name() {
     return "PESA2" ;
   }
 
-  @Override public String getDescription() {
+  @Override public String description() {
     return "Pareto Envelope-based Selection Algorithm " ;
   }
 }

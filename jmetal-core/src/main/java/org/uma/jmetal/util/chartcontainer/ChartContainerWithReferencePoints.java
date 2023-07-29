@@ -1,19 +1,21 @@
 package org.uma.jmetal.util.chartcontainer;
 
-import org.knowm.xchart.*;
-import org.knowm.xchart.BitmapEncoder.BitmapFormat;
-import org.uma.jmetal.solution.doublesolution.DoubleSolution;
-import org.uma.jmetal.util.front.impl.ArrayFront;
-import org.uma.jmetal.util.front.util.FrontUtils;
+import static org.uma.jmetal.util.VectorUtils.readVectors;
 
-import java.awt.*;
-import java.io.FileNotFoundException;
+import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import org.knowm.xchart.BitmapEncoder;
+import org.knowm.xchart.BitmapEncoder.BitmapFormat;
+import org.knowm.xchart.SwingWrapper;
+import org.knowm.xchart.XYChart;
+import org.knowm.xchart.XYChartBuilder;
+import org.knowm.xchart.XYSeries;
+import org.uma.jmetal.solution.doublesolution.DoubleSolution;
 
 /**
  * Class for configuring and displaying a char with a number of subpopulations and reference points. Designed to be
@@ -44,11 +46,12 @@ public class ChartContainerWithReferencePoints {
     this.referencePointName = new ArrayList<>() ;
   }
 
-  public void setFrontChart(int objective1, int objective2) throws FileNotFoundException {
+  public void setFrontChart(int objective1, int objective2) throws IOException {
     this.setFrontChart(objective1, objective2, null);
   }
 
-  public void setFrontChart(int objective1, int objective2, String referenceFrontFileName) throws FileNotFoundException {
+  public void setFrontChart(int objective1, int objective2, String referenceFrontFileName)
+      throws IOException {
     this.objective1 = objective1;
     this.objective2 = objective2;
     this.frontChart = new XYChartBuilder().xAxisTitle("Objective " + this.objective1)
@@ -139,20 +142,20 @@ public class ChartContainerWithReferencePoints {
   }
 
   private void displayFront(String name, String fileName, int objective1, int objective2)
-      throws FileNotFoundException {
-    ArrayFront front = new ArrayFront(fileName, ",");
-    double[][] data = FrontUtils.convertFrontToArray(front);
+      throws IOException {
+    double[][] data = readVectors(fileName, ",");
     double[] xData = getObjectiveValues(data, objective1);
     double[] yData = getObjectiveValues(data, objective2);
     XYSeries referenceFront = this.frontChart.addSeries(name, xData, yData);
     referenceFront.setMarkerColor(Color.red);
   }
 
-  private void displayReferenceFront(String fileName) throws FileNotFoundException {
+  private void displayReferenceFront(String fileName) throws IOException {
     this.displayReferenceFront(fileName, this.objective1, this.objective2);
   }
 
-  private void displayReferenceFront(String fileName, int objective1, int objective2) throws FileNotFoundException {
+  private void displayReferenceFront(String fileName, int objective1, int objective2)
+      throws IOException {
     this.displayFront("Reference Front", fileName, objective1, objective2);
   }
 
@@ -167,7 +170,7 @@ public class ChartContainerWithReferencePoints {
   private double[] getSolutionsForObjective(List<DoubleSolution> solutionList, int objective) {
     double[] result = new double[solutionList.size()];
     for (int i = 0; i < solutionList.size(); i++) {
-      result[i] = solutionList.get(i).getObjective(objective);
+      result[i] = solutionList.get(i).objectives()[objective];
     }
     return result;
   }

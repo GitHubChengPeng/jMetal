@@ -1,11 +1,10 @@
 package org.uma.jmetal.operator.crossover.impl;
 
-import org.uma.jmetal.operator.crossover.CrossoverOperator;
-import org.uma.jmetal.solution.Solution;
-import org.uma.jmetal.util.checking.Check;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.uma.jmetal.operator.crossover.CrossoverOperator;
+import org.uma.jmetal.solution.Solution;
+import org.uma.jmetal.util.errorchecking.Check;
 
 /**
  * This class defines a null crossover operator: the parent solutions are returned without any
@@ -19,7 +18,7 @@ public class NullCrossover<S extends Solution<?>>
 
   /** Execute() method */
   @Override public List<S> execute(List<S> source) {
-    Check.isNotNull(source);
+    Check.notNull(source);
     Check.that(source.size() == 2, "There must be two parents instead of " + source.size());
 
     List<S> list = new ArrayList<>() ;
@@ -29,17 +28,17 @@ public class NullCrossover<S extends Solution<?>>
     return list ;
   }
 
-  public int getNumberOfRequiredParents() {
+  public int numberOfRequiredParents() {
     return 2 ;
   }
 
   @Override
-  public int getNumberOfGeneratedChildren() {
+  public int numberOfGeneratedChildren() {
     return 2;
   }
 
   @Override
-  public double getCrossoverProbability() {
+  public double crossoverProbability() {
     return 1.0;
   }
 }

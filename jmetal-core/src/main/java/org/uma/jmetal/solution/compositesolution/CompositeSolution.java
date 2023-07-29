@@ -1,11 +1,11 @@
 package org.uma.jmetal.solution.compositesolution;
 
-import org.uma.jmetal.solution.AbstractSolution;
-import org.uma.jmetal.solution.Solution;
-import org.uma.jmetal.util.checking.Check;
-
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.IntStream;
+import org.uma.jmetal.solution.AbstractSolution;
+import org.uma.jmetal.solution.Solution;
+import org.uma.jmetal.util.errorchecking.Check;
 
 /**
  * Class representing solutions composed of a list of solutions. The idea is that each decision
@@ -28,24 +28,24 @@ public class CompositeSolution extends AbstractSolution<Solution<?>> {
    *                  number of objectives and constraints.
    */
   public CompositeSolution(List<Solution<?>> solutions) {
-    super(solutions.size(), solutions.get(0).getNumberOfObjectives(), solutions.get(0).getNumberOfConstraints());
-    Check.isNotNull(solutions);
+    super(solutions.size(), solutions.get(0).objectives().length, solutions.get(0).constraints().length);
+    Check.notNull(solutions);
     Check.collectionIsNotEmpty(solutions);
-    int numberOfObjectives = solutions.get(0).getNumberOfObjectives();
-    int numberOfConstraints = solutions.get(0).getNumberOfConstraints();
+    int numberOfObjectives = solutions.get(0).objectives().length;
+    int numberOfConstraints = solutions.get(0).constraints().length;
     for (Solution<?> solution : solutions) {
       Check.that(
-          solution.getNumberOfObjectives() == numberOfObjectives,
+          solution.objectives().length == numberOfObjectives,
           "The solutions in the list must have the same number of objectives: "
               + numberOfObjectives);
       Check.that(
-              solution.getNumberOfConstraints() == numberOfConstraints,
+              solution.constraints().length == numberOfConstraints,
               "The solutions in the list must have the same number of constraints: "
                       + numberOfConstraints);
     }
 
     for (int i = 0 ; i < solutions.size(); i++) {
-      setVariable(i, solutions.get(i)) ;
+      variables().set(i, solutions.get(i)) ;
     }
   }
 
@@ -54,21 +54,13 @@ public class CompositeSolution extends AbstractSolution<Solution<?>> {
    * @param solution
    */
   public CompositeSolution(CompositeSolution solution) {
-    super(solution.getNumberOfVariables(), solution.getNumberOfObjectives(), solution.getNumberOfConstraints()) ;
+    super(solution.variables().size(), solution.objectives().length, solution.constraints().length) ;
 
-    for (int i = 0; i < solution.getNumberOfVariables(); i++) {
-      setVariable(i, solution.getVariable(i).copy());
-    }
+    IntStream.range(0, solution.variables().size()).forEach(i -> variables().set(i, solution.variables().get(i).copy()));
+    IntStream.range(0, solution.objectives().length).forEach(i -> objectives()[i] = solution.objectives()[i]);
+    IntStream.range(0, solution.constraints().length).forEach(i -> constraints()[i] = solution.constraints()[i]);
 
-    for (int i = 0; i < solution.getNumberOfObjectives(); i++) {
-      setObjective(i, solution.getObjective(i)) ;
-    }
-
-    for (int i = 0; i < solution.getNumberOfConstraints(); i++) {
-      setConstraint(i, solution.getConstraint(i));
-    }
-
-    attributes = new HashMap<Object, Object>(solution.attributes) ;
+    attributes = new HashMap<>(solution.attributes) ;
   }
 
   @Override

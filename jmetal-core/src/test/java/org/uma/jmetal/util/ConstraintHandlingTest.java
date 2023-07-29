@@ -1,149 +1,155 @@
 package org.uma.jmetal.util;
 
-import org.junit.Test;
-import org.uma.jmetal.solution.Solution;
-import org.uma.jmetal.solution.doublesolution.DoubleSolution;
-import org.uma.jmetal.util.checking.exception.EmptyCollectionException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.uma.jmetal.util.ConstraintHandling.*;
+import org.junit.jupiter.api.Test;
+import org.uma.jmetal.problem.doubleproblem.impl.FakeDoubleProblem;
+import org.uma.jmetal.solution.Solution;
+import org.uma.jmetal.solution.doublesolution.DoubleSolution;
+import org.uma.jmetal.util.errorchecking.exception.EmptyCollectionException;
 
 public class ConstraintHandlingTest {
+  private static final double EPSILON = 0.0000000001 ;
 
   @Test
   public void shouldIsFeasibleReturnTrueIfTheSolutionHasNoConstraints() {
-    Solution<?> solution = mock(Solution.class);
-    when(solution.getNumberOfConstraints()).thenReturn(0);
+    DoubleSolution solution = new FakeDoubleProblem(2, 2, 0).createSolution() ;
 
-    assertEquals(true, isFeasible(solution));
+    assertTrue(ConstraintHandling.isFeasible(solution));
   }
 
   @Test
-  public void shouldIsFeasibleReturnTrueIfTheSolutionHasConstraintsAndItIsFeasble() {
-    Solution<?> solution = mock(Solution.class);
-    when(solution.getNumberOfConstraints()).thenReturn(1);
-    when(solution.getConstraint(0)).thenReturn(0.0);
+  public void shouldIsFeasibleReturnTrueIfTheSolutionHasConstraintsAndItIsFeasible() {
+    DoubleSolution solution = new FakeDoubleProblem(2, 2, 1).createSolution() ;
+    solution.constraints()[0] = 0.0 ;
 
-    assertEquals(true, isFeasible(solution));
+    assertTrue(ConstraintHandling.isFeasible(solution));
   }
 
   @Test
   public void shouldIsFeasibleReturnFalseIfTheSolutionIsNotFeasible() {
-    Solution<?> solution = mock(Solution.class);
-    when(solution.getNumberOfConstraints()).thenReturn(1);
-    when(solution.getConstraint(0)).thenReturn(-1.0);
+    DoubleSolution solution = new FakeDoubleProblem(2, 2, 1).createSolution() ;
+    solution.constraints()[0] = -1.0 ;
 
-    assertEquals(false, isFeasible(solution));
+    assertFalse(ConstraintHandling.isFeasible(solution));
   }
 
   @Test
   public void shouldNumberOfViolatedConstraintsReturnZeroIfTheSolutionHasNoConstraints() {
-    Solution<?> solution = mock(Solution.class);
-    when(solution.getNumberOfConstraints()).thenReturn(0);
+    DoubleSolution solution = new FakeDoubleProblem(2, 2, 0).createSolution() ;
 
-    assertEquals(0, numberOfViolatedConstraints(solution));
+    assertEquals(0, ConstraintHandling.numberOfViolatedConstraints(solution));
   }
 
   @Test
   public void shouldNumberOfViolatedConstraintsReturnZeroIfTheSolutionHasNotViolatedConstraints() {
-    Solution<?> solution = mock(Solution.class);
-    when(solution.getNumberOfConstraints()).thenReturn(1);
-    when(solution.getConstraint(0)).thenReturn(0.0);
+    DoubleSolution solution = new FakeDoubleProblem(2, 2, 1).createSolution() ;
+    solution.constraints()[0] = 0.0 ;
 
-    assertEquals(0, numberOfViolatedConstraints(solution));
+    assertEquals(0, ConstraintHandling.numberOfViolatedConstraints(solution));
   }
 
   @Test
   public void shouldNumberOfViolatedConstraintsReturnTheRightNumberOfViolatedConstraints() {
-    Solution<?> solution = mock(Solution.class);
-    when(solution.getNumberOfConstraints()).thenReturn(2);
-    when(solution.getConstraint(0)).thenReturn(0.0);
-    when(solution.getConstraint(1)).thenReturn(-1.0);
+    DoubleSolution solution = new FakeDoubleProblem(2, 2, 2).createSolution() ;
+    solution.constraints()[0] = 0.0 ;
+    solution.constraints()[1] = -1.0 ;
 
-    assertEquals(1, numberOfViolatedConstraints(solution));
+    assertEquals(1, ConstraintHandling.numberOfViolatedConstraints(solution));
   }
 
   @Test
   public void shouldOverallConstraintViolationDegreeReturnZeroIfTheSolutionHasNotViolatedConstraints() {
-    Solution<?> solution = mock(Solution.class);
-    when(solution.getNumberOfConstraints()).thenReturn(1);
-    when(solution.getConstraint(0)).thenReturn(0.0);
+    DoubleSolution solution = new FakeDoubleProblem(2, 2, 1).createSolution() ;
+    solution.constraints()[0] = 0.0 ;
 
-    assertEquals(0.0, overallConstraintViolationDegree(solution), 0.000000001);
+    assertEquals(0.0, ConstraintHandling.overallConstraintViolationDegree(solution), EPSILON);
   }
 
   @Test
   public void shouldOverallConstraintViolationDegreeReturnTheRightViolationDegree() {
-    Solution<?> solution = mock(Solution.class);
-    when(solution.getNumberOfConstraints()).thenReturn(2);
-    when(solution.getConstraint(0)).thenReturn(-1.0);
-    when(solution.getConstraint(1)).thenReturn(-2.0);
+    DoubleSolution solution = new FakeDoubleProblem(2, 2, 2).createSolution() ;
+    solution.constraints()[0] = -1.0 ;
+    solution.constraints()[1] = -2.0 ;
 
-    assertEquals(-3, overallConstraintViolationDegree(solution), 0.00000000001);
+    assertEquals(-3, ConstraintHandling.overallConstraintViolationDegree(solution), EPSILON);
   }
 
-  @Test (expected = EmptyCollectionException.class)
+  @Test
   public void shouldFeasibilityRatioRaiseAndExceptionIfTheSolutionListIsEmpty() {
-    List<DoubleSolution> solutionList = new ArrayList<>() ;
-
-    feasibilityRatio(solutionList);
+    assertThrows(EmptyCollectionException.class, () -> ConstraintHandling.feasibilityRatio(new ArrayList<>()));
   }
 
   @Test
   public void shouldFeasibilityRatioReturnZeroIfAllTheSolutionsAreUnFeasible() {
-    Solution<?> solution1 = mock(Solution.class);
-    when(solution1.getNumberOfConstraints()).thenReturn(2);
-    when(solution1.getConstraint(0)).thenReturn(-1.0);
-    when(solution1.getConstraint(1)).thenReturn(-2.0);
-    Solution<?> solution2 = mock(Solution.class);
-    when(solution2.getNumberOfConstraints()).thenReturn(2);
-    when(solution2.getConstraint(0)).thenReturn(0.0);
-    when(solution2.getConstraint(1)).thenReturn(-1.0);
+    DoubleSolution solution1 = new FakeDoubleProblem(2, 2, 2).createSolution() ;
+    solution1.constraints()[0] = -1.0 ;
+    solution1.constraints()[1] = -2.0 ;
+
+    DoubleSolution solution2 = new FakeDoubleProblem(2, 2, 2).createSolution() ;
+    solution2.constraints()[0] = 0.0 ;
+    solution2.constraints()[1] = -1.0 ;
 
     List<Solution<?>> solutionList = Arrays.asList(solution1, solution2) ;
 
-    assertEquals(0.0, feasibilityRatio(solutionList), 0.00000000001) ;
+    assertEquals(0.0, ConstraintHandling.feasibilityRatio(solutionList), EPSILON) ;
   }
 
   @Test
   public void shouldFeasibilityRatioReturnOneIfAllTheSolutionsAreFeasible() {
-    Solution<?> solution1 = mock(Solution.class);
-    when(solution1.getNumberOfConstraints()).thenReturn(2);
-    when(solution1.getConstraint(0)).thenReturn(0.0);
-    when(solution1.getConstraint(1)).thenReturn(0.0);
-    Solution<?> solution2 = mock(Solution.class);
-    when(solution2.getNumberOfConstraints()).thenReturn(2);
-    when(solution2.getConstraint(0)).thenReturn(0.0);
-    when(solution2.getConstraint(1)).thenReturn(0.0);
+    DoubleSolution solution1 = new FakeDoubleProblem(2, 2, 2).createSolution() ;
+    solution1.constraints()[0] = 0.0 ;
+    solution1.constraints()[1] = 0.0 ;
+
+    DoubleSolution solution2 = new FakeDoubleProblem(2, 2, 2).createSolution() ;
+    solution2.constraints()[0] = 0.0 ;
+    solution2.constraints()[1] = 0.0 ;
 
     List<Solution<?>> solutionList = Arrays.asList(solution1, solution2) ;
 
-    assertEquals(1.0, feasibilityRatio(solutionList), 0.00000000001) ;
+    assertEquals(1.0, ConstraintHandling.feasibilityRatio(solutionList), EPSILON) ;
   }
 
   @Test
   public void shouldFeasibilityRatioReturnTheRightPercentageOfFeasibleSolutions() {
-    Solution<?> solution1 = mock(Solution.class);
-    when(solution1.getNumberOfConstraints()).thenReturn(2);
-    when(solution1.getConstraint(0)).thenReturn(0.0);
-    when(solution1.getConstraint(1)).thenReturn(-1.0);
-    Solution<?> solution2 = mock(Solution.class);
-    when(solution2.getNumberOfConstraints()).thenReturn(2);
-    when(solution2.getConstraint(0)).thenReturn(0.0);
-    when(solution2.getConstraint(1)).thenReturn(0.0);
-    Solution<?> solution3 = mock(Solution.class);
-    when(solution3.getNumberOfConstraints()).thenReturn(2);
-    when(solution3.getConstraint(0)).thenReturn(-2.0);
-    when(solution3.getConstraint(1)).thenReturn(0.0);
+    DoubleSolution solution1 = new FakeDoubleProblem(2, 2, 2).createSolution() ;
+    solution1.constraints()[0] = 0.0 ;
+    solution1.constraints()[1] = -1.0 ;
+
+    DoubleSolution solution2 = new FakeDoubleProblem(2, 2, 2).createSolution() ;
+    solution2.constraints()[0] = 0.0 ;
+    solution2.constraints()[1] = 0.0 ;
+
+    DoubleSolution solution3 = new FakeDoubleProblem(2, 2, 2).createSolution() ;
+    solution3.constraints()[0] = -2.0 ;
+    solution3.constraints()[1] = 0.0 ;
 
     List<Solution<?>> solutionList = Arrays.asList(solution1, solution2, solution3) ;
 
-    assertEquals(1.0/3, feasibilityRatio(solutionList), 0.00000000001) ;
+    assertEquals(1.0/3, ConstraintHandling.feasibilityRatio(solutionList), EPSILON) ;
+  }
+
+  @Test
+  public void shouldOverallConstraintViolationDegreeWorkProperly() {
+    DoubleSolution solution = new FakeDoubleProblem(2, 2, 2).createSolution() ;
+    double overallConstraintViolationDegree = -4.0 ;
+    ConstraintHandling.overallConstraintViolationDegree(solution, overallConstraintViolationDegree);
+
+    assertEquals(overallConstraintViolationDegree, ConstraintHandling.overallConstraintViolationDegree(solution), EPSILON);
+  }
+
+  @Test
+  public void shouldOverallNumberOfViolatedConstraintsProperly() {
+    DoubleSolution solution = new FakeDoubleProblem(2, 2, 2).createSolution() ;
+    int numberOfViolatedConstraints = 2 ;
+    ConstraintHandling.numberOfViolatedConstraints(solution, numberOfViolatedConstraints);
+
+    assertEquals(numberOfViolatedConstraints, ConstraintHandling.numberOfViolatedConstraints(solution));
   }
 }

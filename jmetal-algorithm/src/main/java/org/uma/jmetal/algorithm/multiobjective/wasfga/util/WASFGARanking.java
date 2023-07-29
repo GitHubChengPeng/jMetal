@@ -1,16 +1,16 @@
 package org.uma.jmetal.algorithm.multiobjective.wasfga.util;
 
-import org.uma.jmetal.algorithm.multiobjective.mombi.util.AbstractUtilityFunctionsSet;
-import org.uma.jmetal.solution.Solution;
-import org.uma.jmetal.util.solutionattribute.Ranking;
-import org.uma.jmetal.util.solutionattribute.impl.GenericSolutionAttribute;
-import org.uma.jmetal.util.solutionattribute.impl.NumberOfViolatedConstraints;
-import org.uma.jmetal.util.solutionattribute.impl.OverallConstraintViolation;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import org.uma.jmetal.algorithm.multiobjective.mombi.util.AbstractUtilityFunctionsSet;
+import org.uma.jmetal.solution.Solution;
+import org.uma.jmetal.util.errorchecking.Check;
+import org.uma.jmetal.util.ranking.Ranking;
+import org.uma.jmetal.util.solutionattribute.impl.GenericSolutionAttribute;
+import org.uma.jmetal.util.solutionattribute.impl.NumberOfViolatedConstraints;
+import org.uma.jmetal.util.solutionattribute.impl.OverallConstraintViolation;
 
 /**
  * @author Rubén Saborido
@@ -32,6 +32,8 @@ import java.util.List;
 public class WASFGARanking<S extends Solution<?>> extends GenericSolutionAttribute<S, Integer>
 		implements Ranking<S> {
 
+	private final String attributeId = getClass().getName();
+
 	private AbstractUtilityFunctionsSet<S> utilityFunctions;
 	private List<List<S>> rankedSubpopulations;
 	private int numberOfRanks;
@@ -46,7 +48,7 @@ public class WASFGARanking<S extends Solution<?>> extends GenericSolutionAttribu
 	}
 
 	@Override
-	public Ranking<S> computeRanking(List<S> population) {
+	public Ranking<S> compute(List<S> population) {
 		int numberOfRanksForFeasibleSolutions, numberOfRanksForUnfeasibleSolutions, rank, indexOfBestSolution;
 		int index, indexOfWeight;
 		int numberOfWeights = this.utilityFunctions.getSize();
@@ -217,6 +219,22 @@ public class WASFGARanking<S extends Solution<?>> extends GenericSolutionAttribu
 		}
 
 		return rank;
+	}
+
+	@Override
+	public Integer getRank(S solution) {
+		Check.notNull(solution);
+
+		Integer result = -1 ;
+		if (solution.attributes().get(attributeId) != null) {
+			result = (Integer) solution.attributes().get(attributeId) ;
+		}
+		return result ;
+	}
+
+	@Override
+	public Object getAttributedId() {
+		return attributeId ;
 	}
 
 }

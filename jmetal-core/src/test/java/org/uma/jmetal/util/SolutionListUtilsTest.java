@@ -1,25 +1,34 @@
 package org.uma.jmetal.util;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.uma.jmetal.problem.Problem;
-import org.uma.jmetal.problem.doubleproblem.impl.AbstractDoubleProblem;
+import org.uma.jmetal.problem.doubleproblem.impl.FakeDoubleProblem;
 import org.uma.jmetal.solution.Solution;
 import org.uma.jmetal.solution.binarysolution.BinarySolution;
 import org.uma.jmetal.solution.doublesolution.DoubleSolution;
 import org.uma.jmetal.solution.integersolution.IntegerSolution;
-import org.uma.jmetal.util.checking.exception.EmptyCollectionException;
-import org.uma.jmetal.util.checking.exception.InvalidConditionException;
-import org.uma.jmetal.util.checking.exception.NullParameterException;
+import org.uma.jmetal.util.errorchecking.exception.EmptyCollectionException;
+import org.uma.jmetal.util.errorchecking.exception.NullParameterException;
 import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 import org.uma.jmetal.util.pseudorandom.impl.AuditableRandomGenerator;
-
-import java.util.*;
-
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 /**
  * @author Antonio J. Nebro <antonio@lcc.uma.es>
@@ -203,61 +212,13 @@ public class SolutionListUtilsTest {
         .compare(any(), any());
   }
 
-  /** *** Unit tests to method selectNRandomDifferentSolutions *** */
-  @Test
-  public void shouldSelectNRandomDifferentSolutionsRaiseAnExceptionIfTheSolutionListIsNull() {
-    exception.expect(NullParameterException.class);
-
-    SolutionListUtils.selectNRandomDifferentSolutions(1, null);
-  }
-
-  @Test
-  public void shouldSelectNRandomDifferentSolutionsRaiseAnExceptionIfTheSolutionListIsEmpty() {
-    exception.expect(EmptyCollectionException.class);
-
-    List<DoubleSolution> list = new ArrayList<>();
-
-    SolutionListUtils.selectNRandomDifferentSolutions(1, list);
-  }
-
-  @Test
-  public void shouldSelectNRandomDifferentSolutionsReturnASingleSolution() {
-    List<Solution<?>> list = new ArrayList<>();
-    list.add(mock(Solution.class));
-
-    assertEquals(1, list.size());
-  }
-
-  @Test
-  public void
-      shouldSelectNRandomDifferentSolutionsRaiseAnExceptionIfTheListSizeIsOneAndTwoSolutionsAreRequested() {
-    exception.expect(InvalidConditionException.class);
-
-    List<Solution<?>> list = new ArrayList<>(1);
-    list.add(mock(Solution.class));
-
-    SolutionListUtils.selectNRandomDifferentSolutions(2, list);
-  }
-
-  @Test
-  public void
-      shouldelectNRandomDifferentSolutionsRaiseAnExceptionIfTheListSizeIsTwoAndFourSolutionsAreRequested() {
-    exception.expect(InvalidConditionException.class);
-
-    List<Solution<?>> list = new ArrayList<>(2);
-    list.add(mock(Solution.class));
-    list.add(mock(Solution.class));
-
-    SolutionListUtils.selectNRandomDifferentSolutions(4, list);
-  }
-
   @Test
   public void shouldExecuteReturnTheSolutionInTheListIfTheListContainsASolution() {
     List<IntegerSolution> list = new ArrayList<>(2);
     IntegerSolution solution = mock(IntegerSolution.class);
     list.add(solution);
 
-    List<IntegerSolution> result = SolutionListUtils.selectNRandomDifferentSolutions(1, list);
+    List<IntegerSolution> result = ListUtils.randomSelectionWithoutReplacement(1, list);
     assertSame(solution, result.get(0));
   }
 
@@ -270,7 +231,7 @@ public class SolutionListUtilsTest {
     list.add(solution1);
     list.add(solution2);
 
-    List<BinarySolution> result = SolutionListUtils.selectNRandomDifferentSolutions(2, list);
+    List<BinarySolution> result = ListUtils.randomSelectionWithoutReplacement(2, list);
 
     assertTrue(result.contains(solution1));
     assertTrue(result.contains(solution2));
@@ -287,7 +248,7 @@ public class SolutionListUtilsTest {
     }
 
     List<BinarySolution> result =
-        SolutionListUtils.selectNRandomDifferentSolutions(solutionsToBeReturned, list);
+        ListUtils.randomSelectionWithoutReplacement(solutionsToBeReturned, list);
     assertEquals(solutionsToBeReturned, result.size());
   }
 
@@ -311,13 +272,13 @@ public class SolutionListUtilsTest {
     defaultGenerator.setRandomGenerator(auditor);
     auditor.addListener((a) -> defaultUses[0]++);
 
-    SolutionListUtils.selectNRandomDifferentSolutions(3, solutions);
+    ListUtils.randomSelectionWithoutReplacement(3, solutions);
     assertTrue("No use of the default generator", defaultUses[0] > 0);
 
     // Test same configuration uses custom generator instead
     defaultUses[0] = 0;
     final int[] customUses = {0};
-    SolutionListUtils.selectNRandomDifferentSolutions(
+    ListUtils.randomSelectionWithoutReplacement(
         3,
         solutions,
         (a, b) -> {
@@ -342,46 +303,11 @@ public class SolutionListUtilsTest {
     }
 
     List<IntegerSolution> result =
-        SolutionListUtils.selectNRandomDifferentSolutions(solutionsToBeReturned, list);
+        ListUtils.randomSelectionWithoutReplacement(solutionsToBeReturned, list);
     assertTrue(result.contains(solution[0]));
     assertTrue(result.contains(solution[1]));
     assertTrue(result.contains(solution[2]));
     assertTrue(result.contains(solution[3]));
-  }
-
-  @Test
-  public void shouldSolutionListsAreEqualsReturnIfTwoIdenticalSolutionListsAreCompared() {
-    List<BinarySolution> list1 = new ArrayList<>(3);
-    List<BinarySolution> list2 = new ArrayList<>(3);
-
-    for (int i = 0; i < 3; i++) {
-      BinarySolution solution = mock(BinarySolution.class);
-      list1.add(solution);
-      list2.add(solution);
-    }
-
-    assertTrue(SolutionListUtils.solutionListsAreEquals(list1, list2));
-  }
-
-  @Test
-  public void
-      shouldSolutionListsAreEqualsReturnIfTwoSolutionListsWithIdenticalSolutionsAreCompared() {
-    List<BinarySolution> list1 = new ArrayList<>(3);
-    List<BinarySolution> list2 = new ArrayList<>(3);
-
-    List<BinarySolution> solutions =
-        Arrays.asList(
-            mock(BinarySolution.class), mock(BinarySolution.class), mock(BinarySolution.class));
-
-    for (BinarySolution solution : solutions) {
-      list1.add(solution);
-    }
-
-    list2.add(solutions.get(2));
-    list2.add(solutions.get(1));
-    list2.add(solutions.get(0));
-
-    assertTrue(SolutionListUtils.solutionListsAreEquals(list1, list2));
   }
 
   @Test
@@ -390,7 +316,7 @@ public class SolutionListUtilsTest {
         Arrays.asList(
             mock(DoubleSolution.class), mock(DoubleSolution.class), mock(DoubleSolution.class));
 
-    Problem<DoubleSolution> problem = new MockedDoubleProblem();
+    Problem<DoubleSolution> problem = new FakeDoubleProblem();
 
     int maxListSize = 2;
     SolutionListUtils.fillPopulationWithNewSolutions(solutions, problem, maxListSize);
@@ -405,7 +331,7 @@ public class SolutionListUtilsTest {
     solutions.add(mock(DoubleSolution.class));
     solutions.add(mock(DoubleSolution.class));
 
-    Problem<DoubleSolution> problem = new MockedDoubleProblem();
+    Problem<DoubleSolution> problem = new FakeDoubleProblem();
 
     int maxListSize = 10;
     SolutionListUtils.fillPopulationWithNewSolutions(solutions, problem, maxListSize);
@@ -416,14 +342,14 @@ public class SolutionListUtilsTest {
   @Test
   public void shouldNormalizeReturnsCorrectNormalizedNumber() {
 
-    MockedDoubleProblem problem = new MockedDoubleProblem();
+    FakeDoubleProblem problem = new FakeDoubleProblem();
     DoubleSolution s1 = problem.createSolution();
     DoubleSolution s2 = problem.createSolution();
 
-    s1.setObjective(0, 20);
-    s1.setObjective(1, 10);
-    s2.setObjective(0, 10);
-    s2.setObjective(1, 20);
+    s1.objectives()[0] = 20;
+    s1.objectives()[1] = 10;
+    s2.objectives()[0] = 10 ;
+    s2.objectives()[1] = 20 ;
 
     List<DoubleSolution> solutions = Arrays.asList(s1, s2);
 
@@ -434,15 +360,15 @@ public class SolutionListUtilsTest {
         (List<DoubleSolution>) SolutionListUtils.normalizeSolutionList(solutions, minValue, maxValue);
 
     assertNotSame(normalizedSolutions, solutions);
-    assertEquals(1.0, normalizedSolutions.get(0).getObjective(0), EPSILON);
-    assertEquals(0.0, normalizedSolutions.get(0).getObjective(1), EPSILON);
-    assertEquals(0.0, normalizedSolutions.get(1).getObjective(0), EPSILON);
-    assertEquals(1.0, normalizedSolutions.get(1).getObjective(1), EPSILON);
+    assertEquals(1.0, normalizedSolutions.get(0).objectives()[0], EPSILON);
+    assertEquals(0.0, normalizedSolutions.get(0).objectives()[1], EPSILON);
+    assertEquals(0.0, normalizedSolutions.get(1).objectives()[0], EPSILON);
+    assertEquals(1.0, normalizedSolutions.get(1).objectives()[1], EPSILON);
   }
 
   @Test
   public void shouldGetFeasibilityRatioReturnOneIfAllTheSolutionsInAListAreFeasible() {
-    MockedDoubleProblem problem = new MockedDoubleProblem();
+    FakeDoubleProblem problem = new FakeDoubleProblem();
     DoubleSolution s1 = problem.createSolution();
     DoubleSolution s2 = problem.createSolution();
     DoubleSolution s3 = problem.createSolution();
@@ -453,13 +379,13 @@ public class SolutionListUtilsTest {
 
   @Test
   public void shouldGetFeasibilityRatioReturnZeroIfAllTheSolutionsInAListAreNotFeasible() {
-    MockedDoubleProblem problem = new MockedDoubleProblem();
+    FakeDoubleProblem problem = new FakeDoubleProblem(2,2,1);
     DoubleSolution s1 = problem.createSolution();
     DoubleSolution s2 = problem.createSolution();
     DoubleSolution s3 = problem.createSolution();
-    s1.setConstraint(0, -4);
-    s2.setConstraint(0, -4);
-    s3.setConstraint(0, -4);
+    s1.constraints()[0] = -4;
+    s2.constraints()[0] = -4;
+    s3.constraints()[0] = -4;
 
 
     List<DoubleSolution> solutionList = Arrays.asList(s1, s2, s3);
@@ -468,13 +394,13 @@ public class SolutionListUtilsTest {
 
   @Test
   public void shouldGetFeasibilityRatioReturnTheRightRatioOfFeasibleSolutions() {
-    MockedDoubleProblem problem = new MockedDoubleProblem();
+    FakeDoubleProblem problem = new FakeDoubleProblem(2,2,1);
     DoubleSolution s1 = problem.createSolution();
     DoubleSolution s2 = problem.createSolution();
     DoubleSolution s3 = problem.createSolution();
     DoubleSolution s4 = problem.createSolution();
-    s1.setConstraint(0, -4);
-    s3.setConstraint(0, -4);
+    s1.constraints()[0] = -4;
+    s3.constraints()[0] = -4;
 
     List<DoubleSolution> solutionList = Arrays.asList(s1, s2, s3, s4);
     assertEquals(0.5, ConstraintHandling.feasibilityRatio(solutionList), EPSILON);
@@ -482,50 +408,50 @@ public class SolutionListUtilsTest {
 
   @Test
   public void shouldNormalizeSolutionListWorkProperly() {
-    MockedDoubleProblem problem = new MockedDoubleProblem();
+    FakeDoubleProblem problem = new FakeDoubleProblem();
     DoubleSolution s1 = problem.createSolution();
-    s1.setObjective(0, 0.0);
-    s1.setObjective(1, 2.0);
+    s1.objectives()[0] = 0.0;
+    s1.objectives()[1] = 2.0;
     DoubleSolution s2 = problem.createSolution();
-    s2.setObjective(0, 1.25);
-    s2.setObjective(1, 2.75);
+    s2.objectives()[0] = 1.25 ;
+    s2.objectives()[1] = 2.75;
     DoubleSolution s3 = problem.createSolution();
-    s3.setObjective(0, 2.5);
-    s3.setObjective(1, 2.5);
+    s3.objectives()[0] = 2.5;
+    s3.objectives()[1] = 2.5;
     DoubleSolution s4 = problem.createSolution();
-    s4.setObjective(0, 3.75);
-    s4.setObjective(1, 2.25);
+    s4.objectives()[0] = 3.75;
+    s4.objectives()[1] = 2.25;
     DoubleSolution s5 = problem.createSolution();
-    s5.setObjective(0, 4.0);
-    s5.setObjective(1, 3.0);
+    s5.objectives()[0] = 4.0;
+    s5.objectives()[1] = 3.0;
 
     List<DoubleSolution> solutionList = Arrays.asList(s1, s2, s3, s4, s5);
     List<DoubleSolution> normalizedSolutionList = SolutionListUtils.normalizeSolutionList(solutionList) ;
     assertEquals(solutionList.size(), normalizedSolutionList.size());
-    assertEquals(0.0, normalizedSolutionList.get(0).getObjective(0), EPSILON);
-    assertEquals(0.0, normalizedSolutionList.get(0).getObjective(1), EPSILON);
-    assertEquals(1.0, normalizedSolutionList.get(4).getObjective(0), EPSILON);
-    assertEquals(1.0, normalizedSolutionList.get(4).getObjective(1), EPSILON);
+    assertEquals(0.0, normalizedSolutionList.get(0).objectives()[0], EPSILON);
+    assertEquals(0.0, normalizedSolutionList.get(0).objectives()[1], EPSILON);
+    assertEquals(1.0, normalizedSolutionList.get(4).objectives()[0], EPSILON);
+    assertEquals(1.0, normalizedSolutionList.get(4).objectives()[1], EPSILON);
   }
 
   @Test
   public void shouldDistanceBasedSubsetSelectionWorkProperly() {
-    MockedDoubleProblem problem = new MockedDoubleProblem();
+    FakeDoubleProblem problem = new FakeDoubleProblem();
     DoubleSolution s1 = problem.createSolution();
-    s1.setObjective(0, 0.0);
-    s1.setObjective(1, 3.0);
+    s1.objectives()[0] = 0.0;
+    s1.objectives()[1] = 3.0;
     DoubleSolution s2 = problem.createSolution();
-    s2.setObjective(0, 0.25);
-    s2.setObjective(1, 2.75);
+    s2.objectives()[0] = 0.25;
+    s2.objectives()[1] = 2.75;
     DoubleSolution s3 = problem.createSolution();
-    s3.setObjective(0, 0.5);
-    s3.setObjective(1, 2.5);
+    s3.objectives()[0] = 0.5;
+    s3.objectives()[1] = 2.5;
     DoubleSolution s4 = problem.createSolution();
-    s4.setObjective(0, 0.75);
-    s4.setObjective(1, 2.25);
+    s4.objectives()[0] = 0.75;
+    s4.objectives()[1] = 2.25;
     DoubleSolution s5 = problem.createSolution();
-    s5.setObjective(0, 1.0);
-    s5.setObjective(1, 2.0);
+    s5.objectives()[0] = 1.0;
+    s5.objectives()[1] = 2.0;
 
     List<DoubleSolution> solutionList = Arrays.asList(s1, s2, s3, s4, s5);
 
@@ -537,7 +463,7 @@ public class SolutionListUtilsTest {
   @Test
   public void shouldRestartRemoveTheRequestedPercentageOfSolutions() {}
 
-  @SuppressWarnings("serial")
+  /*
   private class MockedDoubleProblem extends AbstractDoubleProblem {
 
     public MockedDoubleProblem() {
@@ -551,4 +477,6 @@ public class SolutionListUtilsTest {
     @Override
     public void evaluate(DoubleSolution solution) {}
   }
+
+   */
 }

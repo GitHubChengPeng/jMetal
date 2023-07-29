@@ -1,18 +1,24 @@
 package org.uma.jmetal.util.chartcontainer;
 
-import org.knowm.xchart.*;
-import org.knowm.xchart.BitmapEncoder.BitmapFormat;
-import org.knowm.xchart.XYSeries.XYSeriesRenderStyle;
-import org.uma.jmetal.solution.doublesolution.DoubleSolution;
-import org.uma.jmetal.util.front.impl.ArrayFront;
-import org.uma.jmetal.util.front.util.FrontUtils;
-
-import java.awt.*;
+import java.awt.Color;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import org.knowm.xchart.BitmapEncoder;
+import org.knowm.xchart.BitmapEncoder.BitmapFormat;
+import org.knowm.xchart.SwingWrapper;
+import org.knowm.xchart.XYChart;
+import org.knowm.xchart.XYChartBuilder;
+import org.knowm.xchart.XYSeries;
+import org.knowm.xchart.XYSeries.XYSeriesRenderStyle;
+import org.uma.jmetal.solution.doublesolution.DoubleSolution;
+import org.uma.jmetal.util.legacy.front.impl.ArrayFront;
+import org.uma.jmetal.util.legacy.front.util.FrontUtils;
 
 /**
  * Class for configuring and displaying a XChart.
@@ -224,7 +230,7 @@ public class ChartContainer {
   private double[] getSolutionsForObjective(List<DoubleSolution> solutionList, int objective) {
     double[] result = new double[solutionList.size()];
     for (int i = 0; i < solutionList.size(); i++) {
-      result[i] = solutionList.get(i).getObjective(objective);
+      result[i] = solutionList.get(i).objectives()[objective];
     }
     return result;
   }
@@ -232,7 +238,7 @@ public class ChartContainer {
   private double[] getVariableValues(List<DoubleSolution> solutionList, int variable) {
     double[] result = new double[solutionList.size()];
     for (int i = 0; i < solutionList.size(); i++) {
-      result[i] = solutionList.get(i).getVariable(variable);
+      result[i] = solutionList.get(i).variables().get(variable);
     }
     return result;
   }

@@ -1,10 +1,9 @@
 package org.uma.jmetal.problem.multiobjective.fda;
 
-import org.uma.jmetal.solution.doublesolution.DoubleSolution;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import org.uma.jmetal.solution.doublesolution.DoubleSolution;
 
 /** @author Cristóbal Barba <cbarba@lcc.uma.es> */
 @SuppressWarnings("serial")
@@ -16,32 +15,32 @@ public class FDA2 extends FDA implements Serializable {
 
   public FDA2(Integer numberOfVariables, Integer numberOfObjectives) {
     super();
-    setNumberOfVariables(numberOfVariables);
-    setNumberOfObjectives(numberOfObjectives);
-    setName("FDA2");
+    numberOfObjectives(numberOfObjectives);
+    name("FDA2");
 
-    List<Double> lowerLimit = new ArrayList<>(getNumberOfVariables());
-    List<Double> upperLimit = new ArrayList<>(getNumberOfVariables());
+    List<Double> lowerLimit = new ArrayList<>(numberOfVariables);
+    List<Double> upperLimit = new ArrayList<>(numberOfVariables);
 
     lowerLimit.add(0.0);
     upperLimit.add(1.0);
-    for (int i = 1; i < getNumberOfVariables(); i++) {
+    for (int i = 1; i < numberOfVariables; i++) {
       lowerLimit.add(-1.0);
       upperLimit.add(1.0);
     }
 
-    setVariableBounds(lowerLimit, upperLimit);
+    variableBounds(lowerLimit, upperLimit);
   }
 
   @Override
-  public void evaluate(DoubleSolution solution) {
-    double[] f = new double[getNumberOfObjectives()];
-    f[0] = solution.getVariable(0);
-    double g = this.evalG(solution, 1, (solution.getNumberOfVariables() / 2) + 1);
+  public DoubleSolution evaluate(DoubleSolution solution) {
+    double[] f = new double[solution.objectives().length];
+    f[0] = solution.variables().get(0);
+    double g = this.evalG(solution, 1, (solution.variables().size() / 2) + 1);
     double h = this.evalH(f[0], g);
     f[1] = g * h; // 1-Math.sqrt(f[0]);
-    solution.setObjective(0, f[0]);
-    solution.setObjective(1, f[1]);
+    solution.objectives()[0] = f[0];
+    solution.objectives()[1] = f[1];
+    return solution ;
   }
 
   /**
@@ -53,10 +52,10 @@ public class FDA2 extends FDA implements Serializable {
 
     double g = 0.0;
     for (int i = limitInf; i < limitSup; i++) {
-      g += Math.pow(solution.getVariable(i), 2.0);
+      g += Math.pow(solution.variables().get(i), 2.0);
     }
-    for (int i = limitSup; i < solution.getNumberOfVariables(); i++) {
-      g += Math.pow((solution.getVariable(i) + 1.0), 2.0);
+    for (int i = limitSup; i < solution.variables().size(); i++) {
+      g += Math.pow((solution.variables().get(i) + 1.0), 2.0);
     }
     g = g + 1.0;
     return g;

@@ -1,12 +1,12 @@
 package org.uma.jmetal.problem.multiobjective.fda;
 
-import org.uma.jmetal.solution.doublesolution.DoubleSolution;
-import org.uma.jmetal.util.JMetalException;
-import org.uma.jmetal.util.observable.Observable;
-import org.uma.jmetal.util.observable.impl.DefaultObservable;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
+import org.uma.jmetal.solution.doublesolution.DoubleSolution;
+import org.uma.jmetal.util.errorchecking.JMetalException;
+import org.uma.jmetal.util.observable.Observable;
+import org.uma.jmetal.util.observable.impl.DefaultObservable;
 
 /** @author Cristóbal Barba <cbarba@lcc.uma.es> */
 @SuppressWarnings("serial")
@@ -23,33 +23,34 @@ public class FDA1 extends FDA {
   public FDA1(Integer numberOfVariables, Integer numberOfObjectives)
       throws JMetalException {
     super();
-    setNumberOfVariables(numberOfVariables);
-    setNumberOfObjectives(numberOfObjectives);
-    setName("FDA1");
+    numberOfObjectives(numberOfObjectives);
+    name("FDA1");
 
-    List<Double> lowerLimit = new ArrayList<>(getNumberOfVariables());
-    List<Double> upperLimit = new ArrayList<>(getNumberOfVariables());
+    List<Double> lowerLimit = new ArrayList<>(numberOfVariables);
+    List<Double> upperLimit = new ArrayList<>(numberOfVariables);
 
     lowerLimit.add(0.0);
     upperLimit.add(1.0);
-    for (int i = 1; i < getNumberOfVariables(); i++) {
+    IntStream.range(1, numberOfVariables).forEach(i -> {
       lowerLimit.add(-1.0);
       upperLimit.add(1.0);
-    }
+    });
 
-    setVariableBounds(lowerLimit, upperLimit);
+    variableBounds(lowerLimit, upperLimit);
   }
 
   @Override
-  public void evaluate(DoubleSolution solution) {
-    double[] f = new double[getNumberOfObjectives()];
-    f[0] = solution.getVariable(0);
+  public DoubleSolution evaluate(DoubleSolution solution) {
+    double[] f = new double[solution.objectives().length];
+    f[0] = solution.variables().get(0);
     double g = this.evalG(solution);
     double h = this.evalH(f[0], g);
     f[1] = h * g;
 
-    solution.setObjective(0, f[0]);
-    solution.setObjective(1, f[1]);
+    solution.objectives()[0] = f[0];
+    solution.objectives()[1] = f[1];
+
+    return solution ;
   }
 
   /**
@@ -61,8 +62,8 @@ public class FDA1 extends FDA {
 
     double gT = Math.sin(0.5 * Math.PI * time);
     double g = 0.0;
-    for (int i = 1; i < solution.getNumberOfVariables(); i++) {
-      g += Math.pow((solution.getVariable(i) - gT), 2);
+    for (int i = 1; i < solution.variables().size(); i++) {
+      g += Math.pow((solution.variables().get(i) - gT), 2);
     }
     g = g + 1.0;
     return g;

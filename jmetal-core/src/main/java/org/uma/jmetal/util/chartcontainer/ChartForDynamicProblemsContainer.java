@@ -1,15 +1,18 @@
 package org.uma.jmetal.util.chartcontainer;
 
-import org.knowm.xchart.*;
-import org.uma.jmetal.solution.Solution;
-
-import java.awt.*;
+import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import org.knowm.xchart.BitmapEncoder;
+import org.knowm.xchart.SwingWrapper;
+import org.knowm.xchart.XYChart;
+import org.knowm.xchart.XYChartBuilder;
+import org.knowm.xchart.XYSeries;
+import org.uma.jmetal.solution.Solution;
 
 /**
  * Class for configuring and displaying a XChart.
@@ -133,7 +136,7 @@ public class ChartForDynamicProblemsContainer<S extends Solution<?>> {
   private double[] getSolutionsForObjective(List<S> solutionList, int objective) {
     double[] result = new double[solutionList.size()];
     for (int i = 0; i < solutionList.size(); i++) {
-      result[i] = solutionList.get(i).getObjective(objective);
+      result[i] = solutionList.get(i).objectives()[objective];
     }
     return result;
   }

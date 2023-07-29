@@ -1,5 +1,6 @@
 package org.uma.jmetal.algorithm.multiobjective.gwasfga;
 
+import java.util.List;
 import org.uma.jmetal.algorithm.multiobjective.gwasfga.util.GWASFGARanking;
 import org.uma.jmetal.algorithm.multiobjective.mombi.util.ASFWASFGA;
 import org.uma.jmetal.algorithm.multiobjective.mombi.util.AbstractUtilityFunctionsSet;
@@ -10,9 +11,7 @@ import org.uma.jmetal.operator.selection.SelectionOperator;
 import org.uma.jmetal.problem.Problem;
 import org.uma.jmetal.solution.Solution;
 import org.uma.jmetal.util.evaluator.SolutionListEvaluator;
-import org.uma.jmetal.util.solutionattribute.Ranking;
-
-import java.util.List;
+import org.uma.jmetal.util.ranking.Ranking;
 
 /**
  * This class executes the GWASFGA algorithm described in:
@@ -38,8 +37,8 @@ public class GWASFGA<S extends Solution<?>> extends WASFGA<S> {
     int halfVectorSize = super.weights.length  / 2;
     int evenVectorsSize    = (super.weights.length%2==0) ? halfVectorSize : (halfVectorSize+1);
 
-    double [][] evenVectors = new double[evenVectorsSize][getProblem().getNumberOfObjectives()];
-    double [][] oddVectors = new double[halfVectorSize][getProblem().getNumberOfObjectives()];
+    double [][] evenVectors = new double[evenVectorsSize][getProblem().numberOfObjectives()];
+    double [][] oddVectors = new double[halfVectorSize][getProblem().numberOfObjectives()];
 
     int index = 0;
     for (int i = 0; i < super.weights.length; i = i + 2)
@@ -66,15 +65,15 @@ public class GWASFGA<S extends Solution<?>> extends WASFGA<S> {
 
   protected Ranking<S> computeRanking(List<S> solutionList) {
     Ranking<S> ranking = new GWASFGARanking<>(this.achievementScalarizingUtopia, this.achievementScalarizingNadir);
-    ranking.computeRanking(solutionList);
+    ranking.compute(solutionList);
     return ranking;
   }
 
-  @Override public String getName() {
+  @Override public String name() {
     return "GWASFGA" ;
   }
 
-  @Override public String getDescription() {
+  @Override public String description() {
     return "Global Weighting Achievement Scalarizing Function Genetic Algorithm" ;
   }
 }

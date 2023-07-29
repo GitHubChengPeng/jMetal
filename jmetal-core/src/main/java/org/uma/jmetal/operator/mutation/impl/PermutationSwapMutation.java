@@ -2,7 +2,7 @@ package org.uma.jmetal.operator.mutation.impl;
 
 import org.uma.jmetal.operator.mutation.MutationOperator;
 import org.uma.jmetal.solution.permutationsolution.PermutationSolution;
-import org.uma.jmetal.util.checking.Check;
+import org.uma.jmetal.util.errorchecking.Check;
 import org.uma.jmetal.util.pseudorandom.BoundedRandomGenerator;
 import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 import org.uma.jmetal.util.pseudorandom.RandomGenerator;
@@ -49,7 +49,7 @@ public class PermutationSwapMutation<T> implements MutationOperator<PermutationS
 
   /* Getters */
   @Override
-  public double getMutationProbability() {
+  public double mutationProbability() {
     return mutationProbability;
   }
 
@@ -61,7 +61,7 @@ public class PermutationSwapMutation<T> implements MutationOperator<PermutationS
   /* Execute() method */
   @Override
   public PermutationSolution<T> execute(PermutationSolution<T> solution) {
-    Check.isNotNull(solution);
+    Check.notNull(solution);
 
     doMutation(solution);
     return solution;
@@ -70,7 +70,7 @@ public class PermutationSwapMutation<T> implements MutationOperator<PermutationS
   /** Performs the operation */
   public void doMutation(PermutationSolution<T> solution) {
     int permutationLength;
-    permutationLength = solution.getNumberOfVariables();
+    permutationLength = solution.variables().size();
 
     if ((permutationLength != 0) && (permutationLength != 1)) {
       if (mutationRandomGenerator.getRandomValue() < mutationProbability) {
@@ -83,9 +83,9 @@ public class PermutationSwapMutation<T> implements MutationOperator<PermutationS
           else pos2 = positionRandomGenerator.getRandomValue(pos1, permutationLength - 1);
         }
 
-        T temp = solution.getVariable(pos1);
-        solution.setVariable(pos1, solution.getVariable(pos2));
-        solution.setVariable(pos2, temp);
+        T temp = solution.variables().get(pos1);
+        solution.variables().set(pos1, solution.variables().get(pos2));
+        solution.variables().set(pos2, temp);
       }
     }
   }

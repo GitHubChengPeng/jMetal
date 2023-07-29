@@ -1,14 +1,13 @@
 package org.uma.jmetal.operator.crossover.impl;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.uma.jmetal.operator.crossover.CrossoverOperator;
 import org.uma.jmetal.solution.permutationsolution.PermutationSolution;
-import org.uma.jmetal.util.JMetalException;
+import org.uma.jmetal.util.errorchecking.Check;
 import org.uma.jmetal.util.pseudorandom.BoundedRandomGenerator;
 import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 import org.uma.jmetal.util.pseudorandom.RandomGenerator;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * This class allows to apply a PMX crossover operator using two parent solutions.
@@ -41,9 +40,8 @@ public class PMXCrossover implements
    * Constructor
    */
   public PMXCrossover(double crossoverProbability, RandomGenerator<Double> crossoverRandomGenerator, BoundedRandomGenerator<Integer> cuttingPointRandomGenerator) {
-    if ((crossoverProbability < 0) || (crossoverProbability > 1)) {
-      throw new JMetalException("Crossover probability value invalid: " + crossoverProbability) ;
-    }
+    Check.probabilityIsValid(crossoverProbability );
+
     this.crossoverProbability = crossoverProbability;
     this.crossoverRandomGenerator = crossoverRandomGenerator ;
     this.cuttingPointRandomGenerator = cuttingPointRandomGenerator ;
@@ -51,12 +49,12 @@ public class PMXCrossover implements
 
   /* Getters */
   @Override
-  public double getCrossoverProbability() {
+  public double crossoverProbability() {
     return crossoverProbability;
   }
 
   /* Setters */
-  public void setCrossoverProbability(double crossoverProbability) {
+  public void crossoverProbability(double crossoverProbability) {
     this.crossoverProbability = crossoverProbability;
   }
 
@@ -66,11 +64,8 @@ public class PMXCrossover implements
    * @param parents An object containing an array of two solutions
    */
   public List<PermutationSolution<Integer>> execute(List<PermutationSolution<Integer>> parents) {
-    if (null == parents) {
-      throw new JMetalException("Null parameter") ;
-    } else if (parents.size() != 2) {
-      throw new JMetalException("There must be two parents instead of " + parents.size()) ;
-    }
+    Check.notNull(parents);
+    Check.that(parents.size() == 2, "There must be two parents instead of " + parents.size());
 
     return doCrossover(crossoverProbability, parents) ;
   }
@@ -88,7 +83,7 @@ public class PMXCrossover implements
     offspring.add((PermutationSolution<Integer>) parents.get(0).copy()) ;
     offspring.add((PermutationSolution<Integer>) parents.get(1).copy()) ;
 
-    int permutationLength = parents.get(0).getNumberOfVariables() ;
+    int permutationLength = parents.get(0).variables().size() ;
 
     if (crossoverRandomGenerator.getRandomValue() < probability) {
       int cuttingPoint1;
@@ -108,18 +103,18 @@ public class PMXCrossover implements
       }
 
       // STEP 2: Get the subchains to interchange
-      int replacement1[] = new int[permutationLength];
-      int replacement2[] = new int[permutationLength];
+      int []replacement1 = new int[permutationLength];
+      int []replacement2 = new int[permutationLength];
       for (int i = 0; i < permutationLength; i++)
         replacement1[i] = replacement2[i] = -1;
 
       // STEP 3: Interchange
       for (int i = cuttingPoint1; i <= cuttingPoint2; i++) {
-        offspring.get(0).setVariable(i, parents.get(1).getVariable(i));
-        offspring.get(1).setVariable(i, parents.get(0).getVariable(i));
+        offspring.get(0).variables().set(i, parents.get(1).variables().get(i));
+        offspring.get(1).variables().set(i, parents.get(0).variables().get(i));
 
-        replacement1[parents.get(1).getVariable(i)] = parents.get(0).getVariable(i) ;
-        replacement2[parents.get(0).getVariable(i)] = parents.get(1).getVariable(i) ;
+        replacement1[parents.get(1).variables().get(i)] = parents.get(0).variables().get(i) ;
+        replacement2[parents.get(0).variables().get(i)] = parents.get(1).variables().get(i) ;
       }
 
       // STEP 4: Repair offspring
@@ -127,10 +122,10 @@ public class PMXCrossover implements
         if ((i >= cuttingPoint1) && (i <= cuttingPoint2))
           continue;
 
-        int n1 = parents.get(0).getVariable(i);
+        int n1 = parents.get(0).variables().get(i);
         int m1 = replacement1[n1];
 
-        int n2 = parents.get(1).getVariable(i);
+        int n2 = parents.get(1).variables().get(i);
         int m2 = replacement2[n2];
 
         while (m1 != -1) {
@@ -143,8 +138,8 @@ public class PMXCrossover implements
           m2 = replacement2[m2];
         }
 
-        offspring.get(0).setVariable(i, n1);
-        offspring.get(1).setVariable(i, n2);
+        offspring.get(0).variables().set(i, n1);
+        offspring.get(1).variables().set(i, n2);
       }
     }
 
@@ -152,12 +147,12 @@ public class PMXCrossover implements
   }
 
   @Override
-  public int getNumberOfRequiredParents() {
+  public int numberOfRequiredParents() {
     return 2 ;
   }
 
   @Override
-  public int getNumberOfGeneratedChildren() {
+  public int numberOfGeneratedChildren() {
     return 2;
   }
 }

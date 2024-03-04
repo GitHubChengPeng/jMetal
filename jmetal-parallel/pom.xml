@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.uma.jmetal</groupId>
         <artifactId>jmetal</artifactId>
-        <version>6.2-SNAPSHOT</version>
+        <version>6.2.3-SNAPSHOT</version>
     </parent>
 
     <artifactId>jmetal-parallel</artifactId>
@@ -83,26 +83,6 @@
             <artifactId>junit-jupiter-engine</artifactId>
             <version>5.6.0</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-core_2.12</artifactId>
-            <version>3.4.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jppf</groupId>
-            <artifactId>jppf-common</artifactId>
-            <version>6.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jppf</groupId>
-            <artifactId>jppf-node</artifactId>
-            <version>6.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jppf</groupId>
-            <artifactId>jppf-client</artifactId>
-            <version>6.2</version>
         </dependency>
     </dependencies>
 </project>

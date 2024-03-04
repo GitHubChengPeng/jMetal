@@ -48,7 +48,13 @@ Comments and suggestions are welcome.
 
 Changelog
 ---------
-* [07/19/2022] jMetal 6.1 is released.
+* [11/30/2023] The Zapotecas-Coello-Aguirre-benchmark (ZCAT) (https://doi.org/10.1016/j.swevo.2023.101350) is included in jMetal.
+
+* [09/25/2023] The jMetal project adopts Java 17.
+
+* [09/25/2023] Added a variant of NSGA-II using differential evolution.
+
+* [07/19/2023] jMetal 6.1 is released.
 
 * [07/04/2023]. Added the RWA benchmark, described in "Engineering applications of multi-objective evolutionary algorithms: A test suite of box-constrained real-world problems". DOI: https://doi.org/10.1016/j.engappai.2023.106192
 

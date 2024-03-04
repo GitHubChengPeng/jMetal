@@ -10,9 +10,9 @@ import org.uma.jmetal.component.catalogue.common.termination.impl.TerminationByE
 import org.uma.jmetal.operator.crossover.impl.SBXCrossover;
 import org.uma.jmetal.operator.mutation.impl.PolynomialMutation;
 import org.uma.jmetal.problem.Problem;
+import org.uma.jmetal.problem.ProblemFactory;
 import org.uma.jmetal.solution.doublesolution.DoubleSolution;
 import org.uma.jmetal.util.JMetalLogger;
-import org.uma.jmetal.problem.ProblemFactory;
 import org.uma.jmetal.util.archive.Archive;
 import org.uma.jmetal.util.archive.impl.BestSolutionsArchive;
 import org.uma.jmetal.util.archive.impl.NonDominatedSolutionListArchive;
@@ -30,7 +30,7 @@ import org.uma.jmetal.util.sequencegenerator.impl.IntegerPermutationGenerator;
  */
 public class MOEADWithUnboundedArchiveExample {
   public static void main(String[] args) throws JMetalException, IOException {
-    String problemName = "org.uma.jmetal.problem.multiobjective.dtlz.DTLZ1Minus";
+    String problemName = "org.uma.jmetal.problem.multiobjective.dtlz.DTLZ2Minus";
 
     Problem<DoubleSolution> problem = ProblemFactory.<DoubleSolution>loadProblem(problemName);
 
@@ -44,7 +44,7 @@ public class MOEADWithUnboundedArchiveExample {
 
     int populationSize = 91;
 
-    Termination termination = new TerminationByEvaluations(40000);
+    Termination termination = new TerminationByEvaluations(30000);
 
     String weightVectorDirectory = "resources/weightVectorFiles/moead";
 
@@ -62,7 +62,7 @@ public class MOEADWithUnboundedArchiveExample {
         sequenceGenerator,
         normalizeObjectives)
         .setTermination(termination)
-        .setEvaluation(new SequentialEvaluationWithArchive<DoubleSolution>(problem, externalArchive))
+        .setEvaluation(new SequentialEvaluationWithArchive<>(problem, externalArchive))
         .build();
 
     moead.run();

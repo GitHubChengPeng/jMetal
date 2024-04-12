@@ -52,9 +52,7 @@ public class SpatialSpreadDeviation<S extends Solution<?>>
 
     // Use a new SolutionSet to avoid altering the original solutionSet
     List<S> front = new ArrayList<>(size);
-    for (S solution : solutionList) {
-      front.add(solution);
-    }
+    front.addAll(solutionList);
 
     for (int i = 0; i < size; i++) {
       front.get(i).attributes().put(getAttributeID(), 0.0);
@@ -113,13 +111,9 @@ public class SpatialSpreadDeviation<S extends Solution<?>>
       Arrays.sort(distance[i]);
       double kDistance = 0.0;
       for (int k = numberOfObjectives; k > 0; k--) {
-        // kDistance += (dmaxx-dminn) / (distance[i][k]);//me gusta mas este
-        // kDistance += (dmaxx-dminn) / (distance[i][k]+dminn);//original
         kDistance += (dmaxx - dminn) / distance[i][k];
       }
       double temp = (double) front.get(i).attributes().get(getAttributeID());
-      // if(temp!=Double.POSITIVE_INFINITY)
-      // kDistance=kDistance/numberOfObjectives-1;
       temp -= kDistance;
       front.get(i).attributes().put(getAttributeID(), temp);
     }

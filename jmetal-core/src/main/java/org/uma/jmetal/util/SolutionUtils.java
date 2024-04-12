@@ -48,9 +48,9 @@ public class SolutionUtils {
       S solution1, S solution2, Comparator<S> comparator, BinaryOperator<S> equalityPolicy) {
     S result;
     int flag = comparator.compare(solution1, solution2);
-    if (flag == -1) {
+    if (flag < 0) {
       result = solution1;
-    } else if (flag == 1) {
+    } else if (flag > 0) {
       result = solution2;
     } else {
       result = equalityPolicy.apply(solution1, solution2);
@@ -59,7 +59,7 @@ public class SolutionUtils {
     return result;
   }
 
-  /** Returns the euclidean distance between a pair of solutions in the objective space */
+  /** Returns the Euclidean distance between a pair of solutions in the objective space */
   public static <S extends Solution<?>> double distanceBetweenObjectives(
       S firstSolution, S secondSolution) {
 
@@ -103,9 +103,10 @@ public class SolutionUtils {
       DoubleSolution solution, List<DoubleSolution> solutionList) {
     double distance = Double.MAX_VALUE;
 
-    for (int i = 0; i < solutionList.size(); i++) {
-      double aux = distanceBetweenSolutionsInObjectiveSpace(solution, solutionList.get(i));
-      if (aux < distance) distance = aux;
+    for (DoubleSolution doubleSolution : solutionList) {
+      double aux = distanceBetweenSolutionsInObjectiveSpace(solution, doubleSolution);
+      if (aux < distance)
+        distance = aux;
     }
 
     return distance;

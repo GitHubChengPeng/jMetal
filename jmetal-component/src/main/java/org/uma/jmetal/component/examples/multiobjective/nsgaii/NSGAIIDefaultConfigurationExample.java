@@ -10,6 +10,7 @@ import org.uma.jmetal.operator.crossover.impl.SBXCrossover;
 import org.uma.jmetal.operator.mutation.impl.PolynomialMutation;
 import org.uma.jmetal.problem.Problem;
 import org.uma.jmetal.problem.ProblemFactory;
+import org.uma.jmetal.problem.multiobjective.zdt.ZDT1;
 import org.uma.jmetal.qualityindicator.QualityIndicatorUtils;
 import org.uma.jmetal.solution.doublesolution.DoubleSolution;
 import org.uma.jmetal.util.JMetalLogger;
@@ -27,7 +28,7 @@ import org.uma.jmetal.util.pseudorandom.JMetalRandom;
  */
 public class NSGAIIDefaultConfigurationExample {
   public static void main(String[] args) throws JMetalException, IOException {
-    String problemName = "org.uma.jmetal.problem.multiobjective.zdt.ZDT1";
+    String problemName = "org.uma.jmetal.problem.multiobjective.zdt.ZDT4";
     String referenceParetoFront = "resources/referenceFrontsCSV/ZDT1.csv";
 
     Problem<DoubleSolution> problem = ProblemFactory.<DoubleSolution>loadProblem(problemName);

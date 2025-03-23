@@ -1,6 +1,9 @@
 package org.uma.jmetal.qualityindicator.impl.hypervolume.impl;
 
 import java.io.FileNotFoundException;
+
+import org.uma.jmetal.qualityindicator.QualityIndicator;
+import org.uma.jmetal.qualityindicator.impl.InvertedGenerationalDistancePlus;
 import org.uma.jmetal.qualityindicator.impl.hypervolume.Hypervolume;
 import org.uma.jmetal.util.VectorUtils;
 import org.uma.jmetal.util.errorchecking.Check;
@@ -11,7 +14,7 @@ import org.uma.jmetal.util.errorchecking.Check;
  * Evolutionary Algorithms: A Comparative Case Study and the Strength Pareto Approach, IEEE
  * Transactions on Evolutionary Computation, vol. 3, no. 4, pp. 257-271, 1999.
  *
- * @author Antonio J. Nebro <antonio@lcc.uma.es>
+ * @author Antonio J. Nebro
  * @author Juan J. Durillo
  */
 @SuppressWarnings("serial")
@@ -40,6 +43,11 @@ public class PISAHypervolume extends Hypervolume {
    */
   public PISAHypervolume(double[][] referenceFront) {
     super(referenceFront);
+  }
+
+  @Override
+  public QualityIndicator newInstance() {
+    return new PISAHypervolume();
   }
 
   /**

@@ -18,11 +18,11 @@ jMetal project Web site
    :target: https://jmetal.readthedocs.io/?badge=latest
 
 jMetal is a Java-based framework for multi-objective optimization with metaheuristics.
-The last stable version is 6.1.
+The last stable version is 6.6.
 The most recent documentation is hosted in https://jmetal.readthedocs.io.
 
 
-The current development version (6.2-SNAPSHOT) is a Maven project structured in the following sub-projects:
+The current development version (6.7-SNAPSHOT) is a Maven project structured in the following sub-projects:
 
 +---------------------+------------------------------------+
 | Sub-project         |  Contents                          | 
@@ -48,6 +48,14 @@ Comments and suggestions are welcome.
 
 Changelog
 ---------
+* [01/17/2025] Added a variant of SMS-EMOA using differential evolution.
+
+* [11/30/2024] Added single and multi-objective versions of the Knapsack problem.
+
+* [11/22/2024] Added new crossover (Cycle, EdgeRecombination, ODX, Population-Based) and mutation (Displacement, Insert, Inversion, Scamble, SimpleInversion) operators for permutations. Contribution of Nicolas R. Uribe (@NicolasRodriguezUribe)
+
+* [06/27/2024] The jMetal project adopts Java 19.
+
 * [11/30/2023] The Zapotecas-Coello-Aguirre-benchmark (ZCAT) (https://doi.org/10.1016/j.swevo.2023.101350) is included in jMetal.
 
 * [09/25/2023] The jMetal project adopts Java 17.
@@ -83,3 +91,4 @@ Changelog
 * [2/19/2021] New implementation of quality indicators to remove the dependence of jMetal classes. Now, all of them accept as a parameter a matrix containing objective values.
 
 * [1/21/2021] Added the MicroFAME multi-objective genetic algorith, described in: Alejandro Santiago, Bernabé Dorronsoro, Héctor Fraire, Patricia Ruíz: Micro-Genetic algorithm with fuzzy selection of operators for multi-Objective optimization: microFAME. Swarm and Evolutionary Computation, V.61, March 2021. `DOI <https://doi.org/10.1016/j.swevo.2020.100818>`_. Contributed by Alejandro Santiago.
+

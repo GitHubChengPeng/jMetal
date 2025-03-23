@@ -17,7 +17,7 @@ import org.uma.jmetal.util.ranking.Ranking;
  * numbering starts from 1); thus, subset 0 contains the non-dominated solutions, subset 1 contains
  * the non-dominated population after removing those belonging to subset 0, and so on.
  *
- * @author Antonio J. Nebro <antonio@lcc.uma.es>
+ * @author Antonio J. Nebro
  */
 public class FastNonDominatedSortRanking<S extends Solution<?>> implements Ranking<S> {
 
@@ -47,10 +47,10 @@ public class FastNonDominatedSortRanking<S extends Solution<?>> implements Ranki
   public Ranking<S> compute(List<S> solutionList) {
     List<S> population = solutionList;
 
-    // dominateMe[i] contains the number of population dominating i
+    // dominateMe[i] contains the number of individuals dominating i
     int[] dominateMe = new int[population.size()];
 
-    // iDominate[k] contains the list of population dominated by k
+    // iDominate[k] contains the list of individuals dominated by k
     List<List<Integer>> iDominate = new ArrayList<>(population.size());
 
     // front[i] contains the list of individuals belonging to the front i

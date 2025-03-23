@@ -24,7 +24,7 @@ import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 /**
  * Class to configure and run the SMSEMOA algorithm
  *
- * @author Antonio J. Nebro <antonio@lcc.uma.es>
+ * @author Antonio J. Nebro
  */
 public class SMSEMOAWithRealTimeChartExample extends AbstractAlgorithmRunner {
   public static void main(String[] args) throws JMetalException, IOException {
@@ -53,7 +53,7 @@ public class SMSEMOAWithRealTimeChartExample extends AbstractAlgorithmRunner {
         .setTermination(termination)
         .build();
 
-    algorithm.observable().register(new RunTimeChartObserver<>("SMS-EMOA", 80, 100, referenceParetoFront));
+    algorithm.observable().register(new RunTimeChartObserver<>("SMS-EMOA", 80, 1000, referenceParetoFront));
 
     algorithm.run();
 

@@ -44,7 +44,6 @@ public class NSGAIIDEBuilder {
   public NSGAIIDEBuilder(
       Problem<DoubleSolution> problem,
       int populationSize,
-      int offspringPopulationSize,
       double cr,
       double f,
       MutationOperator<DoubleSolution> mutation,
@@ -67,7 +66,7 @@ public class NSGAIIDEBuilder {
 
     this.variation =
         new DifferentialEvolutionCrossoverVariation(
-            offspringPopulationSize, crossover, mutation, sequenceGenerator);
+            1, crossover, mutation, sequenceGenerator);
 
     int numberOfParentsToSelect = crossover.numberOfRequiredParents() ;
     this.selection =

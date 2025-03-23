@@ -3,14 +3,10 @@ package org.uma.jmetal.auto.parameter.catalogue;
 import java.util.List;
 import org.uma.jmetal.auto.parameter.CategoricalParameter;
 import org.uma.jmetal.operator.crossover.CrossoverOperator;
-import org.uma.jmetal.operator.crossover.impl.BLXAlphaCrossover;
-import org.uma.jmetal.operator.crossover.impl.HUXCrossover;
-import org.uma.jmetal.operator.crossover.impl.SBXCrossover;
-import org.uma.jmetal.operator.crossover.impl.SinglePointCrossover;
-import org.uma.jmetal.operator.crossover.impl.UniformCrossover;
-import org.uma.jmetal.operator.crossover.impl.WholeArithmeticCrossover;
+import org.uma.jmetal.operator.crossover.impl.*;
 import org.uma.jmetal.solution.binarysolution.BinarySolution;
 import org.uma.jmetal.solution.doublesolution.DoubleSolution;
+import org.uma.jmetal.solution.permutationsolution.PermutationSolution;
 import org.uma.jmetal.util.errorchecking.JMetalException;
 
 /**
@@ -69,5 +65,33 @@ public class CrossoverParameter extends CategoricalParameter {
         throw new JMetalException("Crossover operator does not exist: " + name());
     }
     return result;
+  }
+
+  public CrossoverOperator<PermutationSolution<Integer>> getPermutationParameter() {
+    Double crossoverProbability = (Double) findGlobalParameter("crossoverProbability").value();
+
+    CrossoverOperator<PermutationSolution<Integer>> result;
+
+    switch (value()) {
+      case "PMX":
+        result = new PMXCrossover(crossoverProbability) ;
+        break;
+      case "CX":
+        result = new CycleCrossover(crossoverProbability);
+        break;
+      case "OXD":
+        result = new OXDCrossover(crossoverProbability);
+        break;
+      case "positionBased":
+        result = new PositionBasedCrossover(crossoverProbability);
+        break;
+      case "edgeRecombination":
+        result = new EdgeRecombinationCrossover(crossoverProbability);
+        break;
+      default:
+        throw new JMetalException("Crossover operator does not exist: " + name());
+    }
+
+    return result ;
   }
 }

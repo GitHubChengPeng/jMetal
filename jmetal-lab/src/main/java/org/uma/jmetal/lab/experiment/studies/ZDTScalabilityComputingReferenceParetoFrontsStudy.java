@@ -14,7 +14,6 @@ import org.uma.jmetal.lab.experiment.component.impl.ComputeQualityIndicators;
 import org.uma.jmetal.lab.experiment.component.impl.ExecuteAlgorithms;
 import org.uma.jmetal.lab.experiment.component.impl.GenerateBoxplotsWithR;
 import org.uma.jmetal.lab.experiment.component.impl.GenerateFriedmanHolmTestTables;
-import org.uma.jmetal.lab.experiment.component.impl.GenerateFriedmanTestTables;
 import org.uma.jmetal.lab.experiment.component.impl.GenerateHtmlPages;
 import org.uma.jmetal.lab.experiment.component.impl.GenerateLatexTablesWithStatistics;
 import org.uma.jmetal.lab.experiment.component.impl.GenerateReferenceParetoSetAndFrontFromDoubleSolutions;
@@ -51,7 +50,7 @@ import org.uma.jmetal.util.evaluator.impl.SequentialSolutionListEvaluator;
  * applying the Wilcoxon Rank Sum Test 7. Generate Latex tables with the ranking obtained by
  * applying the Friedman test 8. Generate R scripts to obtain boxplots
  *
- * @author Antonio J. Nebro <antonio@lcc.uma.es>
+ * @author Antonio J. Nebro
  */
 public class ZDTScalabilityComputingReferenceParetoFrontsStudy {
 

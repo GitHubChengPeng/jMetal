@@ -22,12 +22,12 @@ import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 /**
  * Class for configuring and running the SMPSO algorithm
  *
- * @author Antonio J. Nebro <antonio@lcc.uma.es>
+ * @author Antonio J. Nebro
  */
 public class SMPSOWithRealTimeChartExample extends AbstractAlgorithmRunner {
   public static void main(String[] args) throws Exception {
-    String problemName = "org.uma.jmetal.problem.multiobjective.rwx.Goel2007";
-    String referenceParetoFront = "resources/referenceFrontsCSV/Goel2007.csv";
+    String problemName = "org.uma.jmetal.problem.multiobjective.zdt.ZDT4";
+    String referenceParetoFront = "resources/referenceFrontsCSV/ZDT4.csv";
 
     Problem<DoubleSolution> problem = ProblemFactory.<DoubleSolution>loadProblem(problemName);
 

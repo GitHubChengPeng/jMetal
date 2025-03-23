@@ -9,7 +9,7 @@ import org.uma.jmetal.qualityindicator.impl.hypervolume.impl.PISAHypervolume;
  * relative hypervolume = 1 - (HV of the front / HV of the reference front).
  * Before computing this indicator it must be checked that the HV of the reference front is not zero.
  *
- * @author Antonio J. Nebro <antonio@lcc.uma.es>
+ * @author Antonio J. Nebro
  */
 public class NormalizedHypervolume extends QualityIndicator {
   private double referenceFrontHypervolume;
@@ -23,14 +23,19 @@ public class NormalizedHypervolume extends QualityIndicator {
     double[][] referenceFront = {referencePoint};
     hypervolume = new PISAHypervolume(referenceFront);
 
-    referenceFrontHypervolume = hypervolume.compute(referenceFront);
+    //referenceFrontHypervolume = hypervolume.compute(referenceFront);
   }
 
   public NormalizedHypervolume(double[][] referenceFront) {
     super(referenceFront);
     hypervolume = new PISAHypervolume(referenceFront);
 
-    referenceFrontHypervolume = hypervolume.compute(referenceFront);
+    //referenceFrontHypervolume = hypervolume.compute(referenceFront);
+  }
+
+  @Override
+  public QualityIndicator newInstance() {
+    return new NormalizedHypervolume();
   }
 
   @Override
@@ -38,7 +43,7 @@ public class NormalizedHypervolume extends QualityIndicator {
     super.referenceFront(referenceFront);
 
     hypervolume = new PISAHypervolume(referenceFront);
-    referenceFrontHypervolume = hypervolume.compute(referenceFront);
+    //referenceFrontHypervolume = hypervolume.compute(referenceFront);
   }
 
   @Override
@@ -59,8 +64,16 @@ public class NormalizedHypervolume extends QualityIndicator {
 
   @Override
   public double compute(double[][] front) {
+    referenceFrontHypervolume = hypervolume.compute(referenceFront);
     double hypervolumeValue = hypervolume.compute(front);
 
-    return 1 - (hypervolumeValue / referenceFrontHypervolume);
+    double result = 1 - (hypervolumeValue / referenceFrontHypervolume);
+
+    if  (result < 0) {
+      System.out.println("HV reference front: " + referenceFrontHypervolume) ;
+      System.out.println("HV current front  : " + hypervolumeValue) ;
+    }
+
+    return result ;
   }
 }

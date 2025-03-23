@@ -23,7 +23,7 @@ import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 /**
  * Class to configure a steady-state version of NSGA-II
  *
- * @author Antonio J. Nebro <antonio@lcc.uma.es>
+ * @author Antonio J. Nebro
  */
 public class NSGAIISteadyStateExample {
   public static void main(String[] args) throws JMetalException, IOException {
@@ -41,7 +41,7 @@ public class NSGAIISteadyStateExample {
     var mutation = new PolynomialMutation(mutationProbability, mutationDistributionIndex);
 
     int populationSize = 100;
-    int offspringPopulationSize = 100;
+    int offspringPopulationSize = 1;
 
     Termination termination = new TerminationByEvaluations(20000);
 

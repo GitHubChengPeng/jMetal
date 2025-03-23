@@ -13,7 +13,7 @@ import org.uma.jmetal.util.errorchecking.JMetalException;
  * typing $java org.uma.jmetal.qualityindicator.impl.Epsilon <solutionFrontFile>
  * <trueFrontFile> <getNumberOfObjectives>
  *
- * @author Antonio J. Nebro <antonio@lcc.uma.es>
+ * @author Antonio J. Nebro
  * @author Juan J. Durillo
  */
 @SuppressWarnings("serial")
@@ -37,6 +37,11 @@ public class Epsilon extends QualityIndicator {
   @Override
   public boolean isTheLowerTheIndicatorValueTheBetter() {
     return true ;
+  }
+
+  @Override
+  public QualityIndicator newInstance() {
+    return new Epsilon();
   }
 
   /**

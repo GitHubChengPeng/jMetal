@@ -23,7 +23,7 @@ import org.uma.jmetal.util.legacy.qualityindicator.impl.hypervolume.impl.PISAHyp
 /**
  * Class to configure and run the SMS-EMOA algorithm
  *
- * @author Antonio J. Nebro <antonio@lcc.uma.es>
+ * @author Antonio J. Nebro
  */
 public class SMSEMOARunner extends AbstractAlgorithmRunner {
 
@@ -31,8 +31,8 @@ public class SMSEMOARunner extends AbstractAlgorithmRunner {
    * @param args Command line arguments.
    */
   public static void main(String[] args) throws IOException {
-    String problemName = "org.uma.jmetal.problem.multiobjective.zdt.ZDT1";
-    String referenceParetoFront = "resources/referenceFrontsCSV/ZDT1.csv";
+    String problemName = "org.uma.jmetal.problem.multiobjective.dtlz.DTLZ1";
+    String referenceParetoFront = "resources/referenceFrontsCSV/DTLZ1.3D.csv";
 
     Problem<DoubleSolution> problem = ProblemFactory.<DoubleSolution>loadProblem(problemName);
 
@@ -54,7 +54,7 @@ public class SMSEMOARunner extends AbstractAlgorithmRunner {
 
     var algorithm = new SMSEMOABuilder<DoubleSolution>(problem, crossover, mutation)
         .setSelectionOperator(selection)
-        .setMaxEvaluations(25000)
+        .setMaxEvaluations(40000)
         .setPopulationSize(100)
         .setHypervolumeImplementation(hypervolume)
         .build();

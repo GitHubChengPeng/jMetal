@@ -9,7 +9,7 @@ import org.uma.jmetal.util.solutionattribute.impl.HypervolumeContributionAttribu
  * Compares two solutions according to the crowding distance attribute. The higher
  * the distance the better
  *
- * @author Antonio J. Nebro <antonio@lcc.uma.es>
+ * @author Antonio J. Nebro
  */
 @SuppressWarnings("serial")
 public class HypervolumeContributionComparator<S extends Solution<?>> implements Comparator<S>, Serializable {
@@ -20,7 +20,7 @@ public class HypervolumeContributionComparator<S extends Solution<?>> implements
    *
    * @param solution1 Object representing the first <code>Solution</code>.
    * @param solution2 Object representing the second <code>Solution</code>.
-   * @return -1, or 0, or 1 if solution1 is has lower, equal, or higher contribution value than solution2,
+   * @return -1, or 0, or 1 if solution1 has lower, equal, or higher contribution value than solution2,
    * respectively.
    */
   @Override

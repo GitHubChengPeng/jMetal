@@ -19,7 +19,7 @@ import org.uma.jmetal.util.VectorUtils;
 /**
  * Class for configuring and running the MOEA/D-DE algorithm
  *
- * @author Antonio J. Nebro <antonio@lcc.uma.es>
+ * @author Antonio J. Nebro
  */
 public class MOEAD3DProblemRunner extends AbstractAlgorithmRunner {
 
@@ -47,7 +47,7 @@ public class MOEAD3DProblemRunner extends AbstractAlgorithmRunner {
             .setCrossover(crossover)
             .setMutation(mutation)
             .setMaxEvaluations(175000)
-            .setPopulationSize(91)
+            .setPopulationSize(300)
             .setResultPopulationSize(100)
             .setNeighborhoodSelectionProbability(0.9)
             .setMaximumNumberOfReplacedSolutions(2)

@@ -6,7 +6,7 @@ import org.uma.jmetal.component.algorithm.multiobjective.SMPSOBuilder;
 import org.uma.jmetal.component.catalogue.common.termination.Termination;
 import org.uma.jmetal.component.catalogue.common.termination.impl.TerminationByEvaluations;
 import org.uma.jmetal.lab.visualization.plot.PlotFront;
-import org.uma.jmetal.lab.visualization.plot.impl.Plot2D;
+import org.uma.jmetal.lab.visualization.plot.impl.ScatterPlot;
 import org.uma.jmetal.problem.Problem;
 import org.uma.jmetal.problem.ProblemFactory;
 import org.uma.jmetal.problem.doubleproblem.DoubleProblem;
@@ -24,7 +24,7 @@ import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 /**
  * Class for configuring and running the SMPSO algorithm
  *
- * @author Antonio J. Nebro <antonio@lcc.uma.es>
+ * @author Antonio J. Nebro 
  */
 public class SMPSOWithPlotliyChartExample extends AbstractAlgorithmRunner {
   public static void main(String[] args) throws Exception {
@@ -61,7 +61,7 @@ public class SMPSOWithPlotliyChartExample extends AbstractAlgorithmRunner {
         SolutionListUtils.getMatrixWithObjectiveValues(population),
         VectorUtils.readVectors(referenceParetoFront, ","));
 
-    PlotFront plot = new Plot2D(new ArrayFront(population).getMatrix());
+    PlotFront plot = new ScatterPlot(new ArrayFront(population).getMatrix());
     plot.plot();
 
     System.exit(0);

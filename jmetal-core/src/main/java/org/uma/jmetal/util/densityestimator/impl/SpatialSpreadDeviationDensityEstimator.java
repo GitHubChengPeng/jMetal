@@ -2,7 +2,6 @@ package org.uma.jmetal.util.densityestimator.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import org.uma.jmetal.solution.Solution;
@@ -14,7 +13,7 @@ import org.uma.jmetal.util.errorchecking.Check;
 /**
  * This class implements a density estimator based on the distance to the k-th nearest solution
  *
- * @author Antonio J. Nebro <antonio@lcc.uma.es>
+ * @author Antonio J. Nebro
  */
 public class SpatialSpreadDeviationDensityEstimator<S extends Solution<?>>
     implements DensityEstimator<S> {

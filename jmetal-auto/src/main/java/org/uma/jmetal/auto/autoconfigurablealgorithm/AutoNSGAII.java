@@ -60,7 +60,6 @@ public class AutoNSGAII implements AutoConfigurableAlgorithm {
   private ExternalArchiveParameter<DoubleSolution> externalArchiveParameter;
   private PositiveIntegerValue populationSizeParameter;
   private IntegerParameter populationSizeWithArchiveParameter;
-  //private IntegerParameter offspringPopulationSizeParameter;
   private CategoricalIntegerParameter offspringPopulationSizeParameter;
   private CreateInitialSolutionsParameter createInitialSolutionsParameter;
   private SelectionParameter<DoubleSolution> selectionParameter;
@@ -92,7 +91,6 @@ public class AutoNSGAII implements AutoConfigurableAlgorithm {
     fixedParameterList.add(referenceFrontFilename);
     fixedParameterList.add(maximumNumberOfEvaluationsParameter);
     fixedParameterList.add(randomGeneratorSeedParameter);
-
 
     algorithmResult();
     createInitialSolution();
@@ -179,8 +177,7 @@ public class AutoNSGAII implements AutoConfigurableAlgorithm {
   private void algorithmResult() {
     algorithmResultParameter =
         new CategoricalParameter("algorithmResult", List.of("externalArchive", "population"));
-    populationSizeWithArchiveParameter = new IntegerParameter("populationSizeWithArchive", 10,
-        200);
+    populationSizeWithArchiveParameter = new IntegerParameter("populationSizeWithArchive", 10, 200) ;
     externalArchiveParameter = new ExternalArchiveParameter(
         List.of("crowdingDistanceArchive", "unboundedArchive"));
     algorithmResultParameter.addSpecificParameter(
@@ -213,7 +210,7 @@ public class AutoNSGAII implements AutoConfigurableAlgorithm {
   public EvolutionaryAlgorithm<DoubleSolution> create() {
     JMetalRandom.getInstance().setSeed(randomGeneratorSeedParameter.value());
 
-    Problem<DoubleSolution> problem = ProblemFactory.loadProblem(problemNameParameter.value());
+    Problem<DoubleSolution> problem = problem() ;
 
     Archive<DoubleSolution> archive = null;
 

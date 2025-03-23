@@ -7,7 +7,7 @@ import org.uma.jmetal.component.algorithm.multiobjective.MOEADBuilder;
 import org.uma.jmetal.component.catalogue.common.termination.Termination;
 import org.uma.jmetal.component.catalogue.common.termination.impl.TerminationByEvaluations;
 import org.uma.jmetal.lab.visualization.plot.PlotFront;
-import org.uma.jmetal.lab.visualization.plot.impl.Plot2D;
+import org.uma.jmetal.lab.visualization.plot.impl.ScatterPlot;
 import org.uma.jmetal.operator.crossover.impl.SBXCrossover;
 import org.uma.jmetal.operator.mutation.impl.PolynomialMutation;
 import org.uma.jmetal.problem.Problem;
@@ -27,7 +27,7 @@ import org.uma.jmetal.util.sequencegenerator.impl.IntegerPermutationGenerator;
 /**
  * Class to configure and run the NSGA-II algorithm configured with standard settings.
  *
- * @author Antonio J. Nebro <antonio@lcc.uma.es>
+ * @author Antonio J. Nebro
  */
 public class MOEADSolvingProblemZDT110F2Example {
 
@@ -87,7 +87,7 @@ public class MOEADSolvingProblemZDT110F2Example {
     JMetalLogger.logger.info("Objectives values have been written to file FUN.csv");
     JMetalLogger.logger.info("Variables values have been written to file VAR.csv");
 
-    PlotFront plot = new Plot2D(new ArrayFront(population).getMatrix(), problem.name() + " (MOEA/D)");
+    PlotFront plot = new ScatterPlot(new ArrayFront(population).getMatrix(), problem.name() + " (MOEA/D)");
     plot.plot();
   }
 }

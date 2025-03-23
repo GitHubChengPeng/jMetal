@@ -27,13 +27,13 @@ import org.uma.jmetal.util.pseudorandom.JMetalRandom;
  * Class to configure and run the NSGA-II algorithm showing the population while the algorithm is
  * running
  *
- * @author Antonio J. Nebro <antonio@lcc.uma.es>
+ * @author Antonio J. Nebro 
  */
 public class NSGAIIWithRealTimeChartExample {
 
   public static void main(String[] args) throws JMetalException, IOException {
-    String problemName = "org.uma.jmetal.problem.multiobjective.zdt.ZDT4";
-    String referenceParetoFront = "resources/referenceFrontsCSV/ZDT4.csv";
+    String problemName = "org.uma.jmetal.problem.multiobjective.re.RE21";
+    String referenceParetoFront = "resources/referenceFrontsCSV/RE21.csv";
 
     Problem<DoubleSolution> problem = ProblemFactory.<DoubleSolution>loadProblem(problemName);
 
@@ -46,9 +46,9 @@ public class NSGAIIWithRealTimeChartExample {
     var mutation = new PolynomialMutation(mutationProbability, mutationDistributionIndex);
 
     int populationSize = 100;
-    int offspringPopulationSize = populationSize;
+    int offspringPopulationSize = 100;
 
-    Termination termination = new TerminationByEvaluations(25000);
+    Termination termination = new TerminationByEvaluations(3000);
 
     EvolutionaryAlgorithm<DoubleSolution> nsgaii = new NSGAIIBuilder<>(
         problem,
@@ -59,7 +59,7 @@ public class NSGAIIWithRealTimeChartExample {
         .setTermination(termination)
         .build();
 
-    EvaluationObserver evaluationObserver = new EvaluationObserver(1000);
+    EvaluationObserver evaluationObserver = new EvaluationObserver(100);
     var chartObserver =
         new FrontPlotObserver<DoubleSolution>("NSGA-II", "F1", "F2", problem.name(), 500);
 

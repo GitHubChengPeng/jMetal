@@ -5,12 +5,13 @@ import java.util.List;
 import org.uma.jmetal.component.algorithm.EvolutionaryAlgorithm;
 import org.uma.jmetal.component.algorithm.multiobjective.NSGAIIBuilder;
 import org.uma.jmetal.component.catalogue.common.termination.Termination;
+import org.uma.jmetal.component.catalogue.common.termination.impl.TerminationByComputingTime;
 import org.uma.jmetal.component.catalogue.common.termination.impl.TerminationByEvaluations;
+import org.uma.jmetal.component.catalogue.common.termination.impl.TerminationByKeyboard;
 import org.uma.jmetal.operator.crossover.impl.SBXCrossover;
 import org.uma.jmetal.operator.mutation.impl.PolynomialMutation;
 import org.uma.jmetal.problem.Problem;
 import org.uma.jmetal.problem.ProblemFactory;
-import org.uma.jmetal.problem.multiobjective.zdt.ZDT1;
 import org.uma.jmetal.qualityindicator.QualityIndicatorUtils;
 import org.uma.jmetal.solution.doublesolution.DoubleSolution;
 import org.uma.jmetal.util.JMetalLogger;
@@ -24,14 +25,14 @@ import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 /**
  * Class to configure and run the NSGA-II algorithm configured with standard settings.
  *
- * @author Antonio J. Nebro <antonio@lcc.uma.es>
+ * @author Antonio J. Nebro
  */
 public class NSGAIIDefaultConfigurationExample {
   public static void main(String[] args) throws JMetalException, IOException {
-    String problemName = "org.uma.jmetal.problem.multiobjective.zdt.ZDT4";
+    String problemName = "org.uma.jmetal.problem.multiobjective.zdt.ZDT1";
     String referenceParetoFront = "resources/referenceFrontsCSV/ZDT1.csv";
 
-    Problem<DoubleSolution> problem = ProblemFactory.<DoubleSolution>loadProblem(problemName);
+    Problem<DoubleSolution> problem = ProblemFactory.loadProblem(problemName);
 
     double crossoverProbability = 0.9;
     double crossoverDistributionIndex = 20.0;
@@ -42,7 +43,7 @@ public class NSGAIIDefaultConfigurationExample {
     var mutation = new PolynomialMutation(mutationProbability, mutationDistributionIndex);
 
     int populationSize = 100;
-    int offspringPopulationSize = populationSize;
+    int offspringPopulationSize = 100 ;
 
     Termination termination = new TerminationByEvaluations(25000);
 

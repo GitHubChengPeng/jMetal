@@ -17,7 +17,7 @@ import org.uma.jmetal.util.neighborhood.Neighborhood;
 /**
  * This class implements a neighborhood based on the weight vectors of MOEA/D
  *
- * @author Antonio J. Nebro <antonio@lcc.uma.es>
+ * @author Antonio J. Nebro
  */
 @SuppressWarnings("serial")
 public class WeightVectorNeighborhood<S extends Solution<?>> implements Neighborhood<S> {
@@ -50,8 +50,6 @@ public class WeightVectorNeighborhood<S extends Solution<?>> implements Neighbor
     this.numberOfWeightVectors = numberOfWeightVectors;
     this.weightVectorSize = weightVectorSize;
     this.neighborhoodSize = neighborhoodSize;
-
-
 
     this.neighborhood = new int[numberOfWeightVectors][neighborhoodSize];
     this.weightVector = new double[numberOfWeightVectors][weightVectorSize];

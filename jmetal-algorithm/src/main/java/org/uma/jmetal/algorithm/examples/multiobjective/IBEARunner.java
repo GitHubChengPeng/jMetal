@@ -20,7 +20,7 @@ import org.uma.jmetal.util.VectorUtils;
 /**
  * Class for configuring and running the IBEA algorithm
  *
- * @author Antonio J. Nebro <antonio@lcc.uma.es>
+ * @author Antonio J. Nebro
  */
 public class IBEARunner extends AbstractAlgorithmRunner {
 
@@ -29,8 +29,8 @@ public class IBEARunner extends AbstractAlgorithmRunner {
    */
   public static void main(String[] args) throws Exception {
 
-    String problemName = "org.uma.jmetal.problem.multiobjective.zdt.ZDT1";
-    String referenceParetoFront = "resources/referenceFrontsCSV/ZDT1.csv";
+    String problemName = "org.uma.jmetal.problem.multiobjective.zdt.ZDT2";
+    String referenceParetoFront = "resources/referenceFrontsCSV/ZDT2.csv";
 
     Problem<DoubleSolution> problem = ProblemFactory.loadProblem(problemName);
 

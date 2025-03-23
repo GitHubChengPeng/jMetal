@@ -11,7 +11,7 @@ import org.uma.jmetal.util.errorchecking.Check;
  * Technical Report TR-98-03, Dept. Elec. Comput. Eng., Air Force
  * Inst. Technol. (1998)
  *
- * @author Antonio J. Nebro <antonio@lcc.uma.es>
+ * @author Antonio J. Nebro
  * @author Juan J. Durillo
  */
 @SuppressWarnings("serial")
@@ -31,6 +31,11 @@ public class GenerationalDistance extends QualityIndicator {
    */
   public GenerationalDistance(double[][] referenceFront) {
     super(referenceFront) ;
+  }
+
+  @Override
+  public QualityIndicator newInstance() {
+    return new GenerationalDistance();
   }
 
   /**

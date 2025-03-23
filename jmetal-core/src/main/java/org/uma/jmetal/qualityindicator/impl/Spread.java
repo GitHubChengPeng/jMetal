@@ -11,7 +11,7 @@ import org.uma.jmetal.util.distance.impl.EuclideanDistanceBetweenVectors;
  * Reference: Deb, K., Pratap, A., Agarwal, S., Meyarivan, T.: A fast and
  * elitist multiobjective genetic algorithm: NSGA-II. IEEE Trans. on Evol. Computation 6 (2002) 182-197
  *
- * @author Antonio J. Nebro <antonio@lcc.uma.es>
+ * @author Antonio J. Nebro
  * @author Juan J. Durillo
  */
 @SuppressWarnings("serial")
@@ -31,6 +31,11 @@ public class Spread extends QualityIndicator {
    */
   public Spread(double[][] referenceFront) {
     super(referenceFront) ;
+  }
+
+  @Override
+  public QualityIndicator newInstance() {
+    return new Spread();
   }
 
   /**

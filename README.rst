@@ -18,11 +18,11 @@ jMetal project Web site
    :target: https://jmetal.readthedocs.io/?badge=latest
 
 jMetal is a Java-based framework for multi-objective optimization with metaheuristics.
-The last stable version is 6.6.
+The last stable version is 6.9.3.
 The most recent documentation is hosted in https://jmetal.readthedocs.io.
 
 
-The current development version (6.7-SNAPSHOT) is a Maven project structured in the following sub-projects:
+The current development version (6.9.4-SNAPSHOT) is a Maven project structured in the following sub-projects:
 
 +---------------------+------------------------------------+
 | Sub-project         |  Contents                          | 
@@ -44,10 +44,28 @@ The current development version (6.7-SNAPSHOT) is a Maven project structured in 
 | jmetal-component    |  Component-based algorithms        |
 +---------------------+------------------------------------+
 
-Comments and suggestions are welcome.
+
+Related projects
+----------------
+* `jMetalPy <https://github.com/jMetal/jmetalpy>`_: jMetal in Python
+* `SAES <https://github.com/jMetal/SAES>`_: Python library to analyse and compare the performance of multi-objective algorithms
 
 Changelog
 ---------
+* [09/12/2025] jMetal 6.9.3 is released.
+
+* [07/14/2025] jMetal 6.9.1 is released.
+
+* [07/07/2025] jMetal 6.8 is released.
+
+* [07/07/2025] Added new crossover (BLX-Alpha-Beta, Laplace, Arithmetic, Fuzzy recombination, UNDX) and mutation (Power Law, Levy Flight, Simple Random) operators for continuous problems.
+
+* [06/18/2025] A new folder *resources/referenceFrontsRSG* have been added. It contains Pareto front approximations produced with the `Reference Set Generator (DOI: https://doi.org/10.3390/math13101626) <https://doi.org/10.3390/math13101626>`_  method. Contribution of Oliver Schütze.
+
+* [05/09/2025] jMetal 6.7 is released.
+
+* [05/09/2025] The jMetal project adopts Java 22.
+
 * [01/17/2025] Added a variant of SMS-EMOA using differential evolution.
 
 * [11/30/2024] Added single and multi-objective versions of the Knapsack problem.

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import org.uma.jmetal.auto.parameter.CategoricalIntegerParameter;
+
 import org.uma.jmetal.auto.parameter.CategoricalParameter;
 import org.uma.jmetal.auto.parameter.IntegerParameter;
 import org.uma.jmetal.auto.parameter.Parameter;
@@ -27,11 +27,9 @@ import org.uma.jmetal.component.catalogue.common.solutionscreation.SolutionsCrea
 import org.uma.jmetal.component.catalogue.common.termination.Termination;
 import org.uma.jmetal.component.catalogue.common.termination.impl.TerminationByEvaluations;
 import org.uma.jmetal.component.catalogue.ea.replacement.Replacement;
-import org.uma.jmetal.component.catalogue.ea.replacement.impl.RankingAndDensityEstimatorReplacement;
 import org.uma.jmetal.component.catalogue.ea.replacement.impl.SMSEMOAReplacement;
 import org.uma.jmetal.component.catalogue.ea.selection.Selection;
 import org.uma.jmetal.component.catalogue.ea.variation.Variation;
-import org.uma.jmetal.component.util.RankingAndDensityEstimatorPreference;
 import org.uma.jmetal.problem.Problem;
 import org.uma.jmetal.problem.ProblemFactory;
 import org.uma.jmetal.problem.doubleproblem.DoubleProblem;
@@ -48,7 +46,7 @@ import org.uma.jmetal.util.ranking.Ranking;
 import org.uma.jmetal.util.ranking.impl.FastNonDominatedSortRanking;
 
 /**
- * Class to configure NSGA-II with an argument string using class {@link EvolutionaryAlgorithm}
+ * Class to configure SMS-EMOA with an argument string using class {@link EvolutionaryAlgorithm}
  *
  * @autor Antonio J. Nebro
  */
@@ -63,7 +61,6 @@ public class AutoSMSEMOA implements AutoConfigurableAlgorithm {
   private CategoricalParameter algorithmResultParameter;
   private ExternalArchiveParameter<DoubleSolution> externalArchiveParameter;
   private PositiveIntegerValue populationSizeParameter;
-  private IntegerParameter populationSizeWithArchiveParameter;
   private CreateInitialSolutionsParameter createInitialSolutionsParameter;
   private SelectionParameter<DoubleSolution> selectionParameter;
   private VariationParameter variationParameter;
@@ -178,11 +175,11 @@ public class AutoSMSEMOA implements AutoConfigurableAlgorithm {
   private void algorithmResult() {
     algorithmResultParameter =
         new CategoricalParameter("algorithmResult", List.of("externalArchive", "population"));
-    populationSizeWithArchiveParameter = new IntegerParameter("populationSizeWithArchive", 10, 200) ;
+    //populationSizeWithArchiveParameter = new IntegerParameter("populationSizeWithArchive", 10, 200) ;
     externalArchiveParameter = new ExternalArchiveParameter(
         List.of("crowdingDistanceArchive", "unboundedArchive"));
-    algorithmResultParameter.addSpecificParameter(
-        "externalArchive", populationSizeWithArchiveParameter);
+    //algorithmResultParameter.addSpecificParameter(
+    //    "externalArchive", populationSizeWithArchiveParameter);
 
     algorithmResultParameter.addSpecificParameter(
         "externalArchive", externalArchiveParameter);
@@ -204,7 +201,7 @@ public class AutoSMSEMOA implements AutoConfigurableAlgorithm {
   }
 
   /**
-   * Creates an instance of NSGA-II from the parsed parameters
+   * Creates an instance of SMS-EMOA from the parsed parameters
    *
    * @return
    */
@@ -217,8 +214,8 @@ public class AutoSMSEMOA implements AutoConfigurableAlgorithm {
 
     if (algorithmResultParameter.value().equals("externalArchive")) {
       externalArchiveParameter.setSize(populationSizeParameter.value());
-      archive = externalArchiveParameter.getParameter();
-      populationSizeParameter.value(populationSizeWithArchiveParameter.value());
+      //archive = externalArchiveParameter.getParameter();
+      //populationSizeParameter.value(populationSizeWithArchiveParameter.value());
     }
 
     Ranking<DoubleSolution> ranking = new FastNonDominatedSortRanking<>(
@@ -251,7 +248,7 @@ public class AutoSMSEMOA implements AutoConfigurableAlgorithm {
 
     Selection<DoubleSolution> selection =
         selectionParameter.getParameter(
-            variation.getMatingPoolSize(), rankingAndCrowdingComparator);
+            variation.matingPoolSize(), rankingAndCrowdingComparator);
 
     Evaluation<DoubleSolution> evaluation;
     if (algorithmResultParameter.value().equals("externalArchive")) {
@@ -299,7 +296,7 @@ public class AutoSMSEMOA implements AutoConfigurableAlgorithm {
 
     if (algorithmResultParameter.value().equals("externalArchive")) {
       return new EvolutionaryAlgorithmWithArchive(
-          "NSGA-II",
+          "SMS-EMOA",
           initialSolutionsCreation,
           evaluation,
           termination,
@@ -309,7 +306,7 @@ public class AutoSMSEMOA implements AutoConfigurableAlgorithm {
           archive);
     } else {
       return new EvolutionaryAlgorithm<>(
-          "NSGA-II",
+          "SMS-EMOA",
           initialSolutionsCreation,
           evaluation,
           termination,

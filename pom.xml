@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.uma.jmetal</groupId>
     <artifactId>jmetal</artifactId>
-    <version>6.7-SNAPSHOT</version>
+    <version>6.9.4-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -32,23 +33,8 @@
         <connection>scm:git://git@github.com:jMetal/jMetal.git</connection>
         <developerConnection>scm:git:https://github.com/jMetal/jMetal.git</developerConnection>
         <url>https://github.com/jMetal/jMetal.git</url>
-      <tag>jmetal-6.5</tag>
-  </scm>
-
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-        <site>
-            <id>${project.artifactId}-site</id>
-            <url>${project.baseUri}</url>
-        </site>
-    </distributionManagement>
+        <tag>jmetal-6.9.1</tag>
+    </scm>
 
     <modules>
         <module>jmetal-core</module>
@@ -64,21 +50,19 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <doclint>none</doclint>
         <junit.version>4.13.1</junit.version>
-        <maven.compiler.source>19</maven.compiler.source>
-        <maven.compiler.target>19</maven.compiler.target>
+        <maven.compiler.release>22</maven.compiler.release>
     </properties>
 
     <build>
         <plugins>
             <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.7.0</version>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.8.0</version>
                 <extensions>true</extensions>
                 <configuration>
-                    <serverId>ossrh</serverId>
-                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                    <publishingServerId>central</publishingServerId>
+                    <autoPublish>true</autoPublish>
                 </configuration>
             </plugin>
             <plugin>
@@ -128,7 +112,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.6</version>
+                <version>3.2.7</version>
                 <executions>
                     <execution>
                         <id>sign-artifacts</id>
@@ -197,7 +181,6 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
 
@@ -241,37 +224,37 @@
             <dependency>
                 <groupId>org.uma.jmetal</groupId>
                 <artifactId>jmetal-core</artifactId>
-                <version>6.7-SNAPSHOT</version>
+                <version>6.9.4-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.uma.jmetal</groupId>
                 <artifactId>jmetal-problem</artifactId>
-                <version>6.7-SNAPSHOT</version>
+                <version>6.9.4-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.uma.jmetal</groupId>
                 <artifactId>jmetal-algorithm</artifactId>
-                <version>6.7-SNAPSHOT</version>
+                <version>6.9.4-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.uma.jmetal</groupId>
                 <artifactId>jmetal-lab</artifactId>
-                <version>6.7-SNAPSHOT</version>
+                <version>6.9.4-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.uma.jmetal</groupId>
                 <artifactId>jmetal-parallel</artifactId>
-                <version>6.7-SNAPSHOT</version>
+                <version>6.9.4-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.uma.jmetal</groupId>
                 <artifactId>jmetal-component</artifactId>
-                <version>6.7-SNAPSHOT</version>
+                <version>6.9.4-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.uma.jmetal</groupId>
                 <artifactId>jmetal-auto</artifactId>
-                <version>6.7-SNAPSHOT</version>
+                <version>6.9.4-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
@@ -282,41 +265,41 @@
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-params</artifactId>
-                <version>5.10.2</version>
+                <version>5.12.2</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-engine</artifactId>
-                <version>5.10.2</version>
+                <version>5.12.2</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.junit.vintage</groupId>
                 <artifactId>junit-vintage-engine</artifactId>
-                <version>5.10.2</version>
+                <version>5.12.2</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-test</artifactId>
-                <version>4.0.7.RELEASE</version>
+                <version>6.2.8</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.maven.reporting</groupId>
                 <artifactId>maven-reporting-api</artifactId>
-                <version>3.0</version>
+                <version>4.0.0</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
-                <version>3.9</version>
+                <version>3.18.0</version>
             </dependency>
             <dependency>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-core</artifactId>
-                <version>3.23.1</version>
+                <version>3.27.3</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>

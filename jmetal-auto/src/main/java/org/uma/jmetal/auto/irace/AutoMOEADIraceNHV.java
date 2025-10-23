@@ -16,14 +16,14 @@ public class AutoMOEADIraceNHV {
     AutoMOEAD autoMOEAD = new AutoMOEAD();
     autoMOEAD.parse(args);
 
-    EvolutionaryAlgorithm<DoubleSolution> mopso = autoMOEAD.create();
-    mopso.run();
+    EvolutionaryAlgorithm<DoubleSolution> moead = autoMOEAD.create();
+    moead.run();
 
     String referenceFrontFile = "resources/referenceFrontsCSV/"
         + autoMOEAD.referenceFrontFilenameParameter.value();
 
     double[][] referenceFront = VectorUtils.readVectors(referenceFrontFile, ",");
-    double[][] front = getMatrixWithObjectiveValues(mopso.result()) ;
+    double[][] front = getMatrixWithObjectiveValues(moead.result()) ;
 
     double[][] normalizedReferenceFront = NormalizeUtils.normalize(referenceFront);
     double[][] normalizedFront =

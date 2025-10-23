@@ -62,7 +62,7 @@ public class NSGAIIBuilder<S extends Solution<?>> {
     this.selection =
         new NaryTournamentSelection<>(
             tournamentSize,
-            variation.getMatingPoolSize(),
+            variation.matingPoolSize(),
             new MultiComparator<>(
                 Arrays.asList(
                     Comparator.comparing(ranking::getRank),
@@ -92,6 +92,18 @@ public class NSGAIIBuilder<S extends Solution<?>> {
     this.evaluation = evaluation;
 
     return this;
+  }
+
+  public NSGAIIBuilder<S> setCreateInitialPopulation(SolutionsCreation<S> solutionsCreation) {
+    this.createInitialPopulation = solutionsCreation ;
+
+    return this ;
+  }
+
+  public NSGAIIBuilder<S> setSelection(Selection<S> selection) {
+    this.selection = selection ;
+
+    return this ;
   }
 
   public EvolutionaryAlgorithm<S> build() {

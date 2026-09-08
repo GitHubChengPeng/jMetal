@@ -32,8 +32,8 @@ import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 public class NSGAIIWithRealTimeChartExample {
 
   public static void main(String[] args) throws JMetalException, IOException {
-    String problemName = "org.uma.jmetal.problem.multiobjective.re.RE21";
-    String referenceParetoFront = "resources/referenceFrontsCSV/RE21.csv";
+    String problemName = "org.uma.jmetal.problem.multiobjective.zdt.ZDT1";
+    String referenceParetoFront = "resources/referenceFrontsCSV/ZDT1.csv";
 
     Problem<DoubleSolution> problem = ProblemFactory.<DoubleSolution>loadProblem(problemName);
 
@@ -48,7 +48,7 @@ public class NSGAIIWithRealTimeChartExample {
     int populationSize = 100;
     int offspringPopulationSize = 100;
 
-    Termination termination = new TerminationByEvaluations(3000);
+    Termination termination = new TerminationByEvaluations(10000);
 
     EvolutionaryAlgorithm<DoubleSolution> nsgaii = new NSGAIIBuilder<>(
         problem,
@@ -61,7 +61,7 @@ public class NSGAIIWithRealTimeChartExample {
 
     EvaluationObserver evaluationObserver = new EvaluationObserver(100);
     var chartObserver =
-        new FrontPlotObserver<DoubleSolution>("NSGA-II", "F1", "F2", problem.name(), 100);
+        new FrontPlotObserver<DoubleSolution>("NSGA-II", "F1", "F2", problem.name(), 500);
 
     chartObserver.setFront(readVectors(referenceParetoFront, ","), "Reference front");
 

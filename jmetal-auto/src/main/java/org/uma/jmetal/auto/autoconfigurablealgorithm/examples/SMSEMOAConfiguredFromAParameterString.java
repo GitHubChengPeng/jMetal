@@ -19,10 +19,10 @@ import org.uma.jmetal.util.observer.impl.RunTimeChartObserver;
 public class SMSEMOAConfiguredFromAParameterString {
 
   public static void main(String[] args) {
-    String referenceFrontFileName = "resources/referenceFrontsCSV/ZDT4.csv";
+    String referenceFrontFileName = "resources/referenceFrontsCSV/ZDT2.csv";
 
     String[] parameters =
-        ("--problemName org.uma.jmetal.problem.multiobjective.zdt.ZDT4 "
+        ("--problemName org.uma.jmetal.problem.multiobjective.zdt.ZDT2 "
                 + "--randomGeneratorSeed 12 "
                 + "--referenceFrontFileName "
                 + referenceFrontFileName
@@ -32,7 +32,8 @@ public class SMSEMOAConfiguredFromAParameterString {
                 + "--algorithmResult population  "
                 + "--createInitialSolutions random "
                 + "--offspringPopulationSize 1 "
-                + "--variation crossoverAndMutationVariation --crossover SBX "
+                + "--variation crossoverAndMutationVariation "
+                + "--crossover SBX "
                 + "--crossoverProbability 0.9 "
                 + "--crossoverRepairStrategy bounds "
                 + "--sbxDistributionIndex 20.0 "

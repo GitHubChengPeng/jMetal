@@ -31,7 +31,7 @@ import org.uma.jmetal.util.sequencegenerator.impl.RandomPermutationCycle;
 public class MOEADDEDefaultConfigurationExample {
 
   public static void main(String[] args) throws JMetalException, IOException {
-    String problemName = "org.uma.jmetal.problem.multiobjective.lz09.LZ09F2";
+    String problemName = "org.uma.jmetal.problem.multiobjective.uf.UF4";
     String referenceParetoFront = "resources/referenceFrontsCSV/LZ09_F2.csv";
 
     Problem<DoubleSolution> problem = ProblemFactory.<DoubleSolution>loadProblem(problemName);
@@ -60,7 +60,7 @@ public class MOEADDEDefaultConfigurationExample {
         weightVectorDirectory,
         sequenceGenerator, normalizeObjectives)
         .setTermination(termination)
-        .setMaximumNumberOfReplacedSolutionsy(2)
+        .setMaximumNumberOfReplacedSolutions(2)
         .setNeighborhoodSelectionProbability(0.9)
         .setNeighborhoodSize(20)
         .setAggregationFunction(new Tschebyscheff(normalizeObjectives))

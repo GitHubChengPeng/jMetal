@@ -32,8 +32,6 @@ import org.uma.jmetal.util.comparator.MultiComparator;
 import org.uma.jmetal.util.comparator.dominanceComparator.impl.DominanceWithConstraintsComparator;
 import org.uma.jmetal.util.densityestimator.DensityEstimator;
 import org.uma.jmetal.util.densityestimator.impl.CrowdingDistanceDensityEstimator;
-import org.uma.jmetal.util.legacy.qualityindicator.impl.hypervolume.Hypervolume;
-import org.uma.jmetal.util.legacy.qualityindicator.impl.hypervolume.impl.PISAHypervolume;
 import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 import org.uma.jmetal.util.ranking.Ranking;
 import org.uma.jmetal.util.ranking.impl.FastNonDominatedSortRanking;
@@ -201,8 +199,7 @@ public class AutoSMSEMOAPermutation implements AutoConfigurableAlgorithm {
       evaluation = new SequentialEvaluation<>(problem);
     }
 
-    Hypervolume<PermutationSolution<Integer>> hypervolume = new PISAHypervolume<>();
-    var replacement = new SMSEMOAReplacement<>(ranking, hypervolume);
+    var replacement = new SMSEMOAReplacement<>(ranking);
     Termination termination =
         new TerminationByEvaluations(maximumNumberOfEvaluationsParameter.value());
 

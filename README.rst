@@ -18,18 +18,16 @@ jMetal project Web site
    :target: https://jmetal.readthedocs.io/?badge=latest
 
 jMetal is a Java-based framework for multi-objective optimization with metaheuristics.
-The last stable version is 6.9.3.
+The last stable version is 7.5.
 The most recent documentation is hosted in https://jmetal.readthedocs.io.
 
 
-The current development version (6.9.4-SNAPSHOT) is a Maven project structured in the following sub-projects:
+jMetal 7.5 is a Maven project structured in the following sub-projects:
 
 +---------------------+------------------------------------+
 | Sub-project         |  Contents                          | 
 +=====================+====================================+
 | jmetal-core         |  Core classes                      |
-+---------------------+------------------------------------+
-| jmetal-solution     |  Solution encodings                |
 +---------------------+------------------------------------+
 | jmetal-algorithm    |  Algorithm implementations         |
 +---------------------+------------------------------------+
@@ -50,11 +48,86 @@ Related projects
 * `jMetalPy <https://github.com/jMetal/jmetalpy>`_: jMetal in Python
 * `SAES <https://github.com/jMetal/SAES>`_: Python library to analyse and compare the performance of multi-objective algorithms
 
+Python scripts (NEW)
+--------------------
+
+The ``scripts/`` directory contains Python utilities for visualising Pareto fronts produced by
+jMetal algorithms (any ``FUN.csv`` file):
+
++------------------------------+----------------------------------------------------------+
+| Script                       | Description                                              |
++==============================+==========================================================+
+| ``plot_front.py``            | Static matplotlib figure (2D/3D scatter, parallel        |
+|                              | coordinates for >3 objectives). Saves to PNG/PDF/SVG.   |
++------------------------------+----------------------------------------------------------+
+| ``plot_front_interactive.py``| Interactive Plotly viewer (rotate 3D fronts, hover for  |
+|                              | values). Opens in the browser or saves as HTML.          |
++------------------------------+----------------------------------------------------------+
+
+Install dependencies and run::
+
+    # venv
+    python -m venv .venv && source .venv/bin/activate
+    pip install -r scripts/requirements.txt
+
+    # conda
+    conda create -n jmetal python=3.11 && conda activate jmetal
+    pip install -r scripts/requirements.txt
+
+    # Usage examples
+    python scripts/plot_front.py FUN.csv
+    python scripts/plot_front.py FUN.csv referenceFront.csv --mode side --output fig.png
+    python scripts/plot_front_interactive.py FUN.csv referenceFront.csv --mode both
+
+
+
+
 Changelog
 ---------
-* [09/12/2025] jMetal 6.9.3 is released.
 
-* [07/14/2025] jMetal 6.9.1 is released.
+* [07/13/2026] Fixed the constraint sign convention of the CRE benchmark suite (CRE21-25, CRE31,
+  CRE32, CRE51): constraint values were clamped so that every solution appeared feasible to
+  ``ConstraintHandling`` and the constraint comparators, regardless of the actual degree of
+  constraint violation. Same class of bug already fixed for the CF suite (see the 06/12/2026
+  entry below), missed in that pass.
+
+* [07/13/2026] jMetal 7.5 is released.
+
+* [07/10/2026] Added the full 50-problem CEC2021 real-world constrained multi-objective optimization benchmark suite (RWMOP, RCM01-RCM50), fixing several correctness bugs (wrong bounds, inverted constraint signs, mistranscribed formulas) present in the 3 problems already in the codebase. Reference: Kumar, Wu, Ali, Luo, Mallipeddi, Suganthan, Das, "A Benchmark-Suite of Real-World Constrained Multi-Objective Optimization Problems and some Baseline Results", Swarm and Evolutionary Computation, 67, 100961 (2021).
+
+* [07/10/2026] Added the SDX (Synthetic Differences Crossover) operator for real-coded problems, contributed by Alejandro Santiago (`A synthetic differences crossover operator for real-coded evolutionary algorithms, Evolutionary Intelligence 19(4), 110, 2026 <https://doi.org/10.1007/s12065-026-01220-4>`_).
+
+* [06/25/2026] Added Python scripts for Pareto front visualisation (``scripts/plot_front.py`` and ``scripts/plot_front_interactive.py``).
+
+* [06/12/2026] Added constraint handling components (feasibility rules, adaptive violation threshold, and improved epsilon) for the component-based MOEA/D and MOEA/D-DE algorithms, with examples combining them with unbounded external archives to solve constrained problems with three or more objectives. The `constraint handling documentation <https://jmetal.readthedocs.io/en/latest/constraints.html>`_ has been updated.
+
+* [06/12/2026] Fixed the constraint sign conventions of the CF benchmark suite and the handling of precomputed constraint violation degrees in the ``ConstraintHandling`` utility class.
+
+* [06/12/2026] jMetal 7.4 is released.
+
+* [05/25/2026] jMetal 7.3 is released.
+
+* [04/28/2026] jMetal 7.2 is released.
+
+* [03/20/2026] jMetal 7.1 is released.
+
+* [03/18/2026] Add RVEA (contributed by @NicolasRodriguezUribe)
+
+* [03/02/2026] jMetal 7.0 is released.
+
+* [03/01/2026] Add new solution creations stragegies: SobolSolutionsCreation and CauchySolutionsCreation.
+
+* [02/23/2026] Refactored `Check` utility: added parameter-name-aware overloads and introduced several specific exceptions for clearer errors.
+
+* [02/22/2026] All the unit and integration tests have been updated to jUnit6.
+
+* [02/02/2026] Added the AverageHausdorffDistance quality indicator
+
+* [12/18/2025] jMetal 6.10 is released.
+
+* [12/18/2025] Added new selection (TruncationSelection, RankingSelection, StochasticUniversalSampling, BoltzmannSelection), replacement (RandomReplacement, TournamentReplacement), and solutions creation (OppositionBasedSolutionsCreation) components.
+
+* [07/09/2025] jMetal 6.9 is released.
 
 * [07/07/2025] jMetal 6.8 is released.
 
@@ -64,7 +137,7 @@ Changelog
 
 * [05/09/2025] jMetal 6.7 is released.
 
-* [05/09/2025] The jMetal project adopts Java 22.
+* [05/09/2025] The jMetal project adopts Java 21.
 
 * [01/17/2025] Added a variant of SMS-EMOA using differential evolution.
 
@@ -97,16 +170,4 @@ Changelog
 * [3/28/2022] The CF benchmark of constrained multi-objective problems, defined in `Constrained Multiobjective Optimization: Test Problem Construction and Performance Evaluations <https://doi.org/10.1109/TEVC.2020.3011829>`_, has been included.
 
 * [3/28/2022] The constraint handling code has been refactorized and the `documentation <https://jmetal.readthedocs.io/en/latest/constraints.html>`_ has been updated.
-
-* [9/6/2021] Release 5.11
-
-* [9/6/2021] The jMetal project adopts Java 13.
-
-* [7/6/2021] The `LSMOP benchmark <https://doi.org/10.1109/TCYB.2016.2600577>`_ is available. 
-
-* [2/19/2021] The `Solution <https://github.com/jMetal/jMetal/blob/master/jmetal-core/src/main/java/org/uma/jmetal/solution/Solution.java>`_ interface has been refactorized.
-
-* [2/19/2021] New implementation of quality indicators to remove the dependence of jMetal classes. Now, all of them accept as a parameter a matrix containing objective values.
-
-* [1/21/2021] Added the MicroFAME multi-objective genetic algorith, described in: Alejandro Santiago, Bernabé Dorronsoro, Héctor Fraire, Patricia Ruíz: Micro-Genetic algorithm with fuzzy selection of operators for multi-Objective optimization: microFAME. Swarm and Evolutionary Computation, V.61, March 2021. `DOI <https://doi.org/10.1016/j.swevo.2020.100818>`_. Contributed by Alejandro Santiago.
 

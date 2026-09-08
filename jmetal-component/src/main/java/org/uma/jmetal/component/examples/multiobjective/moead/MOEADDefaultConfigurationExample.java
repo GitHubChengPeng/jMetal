@@ -30,8 +30,8 @@ import org.uma.jmetal.util.sequencegenerator.impl.RandomPermutationCycle;
  */
 public class MOEADDefaultConfigurationExample {
   public static void main(String[] args) throws JMetalException, IOException {
-    String problemName = "org.uma.jmetal.problem.multiobjective.re.RE33";
-    String referenceParetoFront = "resources/referenceFrontsCSV/RE33.csv";
+    String problemName = "org.uma.jmetal.problem.multiobjective.dtlz.DTLZ1";
+    String referenceParetoFront = "resources/referenceFrontsCSV/DTLZ1.3D.csv";
 
     Problem<DoubleSolution> problem = ProblemFactory.<DoubleSolution>loadProblem(problemName);
 
@@ -43,7 +43,7 @@ public class MOEADDefaultConfigurationExample {
     double mutationDistributionIndex = 20.0;
     var mutation = new PolynomialMutation(mutationProbability, mutationDistributionIndex);
 
-    int populationSize = 91;
+    int populationSize = 100;
 
     Termination termination = new TerminationByEvaluations(40000);
 

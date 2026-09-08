@@ -3,16 +3,13 @@ package org.uma.jmetal.qualityindicator.impl.hypervolume.impl;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.Comparator;
-
 import org.uma.jmetal.qualityindicator.QualityIndicator;
 import org.uma.jmetal.qualityindicator.impl.hypervolume.Hypervolume;
-import org.uma.jmetal.util.VectorUtils;
+import org.uma.jmetal.qualityindicator.impl.hypervolume.HypervolumeContribution2D;
 import org.uma.jmetal.util.errorchecking.Check;
 
 /**
  * This class implements the hypervolume indicator developed by the WFG
- *
- * @author Alejandro Santiago
  */
 @SuppressWarnings("serial")
 public class WFGHypervolume extends Hypervolume {
@@ -56,7 +53,7 @@ public class WFGHypervolume extends Hypervolume {
     return hypervolume(front, referenceFront);
   }
 
-  static class ComparatorGreater implements Comparator {
+  class ComparatorGreater implements Comparator {
 
     @Override
     public int compare(Object o1, Object o2) {
@@ -86,19 +83,24 @@ public class WFGHypervolume extends Hypervolume {
       this.nPoints = frente.length;
       for (int x = 0; x < frente.length; x++) {
         points[x] = new Point(frente[0].length);
-        for (int j = 0; j < frente[0].length; j++) {
-          points[x].objectives[j] = frente[x][j];
-        }
+        System.arraycopy(frente[x], 0, points[x].objectives, 0, frente[0].length);
       }
     }
   }
 
-  static int n;
-  static Front[] fs; // memory management stuff
-  static int safe = 0; // the number of points that don't need sorting
-  static int fr = 0;
+  // Instance state for one WFG computation. Was previously `static` (a direct port of the
+  // reference C implementation's global variables), which corrupted concurrent computations
+  // across threads sharing the same JVM -- every WFGHypervolume instance, however freshly
+  // constructed, clobbered every other instance's n/fs/safe/fr mid-computation. Confirmed via a
+  // dedicated concurrency reproduction (WFGHypervolumeConcurrencyTest) and the real-world crash it
+  // was causing in SMSEMOAHypervolumeContributionCalculator (used concurrently by
+  // jMetal-lab's Experiment/ExecuteAlgorithms at numberOfCores > 1).
+  private int n;
+  private Front[] fs; // memory management stuff
+  private int safe = 0; // the number of points that don't need sorting
+  private int fr = 0;
 
-  static double CalculateHypervolume(double[][] fronton, int noPoints, int noObjectives) {
+  double CalculateHypervolume(double[][] fronton, int noPoints, int noObjectives) {
 
     n = noObjectives;
     safe = 0;
@@ -112,16 +114,16 @@ public class WFGHypervolume extends Hypervolume {
     return volume;
   }
 
-  static boolean BEATS(double x, double y) {
+  boolean BEATS(double x, double y) {
     if (x > y) return true;
     return false;
   }
 
-  static double WORSE(double x, double y) {
+  double WORSE(double x, double y) {
     return x > y ? y : x;
   }
 
-  static int dominates2way(Point p, Point q, int k)
+  int dominates2way(Point p, Point q, int k)
   // returns -1 if p dominates q, 1 if q dominates p, 2 if p == q, 0 otherwise
   // k is the highest index inspected
   {
@@ -136,7 +138,7 @@ public class WFGHypervolume extends Hypervolume {
     return 2;
   }
 
-  static boolean dominates1way(Point p, Point q, int k)
+  boolean dominates1way(Point p, Point q, int k)
   // returns true if p dominates q or p == q, false otherwise
   // the assumption is that q doesn't dominate p
   // k is the highest index inspected
@@ -145,7 +147,7 @@ public class WFGHypervolume extends Hypervolume {
     return true;
   }
 
-  static void makeDominatedBit(Front ps, int p)
+  void makeDominatedBit(Front ps, int p)
   // creates the front ps[0 .. p-1] in fs[fr], with each point bounded by ps[p] and dominated
   // points removed
   {
@@ -244,7 +246,7 @@ public class WFGHypervolume extends Hypervolume {
     fr++;
   }
 
-  static double hv2(Front ps, int k)
+  double hv2(Front ps, int k)
   // returns the hypervolume of ps[0 .. k-1] in 2D
   // assumes that ps is sorted improving
   {
@@ -256,7 +258,7 @@ public class WFGHypervolume extends Hypervolume {
     return volume;
   }
 
-  static double inclhv(Point p)
+  double inclhv(Point p)
   // returns the inclusive hypervolume of p
   {
     double volume = 1;
@@ -264,7 +266,7 @@ public class WFGHypervolume extends Hypervolume {
     return volume;
   }
 
-  static double inclhv2(Point p, Point q)
+  double inclhv2(Point p, Point q)
   // returns the hypervolume of {p, q}
   {
     double vp = 1;
@@ -279,7 +281,7 @@ public class WFGHypervolume extends Hypervolume {
     return suma;
   }
 
-  static double inclhv3(Point p, Point q, Point r)
+  double inclhv3(Point p, Point q, Point r)
   // returns the hypervolume of {p, q, r}
   {
     double vp = 1;
@@ -320,7 +322,7 @@ public class WFGHypervolume extends Hypervolume {
     return vp + vq + vr - vpq - vpr - vqr + vpqr;
   }
 
-  static double inclhv4(Point p, Point q, Point r, Point s)
+  double inclhv4(Point p, Point q, Point r, Point s)
   // returns the hypervolume of {p, q, r, s}
   {
     double vp = 1;
@@ -458,7 +460,7 @@ public class WFGHypervolume extends Hypervolume {
             - vpqrs;
   }
 
-  static double exclhv(Front ps, int p)
+  double exclhv(Front ps, int p)
   // returns the exclusive hypervolume of ps[p] relative to ps[0 .. p-1]
   {
     makeDominatedBit(ps, p);
@@ -469,7 +471,7 @@ public class WFGHypervolume extends Hypervolume {
     return volume;
   }
 
-  static double hv(Front ps)
+  double hv(Front ps)
   // returns the hypervolume of ps[0 ..]
   {
     // process small fronts with the IEA
@@ -531,17 +533,107 @@ public class WFGHypervolume extends Hypervolume {
    * Returns the hypervolume value of a front of points
    *
    * @param front          The front
-   * @param referenceFront The true pareto front
+   * @param referenceFront The reference front (used to get number of objectives)
    */
   private double hypervolume(double[][] front, double[][] referenceFront) {
-    double[][] invertedFront;
-    invertedFront = VectorUtils.getInvertedFront(front);
-
     int numberOfObjectives = referenceFront[0].length;
+    
+    // Get the reference point from the reference front
+    double[] referencePoint = getReferencePoint();
+    
+    // Translate points so that the reference point becomes the origin
+    // WFG algorithm assumes the reference point is at the origin
+    double[][] translatedFront = new double[front.length][numberOfObjectives];
+    for (int i = 0; i < front.length; i++) {
+      for (int j = 0; j < numberOfObjectives; j++) {
+        translatedFront[i][j] = referencePoint[j] - front[i][j];
+        // If the point is dominated by (worse than) the reference point, set to 0
+        if (translatedFront[i][j] < 0) {
+          translatedFront[i][j] = 0;
+        }
+      }
+    }
 
+    // The hypervolume (control is passed to the Java version of WFG code)
+    return CalculateHypervolume(translatedFront, translatedFront.length, numberOfObjectives);
+  }
 
-    // STEP4. The hypervolume (control is passed to the Java version of Zitzler code)
-    return CalculateHypervolume(invertedFront, invertedFront.length, numberOfObjectives);
+  /**
+   * Computes the hypervolume contribution of each point in the front.
+   * 
+   * This method uses different strategies based on the number of objectives:
+   * - For 2D: Uses the efficient O(n log n) dimension-sweep algorithm via HypervolumeContribution2D
+   * - For 3D+: Uses the WFG exclusion method (HV(all) - HV(all\point))
+   * 
+   * @param front The front of points
+   * @return An array where contributions[i] is the hypervolume contribution of point i
+   */
+  public double[] computeHypervolumeContribution(double[][] front) {
+    Check.notNull(front);
+    Check.that(front.length > 0, "The front cannot be empty");
+    
+    int numberOfObjectives = referenceFront[0].length;
+    
+    // For 2D, use the efficient dimension-sweep algorithm
+    if (numberOfObjectives == 2) {
+      double[] referencePoint = getReferencePoint();
+      return HypervolumeContribution2D.compute(front, referencePoint);
+    }
+    
+    // For 3D+, use the exclusion method
+    return computeHypervolumeContributionND(front, numberOfObjectives);
+  }
+  
+  /**
+   * Computes hypervolume contributions for 3D+ using the exclusion method.
+   * 
+   * @param front The front of points
+   * @param numObjectives Number of objectives
+   * @return Array of contributions for each point
+   */
+  private double[] computeHypervolumeContributionND(double[][] front, int numObjectives) {
+    int numberOfPoints = front.length;
+    double[] contributions = new double[numberOfPoints];
+    
+    // Get the reference point
+    double[] referencePoint = getReferencePoint();
+    
+    // Translate the entire front once (shared computation)
+    double[][] translatedFront = new double[numberOfPoints][numObjectives];
+    for (int i = 0; i < numberOfPoints; i++) {
+      for (int j = 0; j < numObjectives; j++) {
+        translatedFront[i][j] = referencePoint[j] - front[i][j];
+        if (translatedFront[i][j] < 0) {
+          translatedFront[i][j] = 0;
+        }
+      }
+    }
+    
+    // Calculate total hypervolume once
+    double totalHV = CalculateHypervolume(translatedFront, translatedFront.length, numObjectives);
+    
+    // For each point, calculate contribution efficiently
+    for (int i = 0; i < numberOfPoints; i++) {
+      // Create front without point i using the already translated values
+      double[][] frontWithoutPoint = new double[numberOfPoints - 1][numObjectives];
+      int idx = 0;
+      for (int j = 0; j < numberOfPoints; j++) {
+        if (j != i) {
+          System.arraycopy(translatedFront[j], 0, frontWithoutPoint[idx], 0, numObjectives);
+          idx++;
+        }
+      }
+      
+      // Calculate HV without this point
+      double hvWithoutPoint = (frontWithoutPoint.length > 0) 
+          ? CalculateHypervolume(frontWithoutPoint, frontWithoutPoint.length, numObjectives)
+          : 0.0;
+      
+      // Contribution is the difference
+      contributions[i] = totalHV - hvWithoutPoint;
+    }
+    
+    return contributions;
   }
 
   @Override
